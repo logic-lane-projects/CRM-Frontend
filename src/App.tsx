@@ -1,6 +1,6 @@
 // App.tsx
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, useNavigate } from "react-router-dom";
 import Home from "./pages/Home/Home";
 import Login from "./pages/Login/Login";
 import NotFound from "./pages/NotFound/NotFound";
@@ -42,6 +42,20 @@ const App: React.FC = () => {
     </>
   );
 
+  const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const navigate = useNavigate();
+
+    useEffect(() => {
+      const email = localStorage.getItem("email");
+
+      if (!email) {
+        navigate("/");
+      }
+    }, [navigate]);
+
+    return <>{children}</>;
+  };
+
   return (
     <Router>
       <Routes>
@@ -49,9 +63,11 @@ const App: React.FC = () => {
         <Route
           path="/inicio"
           element={
-            <AppLayout>
-              <Home />
-            </AppLayout>
+            <PrivateRoute>
+              <AppLayout>
+                <Home />
+              </AppLayout>
+            </PrivateRoute>
           }
         />
         <Route

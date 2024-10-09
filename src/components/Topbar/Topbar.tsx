@@ -10,7 +10,8 @@ interface TopBarProps {
 
 export function TopBar1({ toggleSidebar }: TopBarProps) {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const navigate = useNavigate()
+  const email = localStorage.getItem("email");
+  const navigate = useNavigate();
 
   const toggleIsUserMenuOpen = useCallback(
     () => setIsUserMenuOpen((isUserMenuOpen) => !isUserMenuOpen),
@@ -23,6 +24,7 @@ export function TopBar1({ toggleSidebar }: TopBarProps) {
 
   const handleLogout = useCallback(() => {
     navigate("/");
+    localStorage.removeItem("email");
   }, [navigate]);
 
   const logo = {
@@ -33,23 +35,40 @@ export function TopBar1({ toggleSidebar }: TopBarProps) {
     accessibilityLabel: "Shopify",
   };
 
+  function cortarEmailAntesDeArroba(email: string) {
+    if (!email.includes("@")) {
+      return "Correo no válido";
+    }
+
+    const parteAntesDeArroba = email.split("@")[0];
+    return parteAntesDeArroba?.toUpperCase();
+  }
+
   const userMenuMarkup = (
     <TopBar.UserMenu
       actions={[
         {
-          items: [{ content: "Cerrar sesión", icon: ArrowLeftIcon, onAction: handleLogout }],
+          items: [
+            {
+              content: "Cerrar sesión",
+              icon: ArrowLeftIcon,
+              onAction: handleLogout,
+            },
+          ],
         },
       ]}
-      name="Rodrigo Gutierrez"
-      detail="rodrigogutierrezpacheco@gmail.com"
-      initials="Ro"
+      name={cortarEmailAntesDeArroba(email || "")}
+      detail={email || ""}
+      initials={email?.slice(0, 2)}
       open={isUserMenuOpen}
       onToggle={toggleIsUserMenuOpen}
     />
   );
 
   const searchResultsMarkup = (
-    <ActionList items={[{ content: "Cerrar sesión", onAction: handleLogout }]} />
+    <ActionList
+      items={[{ content: "Cerrar sesión", onAction: handleLogout }]}
+    />
   );
 
   const topBarMarkup = (
