@@ -89,9 +89,11 @@ const App: React.FC = () => {
         <Route
           path="*"
           element={
-            <AppLayout>
-              <NotFound />
-            </AppLayout>
+            <PrivateRoute>
+              <AppLayout>
+                <NotFound />
+              </AppLayout>
+            </PrivateRoute>
           }
         />
       </Routes>
