@@ -1,12 +1,18 @@
 // App.tsx
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Route, Routes, useNavigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  useNavigate,
+} from "react-router-dom";
 import Home from "./pages/Home/Home";
 import Login from "./pages/Login/Login";
 import NotFound from "./pages/NotFound/NotFound";
 import Sidebar from "./components/Sidebar/Sidebar";
 import { TopBar1 } from "./components/Topbar/Topbar";
 import { Page } from "@shopify/polaris";
+import Usuarios from "./pages/Usuarios/Usuarios";
 
 const App: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
@@ -42,7 +48,9 @@ const App: React.FC = () => {
     </>
   );
 
-  const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({
+    children,
+  }) => {
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -68,6 +76,14 @@ const App: React.FC = () => {
                 <Home />
               </AppLayout>
             </PrivateRoute>
+          }
+        />
+        <Route
+          path="/usuarios"
+          element={
+            <AppLayout>
+              <Usuarios />
+            </AppLayout>
           }
         />
         <Route

@@ -1,6 +1,6 @@
 // components/Sidebar.tsx
 import { Frame, Navigation } from "@shopify/polaris";
-import { HomeIcon } from "@shopify/polaris-icons";
+import { HomeIcon, PersonFilledIcon } from "@shopify/polaris-icons";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -25,9 +25,9 @@ export default function Sidebar({ isOpen }: SidebarProps) {
                 badge: "15",
               },
               {
-                url: "/products",
-                label: "Products",
-                icon: HomeIcon,
+                url: "/usuarios",
+                label: "Usuarios",
+                icon: PersonFilledIcon,
               },
             ]}
           />
