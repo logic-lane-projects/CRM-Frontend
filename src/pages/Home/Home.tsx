@@ -1,7 +1,7 @@
-export default function Home(){
-    return (
-        <div>
-            <span>Home</span>
-        </div>
-    )
+export default function Home() {
+  return (
+    <div className="">
+      <span className="font-semibold text-lg">Inicio</span>
+    </div>
+  );
 }

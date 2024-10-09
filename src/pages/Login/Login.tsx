@@ -1,51 +1,89 @@
-import React, { useState } from 'react';
-import { AppProvider, Card, TextField, Button, Page } from '@shopify/polaris';
+import React, { useState } from "react";
+import {
+  AppProvider,
+  Card,
+  TextField,
+  Button,
+  Spinner,
+} from "@shopify/polaris";
+import "./Login.css";
+import { useNavigate } from "react-router-dom";
 
 const Login: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const navigate = useNavigate()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [emailError, setEmailError] = useState<string | undefined>(undefined);
+  const [passwordError, setPasswordError] = useState<string | undefined>(
+    undefined
+  );
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = () => {
-    // Aquí puedes manejar la lógica de autenticación
-    if (!email || !password) {
-      setError('Por favor, completa todos los campos.');
+  const handleSubmit = (event?: React.FormEvent) => {
+    if (event) {
+      event.preventDefault(); // Evitar recargar la página si se pasa el evento
+    }
+    setIsLoading(true);
+    setEmailError(undefined);
+    setPasswordError(undefined);
+
+    // Validaciones básicas
+    if (!email) {
+      setEmailError("El correo electrónico es requerido.");
+    }
+    if (!password) {
+      setPasswordError("La contraseña es requerida.");
+    }
+
+    if (email?.length > 0 && password?.length > 0) {
+      localStorage.setItem("email", email);
+      setIsLoading(false);
+      navigate("/inicio");
     } else {
-      // Lógica de autenticación
-      console.log('Email:', email);
-      console.log('Password:', password);
-      // Resetear el error si todo es correcto
-      setError('');
+      setIsLoading(false);
+      setEmailError("Credenciales incorrectas");
     }
   };
 
   return (
-    <AppProvider i18n={{}}>
-      <Page title="Iniciar sesión">
-        <Card >
-          <TextField
-            label="Correo electrónico"
-            value={email}
-            onChange={(value) => setEmail(value)}
-            type="email"
-            autoComplete="email"
-            error={error ? 'El correo electrónico es requerido.' : undefined}
-          />
-          <TextField
-            label="Contraseña"
-            value={password}
-            onChange={(value) => setPassword(value)}
-            type="password"
-            autoComplete="current-password"
-            error={error ? 'La contraseña es requerida.' : undefined}
-          />
-          <Button onClick={handleSubmit} variant='primary'>
-            Iniciar sesión
-          </Button>
-          {error && <p style={{ color: 'red' }}>{error}</p>}
-        </Card>
-      </Page>
-    </AppProvider>
+    <form onSubmit={handleSubmit}>
+      <AppProvider i18n={{}}>
+        <div className="w-screen h-screen flex flex-col items-center justify-center gap-3">
+          <span className="font-bold text-[20px]">Iniciar sesión</span>
+          <Card>
+            <TextField
+              label="Correo electrónico"
+              value={email}
+              onChange={(value) => setEmail(value)}
+              type="email"
+              autoComplete="email"
+              error={emailError} // Mostrar el error específico del correo
+            />
+            <TextField
+              label="Contraseña"
+              value={password}
+              onChange={(value) => setPassword(value)}
+              type="password"
+              autoComplete="current-password"
+              error={passwordError} // Mostrar el error específico de la contraseña
+            />
+            <div className="mt-2 flex items-center gap-2">
+              {isLoading ? (
+                <Spinner size="small" />
+              ) : (
+                <Button
+                  onClick={handleSubmit}
+                  variant="primary"
+                  disabled={isLoading}
+                >
+                  Iniciar sesión
+                </Button>
+              )}
+            </div>
+          </Card>
+        </div>
+      </AppProvider>
+    </form>
   );
 };
 
