@@ -1,48 +1,61 @@
-import React, { useState } from 'react';
-import { AppProvider, Card, TextField, Button, Page } from '@shopify/polaris';
-import './Login.css';
+import React, { useState } from "react";
+import {
+  AppProvider,
+  Card,
+  TextField,
+  Button,
+  Spinner,
+} from "@shopify/polaris";
+import "./Login.css";
 
 const Login: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [emailError, setEmailError] = useState<string | undefined>(undefined);
+  const [passwordError, setPasswordError] = useState<string | undefined>(
+    undefined
+  );
+  const [isLoading, setIsLoading] = useState(false);
 
-  const hardcodedEmail = 'usuario@example.com';
-  const hardcodedPassword = 'contraseña123';
+  const handleSubmit = (event?: React.FormEvent) => {
+    if (event) {
+      event.preventDefault(); // Evitar recargar la página si se pasa el evento
+    }
+    setIsLoading(true);
+    setEmailError(undefined);
+    setPasswordError(undefined);
 
-  const handleSubmit = () => {
-    
-    // Aquí puedes manejar la lógica de autenticación
-    if (email === hardcodedEmail && password === hardcodedPassword) {
-      
-      localStorage.setItem('email', email);
-      localStorage.setItem('password', password);
+    // Validaciones básicas
+    if (!email) {
+      setEmailError("El correo electrónico es requerido.");
+    }
+    if (!password) {
+      setPasswordError("La contraseña es requerida.");
+    }
 
-      alert('Inicio de sesion exitoso')
-      
+    if (email?.length > 0 && password?.length > 0) {
+      localStorage.setItem("email", email);
+      setIsLoading(false);
+      alert("Inicio de sesión exitoso");
     } else {
-      // Lógica de autenticación
-      console.log('Email:', email);
-      console.log('Password:', password);
-
-      // Resetear el error si todo es correcto
-      setError('Credenciales incorrectas');
+      setIsLoading(false);
+      setEmailError("Credenciales incorrectas");
     }
   };
 
-  
   return (
     <form onSubmit={handleSubmit}>
       <AppProvider i18n={{}}>
-        <Page title="Iniciar sesión">
-          <Card >
+        <div className="flex flex-col items-center justify-center gap-3">
+          <span className="font-bold text-[20px]">Iniciar sesión</span>
+          <Card>
             <TextField
               label="Correo electrónico"
               value={email}
               onChange={(value) => setEmail(value)}
               type="email"
               autoComplete="email"
-              error={error.length>0 ? 'El correo electrónico es requerido.' : undefined}              
+              error={emailError} // Mostrar el error específico del correo
             />
             <TextField
               label="Contraseña"
@@ -50,14 +63,19 @@ const Login: React.FC = () => {
               onChange={(value) => setPassword(value)}
               type="password"
               autoComplete="current-password"
-              error={error.length>0 ? 'La contraseña es requerida.' : undefined}
+              error={passwordError} // Mostrar el error específico de la contraseña
             />
-            <Button onClick={handleSubmit} variant='primary'>
-              Iniciar sesión
-            </Button>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
+            <div className="mt-2 flex items-center gap-2">
+              <Button
+                onClick={handleSubmit}
+                variant="primary"
+                disabled={isLoading}
+              >
+                {isLoading ? <Spinner size="small" /> : "Iniciar sesión"}
+              </Button>
+            </div>
           </Card>
-        </Page>
+        </div>
       </AppProvider>
     </form>
   );
