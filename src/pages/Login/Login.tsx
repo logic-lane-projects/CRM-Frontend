@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   AppProvider,
   Card,
@@ -10,7 +10,8 @@ import "./Login.css";
 import { useNavigate } from "react-router-dom";
 
 const Login: React.FC = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const user = localStorage.getItem("email");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState<string | undefined>(undefined);
@@ -19,9 +20,15 @@ const Login: React.FC = () => {
   );
   const [isLoading, setIsLoading] = useState(false);
 
+  useEffect(() => {
+    if (user) {
+      navigate("/inicio");
+    }
+  }, [user, navigate]);
+
   const handleSubmit = (event?: React.FormEvent) => {
     if (event) {
-      event.preventDefault(); // Evitar recargar la página si se pasa el evento
+      event.preventDefault();
     }
     setIsLoading(true);
     setEmailError(undefined);

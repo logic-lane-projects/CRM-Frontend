@@ -1,6 +1,11 @@
 // App.tsx
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Route, Routes, useNavigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  useNavigate,
+} from "react-router-dom";
 import Home from "./pages/Home/Home";
 import Login from "./pages/Login/Login";
 import NotFound from "./pages/NotFound/NotFound";
@@ -42,7 +47,9 @@ const App: React.FC = () => {
     </>
   );
 
-  const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({
+    children,
+  }) => {
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -73,9 +80,11 @@ const App: React.FC = () => {
         <Route
           path="*"
           element={
-            <AppLayout>
-              <NotFound />
-            </AppLayout>
+            <PrivateRoute>
+              <AppLayout>
+                <NotFound />
+              </AppLayout>
+            </PrivateRoute>
           }
         />
       </Routes>
