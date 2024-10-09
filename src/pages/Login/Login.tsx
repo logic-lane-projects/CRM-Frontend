@@ -7,8 +7,10 @@ import {
   Spinner,
 } from "@shopify/polaris";
 import "./Login.css";
+import { useNavigate } from "react-router-dom";
 
 const Login: React.FC = () => {
+  const navigate = useNavigate()
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState<string | undefined>(undefined);
@@ -36,7 +38,7 @@ const Login: React.FC = () => {
     if (email?.length > 0 && password?.length > 0) {
       localStorage.setItem("email", email);
       setIsLoading(false);
-      alert("Inicio de sesión exitoso");
+      navigate("/inicio");
     } else {
       setIsLoading(false);
       setEmailError("Credenciales incorrectas");
@@ -46,7 +48,7 @@ const Login: React.FC = () => {
   return (
     <form onSubmit={handleSubmit}>
       <AppProvider i18n={{}}>
-        <div className="flex flex-col items-center justify-center gap-3">
+        <div className="w-screen h-screen flex flex-col items-center justify-center gap-3">
           <span className="font-bold text-[20px]">Iniciar sesión</span>
           <Card>
             <TextField
@@ -66,13 +68,17 @@ const Login: React.FC = () => {
               error={passwordError} // Mostrar el error específico de la contraseña
             />
             <div className="mt-2 flex items-center gap-2">
-              <Button
-                onClick={handleSubmit}
-                variant="primary"
-                disabled={isLoading}
-              >
-                {isLoading ? <Spinner size="small" /> : "Iniciar sesión"}
-              </Button>
+              {isLoading ? (
+                <Spinner size="small" />
+              ) : (
+                <Button
+                  onClick={handleSubmit}
+                  variant="primary"
+                  disabled={isLoading}
+                >
+                  Iniciar sesión
+                </Button>
+              )}
             </div>
           </Card>
         </div>
