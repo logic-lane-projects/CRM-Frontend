@@ -1,8 +1,9 @@
-// components/Topbar/Topbar.tsx
 import { TopBar, ActionList, Frame } from "@shopify/polaris";
 import { ArrowLeftIcon } from "@shopify/polaris-icons";
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { signOut } from "firebase/auth";
+import { auth } from "./../../../firebase";
 
 interface TopBarProps {
   toggleSidebar: () => void;
@@ -22,9 +23,16 @@ export function TopBar1({ toggleSidebar }: TopBarProps) {
     toggleSidebar();
   }, [toggleSidebar]);
 
-  const handleLogout = useCallback(() => {
-    navigate("/");
-    localStorage.removeItem("email");
+  const handleLogout = useCallback(async () => {
+    try {
+      await signOut(auth);
+
+      localStorage.removeItem("email");
+      localStorage.removeItem("accesTokenCRM");
+      navigate("/");
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+    }
   }, [navigate]);
 
   const logo = {
