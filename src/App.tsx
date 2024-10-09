@@ -12,6 +12,7 @@ import NotFound from "./pages/NotFound/NotFound";
 import Sidebar from "./components/Sidebar/Sidebar";
 import { TopBar1 } from "./components/Topbar/Topbar";
 import { Page } from "@shopify/polaris";
+import Usuarios from "./pages/Usuarios/Usuarios";
 
 const App: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
@@ -75,6 +76,14 @@ const App: React.FC = () => {
                 <Home />
               </AppLayout>
             </PrivateRoute>
+          }
+        />
+        <Route
+          path="/usuarios"
+          element={
+            <AppLayout>
+              <Usuarios />
+            </AppLayout>
           }
         />
         <Route

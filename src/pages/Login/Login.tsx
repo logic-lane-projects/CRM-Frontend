@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   AppProvider,
   Card,
@@ -8,10 +8,11 @@ import {
 } from "@shopify/polaris";
 import "./Login.css";
 import { useNavigate } from "react-router-dom";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "./../../../firebase";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
-  const user = localStorage.getItem("email");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState<string | undefined>(undefined);
@@ -21,12 +22,15 @@ const Login: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (user) {
+    const accessToken = localStorage.getItem("accessTokenCRM");
+    const storedEmail = localStorage.getItem("email");
+
+    if (accessToken && storedEmail) {
       navigate("/inicio");
     }
-  }, [user, navigate]);
+  }, [navigate]);
 
-  const handleSubmit = (event?: React.FormEvent) => {
+  const handleSubmit = async (event?: React.FormEvent) => {
     if (event) {
       event.preventDefault();
     }
@@ -34,21 +38,41 @@ const Login: React.FC = () => {
     setEmailError(undefined);
     setPasswordError(undefined);
 
-    // Validaciones básicas
     if (!email) {
       setEmailError("El correo electrónico es requerido.");
+      setIsLoading(false);
+      return;
     }
     if (!password) {
       setPasswordError("La contraseña es requerida.");
+      setIsLoading(false);
+      return;
     }
 
-    if (email?.length > 0 && password?.length > 0) {
-      localStorage.setItem("email", email);
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
+      const user = userCredential.user;
+
+      const token = await user.getIdToken();
+
+      localStorage.setItem("accessTokenCRM", token);
+      if (user.email) {
+        localStorage.setItem("email", user.email);
+      } else {
+        console.warn("El usuario no tiene un email");
+      }
+
       setIsLoading(false);
       navigate("/inicio");
-    } else {
+    } catch (error) {
+      console.error("Error en el inicio de sesión:", error);
+      setEmailError("Credenciales incorrectas o el usuario no existe.");
       setIsLoading(false);
-      setEmailError("Credenciales incorrectas");
     }
   };
 
@@ -64,7 +88,7 @@ const Login: React.FC = () => {
               onChange={(value) => setEmail(value)}
               type="email"
               autoComplete="email"
-              error={emailError} // Mostrar el error específico del correo
+              error={emailError}
             />
             <TextField
               label="Contraseña"
@@ -72,7 +96,7 @@ const Login: React.FC = () => {
               onChange={(value) => setPassword(value)}
               type="password"
               autoComplete="current-password"
-              error={passwordError} // Mostrar el error específico de la contraseña
+              error={passwordError}
             />
             <div className="mt-2 flex items-center gap-2">
               {isLoading ? (
