@@ -15,7 +15,7 @@ export default function Sidebar({ isOpen }: SidebarProps) {
             items={[
               {
                 url: "/inicio",
-                label: "Home",
+                label: "Inicio",
                 icon: HomeIcon,
               },
               {

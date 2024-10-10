@@ -1,11 +1,15 @@
 import {
-  Button,
   Frame,
   Modal,
   TextContainer,
   TextField,
+  Select,
 } from "@shopify/polaris";
 import { useState, useEffect } from "react";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../../firebase";
+import { Toast } from "../Toast/toast";
+import { UserRole } from "../../types/enums";
 
 // Declaración de la interfaz para las props del modal
 interface ModalRegistroUsuariosProps {
@@ -23,7 +27,7 @@ interface FormValues {
   confirmContrasena: string;
   telefono: string;
   ciudad: string;
-  rol: string;
+  rol: UserRole; // Usa el tipo del enum para el rol
 }
 
 // Inicialización de los valores del formulario
@@ -36,7 +40,7 @@ const initialFormValues: FormValues = {
   confirmContrasena: "",
   telefono: "",
   ciudad: "",
-  rol: "",
+  rol: UserRole.Usuario, // Valor por defecto "usuario"
 };
 
 export default function ModalRegistroUsuarios({
@@ -46,7 +50,14 @@ export default function ModalRegistroUsuarios({
   const [formValues, setFormValues] = useState<FormValues>(initialFormValues);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [passwordsMatch, setPasswordsMatch] = useState(true);
+
+  // Opciones para el select de roles, usando el enum
+  const roleOptions = [
+    { label: "Usuario", value: UserRole.Usuario },
+    { label: "Administrador", value: UserRole.Administrador },
+  ];
 
   // Manejador genérico de cambios en los campos del formulario
   const handleFieldChange = (field: keyof FormValues, value: string) => {
@@ -56,7 +67,8 @@ export default function ModalRegistroUsuarios({
     // Verifica si las contraseñas coinciden al cambiar cualquier campo de contraseña
     if (field === "contrasena" || field === "confirmContrasena") {
       setPasswordsMatch(
-        formValues.contrasena === value || formValues.confirmContrasena === value
+        formValues.contrasena === value ||
+          formValues.confirmContrasena === value
       );
     }
   };
@@ -71,28 +83,50 @@ export default function ModalRegistroUsuarios({
     setIsSubmitDisabled(!(allFieldsFilled && passwordsAreEqual));
   }, [formValues]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    setIsLoading(true);
     const newErrors: { [key: string]: string } = {};
-
-    // Validación de campos
     Object.keys(formValues).forEach((key) => {
       if (!formValues[key as keyof FormValues]) {
         newErrors[key] = "Campo obligatorio";
       }
     });
-
     if (formValues.contrasena !== formValues.confirmContrasena) {
       newErrors.confirmContrasena = "Las contraseñas no coinciden";
     }
-
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
+      setIsLoading(false);
       return;
     }
-
     setErrors({});
-    console.log("Registrar:", formValues);
-    setIsOpen(false);
+    try {
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        formValues.correo,
+        formValues.contrasena
+      );
+      const user = userCredential.user;
+      console.log("Usuario registrado con éxito:", user);
+      Toast.fire({ icon: "success", title: "Usuario registrado" });
+      setIsOpen(false);
+    } catch (error) {
+      console.error("Error al registrar el usuario:", error);
+      setErrors((prev) => ({
+        ...prev,
+        correo: "Hubo un problema al registrar el usuario",
+      }));
+
+      // Asegúrate de convertir el error a un string
+      const errorMessage = typeof error === "string" ? error : String(error);
+
+      Toast.fire({
+        icon: "error",
+        title: errorMessage, 
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -103,9 +137,9 @@ export default function ModalRegistroUsuarios({
           onClose={() => setIsOpen(false)}
           title="Registro de usuarios"
           primaryAction={{
-            content: "Registrar",
+            content: isLoading ? "Cargando..." : "Registrar",
             onAction: handleSubmit,
-            disabled: isSubmitDisabled, // Deshabilita el botón si falta algún campo o las contraseñas no coinciden
+            disabled: isSubmitDisabled || isLoading,
           }}
           secondaryActions={[
             {
@@ -116,35 +150,79 @@ export default function ModalRegistroUsuarios({
         >
           <Modal.Section>
             <TextContainer>
-              {Object.keys(formValues).map((field) => (
-                <TextField
-                  key={field}
-                  label={
-                    field === "apellidom"
-                      ? "Apellido Materno"
-                      : field === "apellidop"
-                      ? "Apellido Paterno"
-                      : field === "confirmContrasena"
-                      ? "Confirmar Contraseña"
-                      : field.charAt(0).toUpperCase() + field.slice(1)
-                  }
-                  value={formValues[field as keyof FormValues]}
-                  onChange={(value) =>
-                    handleFieldChange(field as keyof FormValues, value)
-                  }
-                  autoComplete="off"
-                  type={
-                    field === "contrasena" || field === "confirmContrasena"
-                      ? "password"
-                      : "text"
-                  }
-                  error={
-                    field === "confirmContrasena" && !passwordsMatch
-                      ? "Las contraseñas no coinciden"
-                      : errors[field]
-                  }
-                />
-              ))}
+              <TextField
+                label="Nombre"
+                value={formValues.nombre}
+                onChange={(value) => handleFieldChange("nombre", value)}
+                autoComplete="off"
+                error={errors.nombre}
+              />
+              <TextField
+                label="Apellido Paterno"
+                value={formValues.apellidop}
+                onChange={(value) => handleFieldChange("apellidop", value)}
+                autoComplete="off"
+                error={errors.apellidop}
+              />
+              <TextField
+                label="Apellido Materno"
+                value={formValues.apellidom}
+                onChange={(value) => handleFieldChange("apellidom", value)}
+                autoComplete="off"
+                error={errors.apellidom}
+              />
+              <TextField
+                label="Correo electrónico"
+                value={formValues.correo}
+                onChange={(value) => handleFieldChange("correo", value)}
+                autoComplete="off"
+                error={errors.correo}
+              />
+              <TextField
+                label="Contraseña"
+                type="password"
+                value={formValues.contrasena}
+                onChange={(value) => handleFieldChange("contrasena", value)}
+                autoComplete="off"
+                error={errors.contrasena}
+              />
+              <TextField
+                label="Confirmar Contraseña"
+                type="password"
+                value={formValues.confirmContrasena}
+                onChange={(value) =>
+                  handleFieldChange("confirmContrasena", value)
+                }
+                autoComplete="off"
+                error={
+                  !passwordsMatch
+                    ? "Las contraseñas no coinciden"
+                    : errors.confirmContrasena
+                }
+              />
+              <TextField
+                label="Teléfono"
+                value={formValues.telefono}
+                onChange={(value) => handleFieldChange("telefono", value)}
+                autoComplete="off"
+                error={errors.telefono}
+              />
+              <TextField
+                label="Ciudad"
+                value={formValues.ciudad}
+                onChange={(value) => handleFieldChange("ciudad", value)}
+                autoComplete="off"
+                error={errors.ciudad}
+              />
+              <Select
+                label="Rol"
+                options={roleOptions}
+                onChange={(value) =>
+                  handleFieldChange("rol", value as UserRole)
+                }
+                value={formValues.rol}
+                error={errors.rol}
+              />
             </TextContainer>
           </Modal.Section>
         </Modal>
