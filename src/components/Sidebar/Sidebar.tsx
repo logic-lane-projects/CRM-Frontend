@@ -30,10 +30,10 @@ export default function Sidebar({ isOpen }: SidebarProps) {
                 selected: currentPath === "/leads",
               },
               {
-                url: "/usuarios",
-                label: "Usuarios",
+                url: "/clientes",
+                label: "Clientes",
                 icon: PersonIcon,
-                selected: currentPath === "/usuarios",
+                selected: currentPath === "/clientes",
               },
               {
                 url: "/vendedores",
