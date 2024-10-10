@@ -9,9 +9,10 @@ import {
   Card,
   Select,
 } from "@shopify/polaris";
-
+import { useNavigate } from "react-router-dom";
 
 export default function Leads() {
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -198,7 +199,9 @@ export default function Leads() {
   const promotedBulkActions = [
     {
       content: "Ver Lead",
-      onAction: () => console.log("Ver Lead"),
+      onAction: () => {
+        navigate(`/leads/${selectedResources}`);
+      },
     },
     {
       content: "Eliminar",
