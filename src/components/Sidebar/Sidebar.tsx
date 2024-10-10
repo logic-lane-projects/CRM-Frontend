@@ -1,42 +1,45 @@
 // components/Sidebar.tsx
 import { Frame, Navigation } from "@shopify/polaris";
-import { HomeIcon, PersonFilledIcon } from "@shopify/polaris-icons";
+import { HomeIcon, PersonIcon } from "@shopify/polaris-icons";
+import { useLocation } from "react-router-dom"; // Importa el hook useLocation para obtener la URL actual
 
 interface SidebarProps {
   isOpen: boolean;
 }
 
 export default function Sidebar({ isOpen }: SidebarProps) {
+  const location = useLocation(); // Obtiene la ubicación actual en react-router
+  const currentPath = location.pathname; // Obtiene la ruta actual
+
   return (
     <div className={`${isOpen ? "block" : "hidden"} md:block h-full`}>
       <Frame>
-        <Navigation location="/">
+        <Navigation location={currentPath}>
           <Navigation.Section
             items={[
               {
                 url: "/inicio",
                 label: "Inicio",
                 icon: HomeIcon,
+                selected: currentPath === "/inicio", // Marca como seleccionado si coincide con la URL actual
               },
               {
                 url: "/leads",
                 label: "Leads",
-                icon: HomeIcon,
-              },
-              {
-                url: "/clientes",
-                label: "Clientes",
-                icon: HomeIcon,
+                icon: PersonIcon,
+                selected: currentPath === "/leads",
               },
               {
                 url: "/usuarios",
                 label: "Usuarios",
-                icon: PersonFilledIcon,
+                icon: PersonIcon,
+                selected: currentPath === "/usuarios",
               },
               {
                 url: "/vendedores",
                 label: "Vendedores",
-                icon: PersonFilledIcon,
+                icon: PersonIcon,
+                selected: currentPath === "/vendedores",
               },
             ]}
           />
