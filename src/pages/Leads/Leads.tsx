@@ -10,6 +10,7 @@ import {
   Select,
 } from "@shopify/polaris";
 
+
 export default function Leads() {
   const [isOpen, setIsOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
@@ -21,182 +22,152 @@ export default function Leads() {
     {
       id: "1",
       nombre: "Juan Pérez",
+      organizacion: "Tech Solutions",
+      status: "Nuevo",
+      source: "Facebook",
       correo: "juan.perez@email.com",
-      ciudad: "Ciudad de México",
+      telefono: "555-123-4567",
+      asignadoA: "Carlos García",
     },
     {
       id: "2",
       nombre: "Ana López",
+      organizacion: "Marketing Pro",
+      status: "Contactado",
+      source: "LinkedIn",
       correo: "ana.lopez@email.com",
-      ciudad: "Guadalajara",
+      telefono: "555-987-6543",
+      asignadoA: "Luis Martínez",
     },
     {
       id: "3",
       nombre: "Carlos Hernández",
+      organizacion: "Innova Corp",
+      status: "En negociación",
+      source: "Evento",
       correo: "carlos.hernandez@email.com",
-      ciudad: "Monterrey",
+      telefono: "555-456-7890",
+      asignadoA: "Andrea Ruiz",
     },
     {
       id: "4",
       nombre: "María Rodríguez",
+      organizacion: "Global Tech",
+      status: "Nuevo",
+      source: "Google Ads",
       correo: "maria.rodriguez@email.com",
-      ciudad: "Puebla",
+      telefono: "555-321-6543",
+      asignadoA: "Roberto Gómez",
     },
     {
       id: "5",
       nombre: "Luis García",
+      organizacion: "Creative Agency",
+      status: "Contactado",
+      source: "Referencia",
       correo: "luis.garcia@email.com",
-      ciudad: "Tijuana",
+      telefono: "555-654-9876",
+      asignadoA: "Daniela Vargas",
     },
     {
       id: "6",
       nombre: "Sofía Martínez",
+      organizacion: "StartUp Hub",
+      status: "En negociación",
+      source: "LinkedIn",
       correo: "sofia.martinez@email.com",
-      ciudad: "Chihuahua",
+      telefono: "555-789-1234",
+      asignadoA: "Fernando Díaz",
     },
     {
       id: "7",
       nombre: "Pedro Sánchez",
+      organizacion: "Tech Innovators",
+      status: "Nuevo",
+      source: "Facebook",
       correo: "pedro.sanchez@email.com",
-      ciudad: "Mérida",
+      telefono: "555-456-3210",
+      asignadoA: "Gabriela Flores",
     },
     {
       id: "8",
       nombre: "Laura Ramírez",
+      organizacion: "Media House",
+      status: "Contactado",
+      source: "Google Ads",
       correo: "laura.ramirez@email.com",
-      ciudad: "Cancún",
+      telefono: "555-123-7894",
+      asignadoA: "Alejandro Reyes",
     },
     {
       id: "9",
       nombre: "Miguel Torres",
+      organizacion: "E-Commerce Pro",
+      status: "En negociación",
+      source: "Evento",
       correo: "miguel.torres@email.com",
-      ciudad: "León",
+      telefono: "555-321-4567",
+      asignadoA: "Natalia Gómez",
     },
     {
       id: "10",
       nombre: "Lucía Castillo",
+      organizacion: "Techno World",
+      status: "Nuevo",
+      source: "Referencia",
       correo: "lucia.castillo@email.com",
-      ciudad: "Aguascalientes",
+      telefono: "555-789-6543",
+      asignadoA: "David Mendoza",
     },
     {
       id: "11",
       nombre: "Antonio Morales",
+      organizacion: "Smart Solutions",
+      status: "Contactado",
+      source: "Google Ads",
       correo: "antonio.morales@email.com",
-      ciudad: "Querétaro",
+      telefono: "555-987-3210",
+      asignadoA: "Paula Romero",
     },
     {
       id: "12",
       nombre: "Andrea Ruiz",
+      organizacion: "Cloud Services",
+      status: "En negociación",
+      source: "LinkedIn",
       correo: "andrea.ruiz@email.com",
-      ciudad: "Morelia",
+      telefono: "555-123-4568",
+      asignadoA: "Enrique Herrera",
     },
     {
       id: "13",
       nombre: "Roberto Gómez",
+      organizacion: "IT Solutions",
+      status: "Nuevo",
+      source: "Evento",
       correo: "roberto.gomez@email.com",
-      ciudad: "Hermosillo",
+      telefono: "555-321-7894",
+      asignadoA: "Valeria Ortiz",
     },
     {
       id: "14",
       nombre: "Daniela Vargas",
+      organizacion: "Innovate Group",
+      status: "Contactado",
+      source: "Facebook",
       correo: "daniela.vargas@email.com",
-      ciudad: "Culiacán",
+      telefono: "555-654-3210",
+      asignadoA: "Ricardo Jiménez",
     },
     {
       id: "15",
       nombre: "Fernando Díaz",
+      organizacion: "Biz Corp",
+      status: "En negociación",
+      source: "Referencia",
       correo: "fernando.diaz@email.com",
-      ciudad: "Zacatecas",
-    },
-    {
-      id: "16",
-      nombre: "Gabriela Flores",
-      correo: "gabriela.flores@email.com",
-      ciudad: "Toluca",
-    },
-    {
-      id: "17",
-      nombre: "Alejandro Reyes",
-      correo: "alejandro.reyes@email.com",
-      ciudad: "Saltillo",
-    },
-    {
-      id: "18",
-      nombre: "Natalia Gómez",
-      correo: "natalia.gomez@email.com",
-      ciudad: "Tepic",
-    },
-    {
-      id: "19",
-      nombre: "David Mendoza",
-      correo: "david.mendoza@email.com",
-      ciudad: "Durango",
-    },
-    {
-      id: "20",
-      nombre: "Paula Romero",
-      correo: "paula.romero@email.com",
-      ciudad: "Cuernavaca",
-    },
-    {
-      id: "21",
-      nombre: "Enrique Herrera",
-      correo: "enrique.herrera@email.com",
-      ciudad: "Oaxaca",
-    },
-    {
-      id: "22",
-      nombre: "Valeria Ortiz",
-      correo: "valeria.ortiz@email.com",
-      ciudad: "San Luis Potosí",
-    },
-    {
-      id: "23",
-      nombre: "Ricardo Jiménez",
-      correo: "ricardo.jimenez@email.com",
-      ciudad: "Colima",
-    },
-    {
-      id: "24",
-      nombre: "Elena Vega",
-      correo: "elena.vega@email.com",
-      ciudad: "Villahermosa",
-    },
-    {
-      id: "25",
-      nombre: "Emilio Peña",
-      correo: "emilio.pena@email.com",
-      ciudad: "Veracruz",
-    },
-    {
-      id: "26",
-      nombre: "Isabel Cortés",
-      correo: "isabel.cortes@email.com",
-      ciudad: "Acapulco",
-    },
-    {
-      id: "27",
-      nombre: "Diego Silva",
-      correo: "diego.silva@email.com",
-      ciudad: "Tuxtla Gutiérrez",
-    },
-    {
-      id: "28",
-      nombre: "Mariana Luna",
-      correo: "mariana.luna@email.com",
-      ciudad: "Campeche",
-    },
-    {
-      id: "29",
-      nombre: "Sebastián Aguirre",
-      correo: "sebastian.aguirre@email.com",
-      ciudad: "Mexicali",
-    },
-    {
-      id: "30",
-      nombre: "Adriana Ponce",
-      correo: "adriana.ponce@email.com",
-      ciudad: "La Paz",
+      telefono: "555-789-9876",
+      asignadoA: "Elena Vega",
     },
   ];
 
@@ -204,8 +175,7 @@ export default function Leads() {
   const filteredLeads = leads.filter(
     (lead) =>
       lead.nombre.toLowerCase().includes(searchValue.toLowerCase()) ||
-      lead.correo.toLowerCase().includes(searchValue.toLowerCase()) ||
-      lead.ciudad.toLowerCase().includes(searchValue.toLowerCase())
+      lead.correo.toLowerCase().includes(searchValue.toLowerCase())
   );
 
   const numItemsPerPage =
@@ -249,7 +219,10 @@ export default function Leads() {
   };
 
   const rowMarkup = paginatedLeads.map(
-    ({ id, nombre, correo, ciudad }, index) => (
+    (
+      { id, nombre, organizacion, status, source, correo, telefono, asignadoA },
+      index
+    ) => (
       <IndexTable.Row
         id={id}
         key={id}
@@ -257,8 +230,12 @@ export default function Leads() {
         selected={selectedResources.includes(id)}
       >
         <IndexTable.Cell>{nombre}</IndexTable.Cell>
+        <IndexTable.Cell>{organizacion}</IndexTable.Cell>
+        <IndexTable.Cell>{status}</IndexTable.Cell>
+        <IndexTable.Cell>{source}</IndexTable.Cell>
         <IndexTable.Cell>{correo}</IndexTable.Cell>
-        <IndexTable.Cell>{ciudad}</IndexTable.Cell>
+        <IndexTable.Cell>{telefono}</IndexTable.Cell>
+        <IndexTable.Cell>{asignadoA}</IndexTable.Cell>
       </IndexTable.Row>
     )
   );
@@ -268,7 +245,7 @@ export default function Leads() {
       <div className="flex w-full justify-between items-center">
         <span className="font-semibold text-[20px]">Leads</span>
         <Button onClick={() => setIsOpen(true)} variant="primary">
-          Registro
+          Crear
         </Button>
       </div>
       <Card>
@@ -281,7 +258,7 @@ export default function Leads() {
               setSearchValue(value);
               setCurrentPage(1);
             }}
-            placeholder="Buscar por nombre, correo o ciudad"
+            placeholder="Buscar por nombre o correo"
             clearButton
             onClearButtonClick={() => setSearchValue("")}
             autoComplete="off"
@@ -296,8 +273,12 @@ export default function Leads() {
             onSelectionChange={handleSelectionChange}
             headings={[
               { title: "Nombre" },
+              { title: "Organización" },
+              { title: "Estatus" },
+              { title: "Fuente" },
               { title: "Correo Electrónico" },
-              { title: "Ciudad" },
+              { title: "Teléfono" },
+              { title: "Asignado A" },
             ]}
             promotedBulkActions={promotedBulkActions}
             emptyState="No se encontraron resultados"
@@ -331,9 +312,7 @@ export default function Leads() {
         </div>
       </Card>
       {/* Modal para registrar leads */}
-      {isOpen && (
-        <ModalRegistroLeads isOpen={isOpen} setIsOpen={setIsOpen} />
-      )}
+      {isOpen && <ModalRegistroLeads isOpen={isOpen} setIsOpen={setIsOpen} />}
     </div>
   );
 }
