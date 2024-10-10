@@ -12,7 +12,7 @@ import { Toast } from "../Toast/toast";
 import { UserRole } from "../../types/enums";
 
 // Declaración de la interfaz para las props del modal
-interface ModalRegistroUsuariosProps {
+interface ModalRegistroVendedoresProps {
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
 }
@@ -43,10 +43,10 @@ const initialFormValues: FormValues = {
   rol: UserRole.Vendedor,
 };
 
-export default function ModalRegistroUsuarios({
+export default function ModalRegistroVendedores({
   isOpen,
   setIsOpen,
-}: ModalRegistroUsuariosProps) {
+}: ModalRegistroVendedoresProps) {
   const [formValues, setFormValues] = useState<FormValues>(initialFormValues);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
@@ -135,7 +135,7 @@ export default function ModalRegistroUsuarios({
         <Modal
           open={isOpen}
           onClose={() => setIsOpen(false)}
-          title="Registro de usuarios"
+          title="Registro de vendedores"
           primaryAction={{
             content: isLoading ? "Cargando..." : "Registrar",
             onAction: handleSubmit,

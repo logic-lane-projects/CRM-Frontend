@@ -12,7 +12,7 @@ import NotFound from "./pages/NotFound/NotFound";
 import Sidebar from "./components/Sidebar/Sidebar";
 import { TopBar1 } from "./components/Topbar/Topbar";
 import { Page } from "@shopify/polaris";
-import Usuarios from "./pages/Usuarios/Usuarios";
+import Vendedores from "./pages/Vendedores/Vendedores";
 import Leads from "./pages/Leads/Leads";
 
 const App: React.FC = () => {
@@ -42,7 +42,7 @@ const App: React.FC = () => {
       <TopBar1 toggleSidebar={toggleSidebar} />
       <div style={{ display: "flex" }}>
         <Sidebar isOpen={isSidebarOpen} />
-        <div>
+        <div className="w-full">
           <Page>{children}</Page>
         </div>
       </div>
@@ -80,10 +80,10 @@ const App: React.FC = () => {
           }
         />
         <Route
-          path="/usuarios"
+          path="/vendedores"
           element={
             <AppLayout>
-              <Usuarios />
+              <Vendedores />
             </AppLayout>
           }
         />

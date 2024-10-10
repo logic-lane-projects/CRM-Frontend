@@ -34,7 +34,7 @@ export default function Sidebar({ isOpen }: SidebarProps) {
                 icon: PersonFilledIcon,
               },
               {
-                url: "/usuarios",
+                url: "/vendedores",
                 label: "Vendedores",
                 icon: PersonFilledIcon,
               },
