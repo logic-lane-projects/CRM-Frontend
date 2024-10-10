@@ -27,7 +27,7 @@ interface FormValues {
   confirmContrasena: string;
   telefono: string;
   ciudad: string;
-  rol: UserRole; // Usa el tipo del enum para el rol
+  rol: UserRole;
 }
 
 // Inicialización de los valores del formulario
@@ -40,7 +40,7 @@ const initialFormValues: FormValues = {
   confirmContrasena: "",
   telefono: "",
   ciudad: "",
-  rol: UserRole.Usuario, // Valor por defecto "usuario"
+  rol: UserRole.Vendedor,
 };
 
 export default function ModalRegistroUsuarios({
@@ -55,7 +55,7 @@ export default function ModalRegistroUsuarios({
 
   // Opciones para el select de roles, usando el enum
   const roleOptions = [
-    { label: "Usuario", value: UserRole.Usuario },
+    { label: "Vendedor", value: UserRole.Vendedor },
     { label: "Administrador", value: UserRole.Administrador },
   ];
 

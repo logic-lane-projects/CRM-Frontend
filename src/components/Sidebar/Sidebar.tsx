@@ -19,14 +19,23 @@ export default function Sidebar({ isOpen }: SidebarProps) {
                 icon: HomeIcon,
               },
               {
-                url: "/orders",
-                label: "Orders",
+                url: "/leads",
+                label: "Leads",
                 icon: HomeIcon,
-                badge: "15",
+              },
+              {
+                url: "/clientes",
+                label: "Clientes",
+                icon: HomeIcon,
               },
               {
                 url: "/usuarios",
                 label: "Usuarios",
+                icon: PersonFilledIcon,
+              },
+              {
+                url: "/usuarios",
+                label: "Vendedores",
                 icon: PersonFilledIcon,
               },
             ]}

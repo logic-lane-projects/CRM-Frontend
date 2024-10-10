@@ -13,6 +13,7 @@ import Sidebar from "./components/Sidebar/Sidebar";
 import { TopBar1 } from "./components/Topbar/Topbar";
 import { Page } from "@shopify/polaris";
 import Usuarios from "./pages/Usuarios/Usuarios";
+import Leads from "./pages/Leads/Leads";
 
 const App: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
@@ -83,6 +84,14 @@ const App: React.FC = () => {
           element={
             <AppLayout>
               <Usuarios />
+            </AppLayout>
+          }
+        />
+        <Route
+          path="/leads"
+          element={
+            <AppLayout>
+              <Leads />
             </AppLayout>
           }
         />
