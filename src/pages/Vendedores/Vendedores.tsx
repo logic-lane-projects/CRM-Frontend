@@ -11,8 +11,10 @@ import {
 } from "@shopify/polaris";
 import { getUsers, User } from "../../services/users";
 import { Toast } from "../../components/Toast/toast";
+import { useNavigate } from "react-router-dom";
 
 export default function Vendedores() {
+  const navigate = useNavigate()
   const [isOpen, setIsOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -77,11 +79,12 @@ export default function Vendedores() {
   const promotedBulkActions = [
     {
       content: "Ver Vendedor",
-      onAction: () => console.log("Ver Vendedor"),
-    },
+      onAction: () => {
+        navigate(`/vendedor/${selectedResources}`);
+      },    },
     {
       content: "Eliminar",
-      onAction: () => console.log("Eliminar Vendedor"),
+      onAction: () => alert(selectedResources),
     },
   ];
 
