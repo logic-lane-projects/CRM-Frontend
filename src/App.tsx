@@ -14,6 +14,7 @@ import { TopBar1 } from "./components/Topbar/Topbar";
 import { Page } from "@shopify/polaris";
 import Vendedores from "./pages/Vendedores/Vendedores";
 import Leads from "./pages/Leads/Leads";
+import Clientes from "./pages/Clientes/Clientes";
 import LeadInfo from "./pages/Leads/Leads[id]";
 
 const App: React.FC = () => {
@@ -106,6 +107,16 @@ const App: React.FC = () => {
             <PrivateRoute>
               <AppLayout>
                 <LeadInfo />
+              </AppLayout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/clientes"
+          element={
+            <PrivateRoute>
+              <AppLayout>
+                <Clientes />
               </AppLayout>
             </PrivateRoute>
           }
