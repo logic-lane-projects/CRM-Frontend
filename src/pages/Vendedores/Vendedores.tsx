@@ -126,8 +126,8 @@ export default function Vendedores() {
   return (
     <div className="w-full flex flex-col gap-4">
       <div className="flex w-full justify-between items-center">
-        <span className="font-semibold text-[20px]">Clientes - esperando endpoint</span>
-        <Button disabled onClick={() => setIsOpen(true)} variant="primary">
+        <span className="font-semibold text-[20px]">Vendedores</span>
+        <Button onClick={() => setIsOpen(true)} variant="primary">
           Registro
         </Button>
       </div>
