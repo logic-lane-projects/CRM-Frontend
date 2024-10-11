@@ -12,8 +12,10 @@ import NotFound from "./pages/NotFound/NotFound";
 import Sidebar from "./components/Sidebar/Sidebar";
 import { TopBar1 } from "./components/Topbar/Topbar";
 import { Page } from "@shopify/polaris";
-import Usuarios from "./pages/Usuarios/Usuarios";
+import Vendedores from "./pages/Vendedores/Vendedores";
 import Leads from "./pages/Leads/Leads";
+import Clientes from "./pages/Clientes/Clientes";
+import LeadInfo from "./pages/Leads/Leads[id]";
 
 const App: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
@@ -42,7 +44,7 @@ const App: React.FC = () => {
       <TopBar1 toggleSidebar={toggleSidebar} />
       <div style={{ display: "flex" }}>
         <Sidebar isOpen={isSidebarOpen} />
-        <div>
+        <div className="w-full">
           <Page>{children}</Page>
         </div>
       </div>
@@ -80,19 +82,43 @@ const App: React.FC = () => {
           }
         />
         <Route
-          path="/usuarios"
+          path="/vendedores"
           element={
-            <AppLayout>
-              <Usuarios />
-            </AppLayout>
+            <PrivateRoute>
+              <AppLayout>
+                <Vendedores />
+              </AppLayout>
+            </PrivateRoute>
           }
         />
         <Route
           path="/leads"
           element={
-            <AppLayout>
-              <Leads />
-            </AppLayout>
+            <PrivateRoute>
+              <AppLayout>
+                <Leads />
+              </AppLayout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/leads/:id"
+          element={
+            <PrivateRoute>
+              <AppLayout>
+                <LeadInfo />
+              </AppLayout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/clientes"
+          element={
+            <PrivateRoute>
+              <AppLayout>
+                <Clientes />
+              </AppLayout>
+            </PrivateRoute>
           }
         />
         <Route
