@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ModalRegistroVendedores from "../../components/Modales/ModalRegistroVendedores";
 import {
   IndexTable,
@@ -9,203 +9,45 @@ import {
   Card,
   Select,
 } from "@shopify/polaris";
+import { getUsers, User } from "../../services/users";
+import { Toast } from "../../components/Toast/toast";
 
 export default function Vendedores() {
   const [isOpen, setIsOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState("10");
+  const [vendedores, setVendedores] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Hardcode de vendedores
-  const vendedores = [
-    {
-      id: "1",
-      nombre: "Juan Pérez",
-      correo: "juan.perez@email.com",
-      ciudad: "Ciudad de México",
-    },
-    {
-      id: "2",
-      nombre: "Ana López",
-      correo: "ana.lopez@email.com",
-      ciudad: "Guadalajara",
-    },
-    {
-      id: "3",
-      nombre: "Carlos Hernández",
-      correo: "carlos.hernandez@email.com",
-      ciudad: "Monterrey",
-    },
-    {
-      id: "4",
-      nombre: "María Rodríguez",
-      correo: "maria.rodriguez@email.com",
-      ciudad: "Puebla",
-    },
-    {
-      id: "5",
-      nombre: "Luis García",
-      correo: "luis.garcia@email.com",
-      ciudad: "Tijuana",
-    },
-    {
-      id: "6",
-      nombre: "Sofía Martínez",
-      correo: "sofia.martinez@email.com",
-      ciudad: "Chihuahua",
-    },
-    {
-      id: "7",
-      nombre: "Pedro Sánchez",
-      correo: "pedro.sanchez@email.com",
-      ciudad: "Mérida",
-    },
-    {
-      id: "8",
-      nombre: "Laura Ramírez",
-      correo: "laura.ramirez@email.com",
-      ciudad: "Cancún",
-    },
-    {
-      id: "9",
-      nombre: "Miguel Torres",
-      correo: "miguel.torres@email.com",
-      ciudad: "León",
-    },
-    {
-      id: "10",
-      nombre: "Lucía Castillo",
-      correo: "lucia.castillo@email.com",
-      ciudad: "Aguascalientes",
-    },
-    {
-      id: "11",
-      nombre: "Antonio Morales",
-      correo: "antonio.morales@email.com",
-      ciudad: "Querétaro",
-    },
-    {
-      id: "12",
-      nombre: "Andrea Ruiz",
-      correo: "andrea.ruiz@email.com",
-      ciudad: "Morelia",
-    },
-    {
-      id: "13",
-      nombre: "Roberto Gómez",
-      correo: "roberto.gomez@email.com",
-      ciudad: "Hermosillo",
-    },
-    {
-      id: "14",
-      nombre: "Daniela Vargas",
-      correo: "daniela.vargas@email.com",
-      ciudad: "Culiacán",
-    },
-    {
-      id: "15",
-      nombre: "Fernando Díaz",
-      correo: "fernando.diaz@email.com",
-      ciudad: "Zacatecas",
-    },
-    {
-      id: "16",
-      nombre: "Gabriela Flores",
-      correo: "gabriela.flores@email.com",
-      ciudad: "Toluca",
-    },
-    {
-      id: "17",
-      nombre: "Alejandro Reyes",
-      correo: "alejandro.reyes@email.com",
-      ciudad: "Saltillo",
-    },
-    {
-      id: "18",
-      nombre: "Natalia Gómez",
-      correo: "natalia.gomez@email.com",
-      ciudad: "Tepic",
-    },
-    {
-      id: "19",
-      nombre: "David Mendoza",
-      correo: "david.mendoza@email.com",
-      ciudad: "Durango",
-    },
-    {
-      id: "20",
-      nombre: "Paula Romero",
-      correo: "paula.romero@email.com",
-      ciudad: "Cuernavaca",
-    },
-    {
-      id: "21",
-      nombre: "Enrique Herrera",
-      correo: "enrique.herrera@email.com",
-      ciudad: "Oaxaca",
-    },
-    {
-      id: "22",
-      nombre: "Valeria Ortiz",
-      correo: "valeria.ortiz@email.com",
-      ciudad: "San Luis Potosí",
-    },
-    {
-      id: "23",
-      nombre: "Ricardo Jiménez",
-      correo: "ricardo.jimenez@email.com",
-      ciudad: "Colima",
-    },
-    {
-      id: "24",
-      nombre: "Elena Vega",
-      correo: "elena.vega@email.com",
-      ciudad: "Villahermosa",
-    },
-    {
-      id: "25",
-      nombre: "Emilio Peña",
-      correo: "emilio.pena@email.com",
-      ciudad: "Veracruz",
-    },
-    {
-      id: "26",
-      nombre: "Isabel Cortés",
-      correo: "isabel.cortes@email.com",
-      ciudad: "Acapulco",
-    },
-    {
-      id: "27",
-      nombre: "Diego Silva",
-      correo: "diego.silva@email.com",
-      ciudad: "Tuxtla Gutiérrez",
-    },
-    {
-      id: "28",
-      nombre: "Mariana Luna",
-      correo: "mariana.luna@email.com",
-      ciudad: "Campeche",
-    },
-    {
-      id: "29",
-      nombre: "Sebastián Aguirre",
-      correo: "sebastian.aguirre@email.com",
-      ciudad: "Mexicali",
-    },
-    {
-      id: "30",
-      nombre: "Adriana Ponce",
-      correo: "adriana.ponce@email.com",
-      ciudad: "La Paz",
-    },
-  ];
+  // Cargar los vendedores desde la API al montar el componente
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const usersData: User[] = await getUsers(); 
+        setVendedores(usersData);
+      } catch (error) {
+        setError("Error al cargar los usuarios");
+        const errorMessage = typeof error === "string" ? error : String(error);
+        Toast.fire({
+          icon: "error",
+          title: errorMessage,
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
 
   // Filtro de búsqueda
   const filteredVendedores = vendedores.filter(
-    (vendedor) =>
-      vendedor.nombre.toLowerCase().includes(searchValue.toLowerCase()) ||
-      vendedor.correo.toLowerCase().includes(searchValue.toLowerCase()) ||
-      vendedor.ciudad.toLowerCase().includes(searchValue.toLowerCase())
+    (vendedor: User) =>
+      vendedor.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+      vendedor.email.toLowerCase().includes(searchValue.toLowerCase()) ||
+      vendedor.city.toLowerCase().includes(searchValue.toLowerCase())
   );
 
   // Convertimos el valor de itemsPerPage en un número o tomamos el total de vendedores si es "todos"
@@ -222,9 +64,15 @@ export default function Vendedores() {
 
   const totalPages = Math.ceil(filteredVendedores.length / numItemsPerPage);
 
+  // Convierte los usuarios a un formato aceptado por useIndexResourceState
+  const resourceVendedores = vendedores.map((vendedor) => ({
+    ...vendedor,
+    id: vendedor.id ?? "unknown-id",
+  }));
+
   // Uso del estado de recursos para el IndexTable
   const { selectedResources, allResourcesSelected, handleSelectionChange } =
-    useIndexResourceState(vendedores);
+    useIndexResourceState(resourceVendedores);
 
   const promotedBulkActions = [
     {
@@ -250,19 +98,30 @@ export default function Vendedores() {
   };
 
   const rowMarkup = paginatedVendedores.map(
-    ({ id, nombre, correo, ciudad }, index) => (
+    ({ id, name, email, city }: User, index: number) => (
       <IndexTable.Row
-        id={id}
-        key={id}
+        id={id ?? "unknown-id"} // Si id es undefined, usa "unknown-id"
+        key={id ?? index} // Usa index como respaldo si id es undefined
         position={index}
-        selected={selectedResources.includes(id)}
+        selected={selectedResources.includes(id ?? "")} // Si id es undefined, usa una cadena vacía
       >
-        <IndexTable.Cell>{nombre}</IndexTable.Cell>
-        <IndexTable.Cell>{correo}</IndexTable.Cell>
-        <IndexTable.Cell>{ciudad}</IndexTable.Cell>
+        <IndexTable.Cell>{name ?? "Nombre desconocido"}</IndexTable.Cell>{" "}
+        {/* Proporciona un valor predeterminado si name es undefined */}
+        <IndexTable.Cell>{email ?? "Correo desconocido"}</IndexTable.Cell>{" "}
+        {/* Proporciona un valor predeterminado si email es undefined */}
+        <IndexTable.Cell>{city ?? "Ciudad desconocida"}</IndexTable.Cell>{" "}
+        {/* Proporciona un valor predeterminado si city es undefined */}
       </IndexTable.Row>
     )
   );
+  
+  if (loading) {
+    return <p>Cargando vendedores...</p>; 
+  }
+
+  if (error) {
+    return <p>{error}</p>;
+  }
 
   return (
     <div className="w-full flex flex-col gap-4">

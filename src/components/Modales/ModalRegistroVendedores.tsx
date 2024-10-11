@@ -10,6 +10,7 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../../firebase";
 import { Toast } from "../Toast/toast";
 import { UserRole } from "../../types/enums";
+import { createUser } from '../../services/users';
 
 // Declaración de la interfaz para las props del modal
 interface ModalRegistroVendedoresProps {
@@ -100,34 +101,49 @@ export default function ModalRegistroVendedores({
       return;
     }
     setErrors({});
+  
     try {
+      // 1. Crear el usuario en la base de datos primero
+      const newUser = await createUser({
+        name: formValues.nombre,
+        paternal_surname: formValues.apellidop,
+        maternal_surname: formValues.apellidom,
+        email: formValues.correo,
+        cellphone: formValues.telefono,
+        city: formValues.ciudad,
+        role: formValues.rol,
+      });
+      
+      console.log("Usuario creado en la base de datos:", newUser);
+  
+      // 2. Crear el usuario en Firebase después de que haya sido creado en la base de datos
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         formValues.correo,
         formValues.contrasena
       );
       const user = userCredential.user;
-      console.log("Usuario registrado con éxito:", user);
+  
+      console.log("Usuario registrado con éxito en Firebase:", user);
       Toast.fire({ icon: "success", title: "Usuario registrado" });
-      setIsOpen(false);
+      setIsOpen(false); // Cerrar el modal tras el registro exitoso
     } catch (error) {
       console.error("Error al registrar el usuario:", error);
       setErrors((prev) => ({
         ...prev,
         correo: "Hubo un problema al registrar el usuario",
       }));
-
-      // Asegúrate de convertir el error a un string
+  
       const errorMessage = typeof error === "string" ? error : String(error);
-
       Toast.fire({
         icon: "error",
-        title: errorMessage, 
+        title: errorMessage,
       });
     } finally {
       setIsLoading(false);
     }
   };
+  
 
   return (
     <div>
