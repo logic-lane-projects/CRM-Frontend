@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import ModalRegistroVendedores from "../../components/Modales/ModalRegistroVendedores";
 import {
   IndexTable,
-  useIndexResourceState,
   TextField,
   Pagination,
   Button,
@@ -11,8 +10,10 @@ import {
 } from "@shopify/polaris";
 import { getUsers, User } from "../../services/users";
 import { Toast } from "../../components/Toast/toast";
+import { useNavigate } from "react-router-dom";
 
 export default function Vendedores() {
+  const navigate = useNavigate()
   const [isOpen, setIsOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -20,6 +21,7 @@ export default function Vendedores() {
   const [vendedores, setVendedores] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedResource, setSelectedResource] = useState<string | null>(null);//Seleccionar solo un usuario
 
   // Cargar los vendedores desde la API al montar el componente
   useEffect(() => {
@@ -64,24 +66,12 @@ export default function Vendedores() {
 
   const totalPages = Math.ceil(filteredVendedores.length / numItemsPerPage);
 
-  // Convierte los usuarios a un formato aceptado por useIndexResourceState
-  const resourceVendedores = vendedores.map((vendedor) => ({
-    ...vendedor,
-    id: vendedor.id ?? "unknown-id",
-  }));
-
-  // Uso del estado de recursos para el IndexTable
-  const { selectedResources, allResourcesSelected, handleSelectionChange } =
-    useIndexResourceState(resourceVendedores);
-
   const promotedBulkActions = [
     {
       content: "Ver Vendedor",
-      onAction: () => console.log("Ver Vendedor"),
-    },
-    {
-      content: "Eliminar",
-      onAction: () => console.log("Eliminar Vendedor"),
+      onAction: () => {
+        navigate(`/vendedor/${selectedResource}`);
+      },    
     },
   ];
 
@@ -103,7 +93,9 @@ export default function Vendedores() {
         id={id ?? "unknown-id"} // Si id es undefined, usa "unknown-id"
         key={id ?? index} // Usa index como respaldo si id es undefined
         position={index}
-        selected={selectedResources.includes(id ?? "")} // Si id es undefined, usa una cadena vacía
+        selected={selectedResource === id}
+        onClick={() => {
+          setSelectedResource(selectedResource === id ? null:id ?? null);}}
       >
         <IndexTable.Cell>{name ?? "Nombre desconocido"}</IndexTable.Cell>{" "}
         {/* Proporciona un valor predeterminado si name es undefined */}
@@ -151,9 +143,9 @@ export default function Vendedores() {
             resourceName={{ singular: "vendedor", plural: "vendedores" }}
             itemCount={filteredVendedores.length}
             selectedItemsCount={
-              allResourcesSelected ? "All" : selectedResources.length
+              selectedResource ? 1 : 0
             }
-            onSelectionChange={handleSelectionChange}
+            onSelectionChange={() => {}}
             headings={[
               { title: "Nombre" },
               { title: "Correo Electrónico" },
