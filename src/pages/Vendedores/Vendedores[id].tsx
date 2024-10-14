@@ -103,7 +103,7 @@ export default function InfoVendedores() {
           title: "Usuario eliminado con éxito",
         });
         setIsModalOpen(false);
-        navigate("/usuarios"); // Redirige a la página de usuarios después de eliminar
+        navigate("/vendedores"); // Redirige a la página de usuarios después de eliminar
       } catch (error) {
         const errorMessage = typeof error === "string" ? error : String(error);
         Toast.fire({

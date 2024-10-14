@@ -32,7 +32,7 @@ export const getUsers = async (): Promise<User[]> => {
 // Obtener un usuario por ID
 export const getUserById = async (id: string): Promise<User> => {
   try {
-    const response = await fetch(`${API_URL}users/${id}`, {
+    const response = await fetch(`${API_URL}/users/${id}`, {
       method: "GET",
     });
     if (!response.ok) {
@@ -50,7 +50,7 @@ export const getUserById = async (id: string): Promise<User> => {
 // Actualizar usuario
 export const updateUser = async (id: string, userData: User): Promise<User> => {
   try {
-    const response = await fetch(`${API_URL}users/${id}`, {
+    const response = await fetch(`${API_URL}/users/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
