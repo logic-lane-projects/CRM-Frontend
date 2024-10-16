@@ -72,6 +72,8 @@ import {
         );
       }
     };
+
+    console.log(isSubmitDisabled)
   
     // Valida si todos los campos están completos y si las contraseñas coinciden para habilitar el botón
     useEffect(() => {
