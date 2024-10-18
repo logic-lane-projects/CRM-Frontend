@@ -24,6 +24,10 @@ export default function Leads() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState("10");
   const [leads, setLeads] = useState<Lead[]>([]);
+  // Se inicializa pre cliente
+  const [preClient, setPreClient] = useState([])
+  // se inicializa cliente
+  const [client, setClient] = useState([])
   const [loading, setLoading] = useState(true);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<string | null>(null);
@@ -102,6 +106,15 @@ export default function Leads() {
     setSelectedLead(null);
   };
 
+  // funcion para cambiar entre datos
+  const changeTable = ()=>{
+    // por defecto pintar los leads
+
+    // Si se eligen los pre clientes, se pintan los clientes
+
+    // si se eligen los clientes se pintan los clientes
+  }
+
   const handleEditAction = () => {
     if (selectedResources.length === 1) {
       const leadToEdit = leads.find(
@@ -154,6 +167,7 @@ export default function Leads() {
     });
   };
 
+// Funcion que te ayuda a detectar que usuarios se estan mostrando
   const rowMarkup = paginatedLeads.map(
     ({ id, names, email, phone_number, city, type_lead, status }, index) => (
       <IndexTable.Row
