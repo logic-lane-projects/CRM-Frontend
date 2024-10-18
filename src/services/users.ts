@@ -1,6 +1,6 @@
 // src/services/users.ts
 export interface User {
-  id: string;
+  id?: string;
   cellphone: string;
   city: string;
   email: string;
