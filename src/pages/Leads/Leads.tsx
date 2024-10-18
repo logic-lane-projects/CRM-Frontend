@@ -183,7 +183,13 @@ export default function Leads() {
       <div className="w-full flex flex-col gap-4">
         <div className="flex w-full justify-between items-center">
           <span className="font-semibold text-[20px]">Leads</span>
-          <Button onClick={() => setIsOpen(true)} variant="primary">
+          <Button
+            onClick={() => {
+              setIsOpen(true);
+              setLeadDataToEdit(null);
+            }}
+            variant="primary"
+          >
             Crear
           </Button>
         </div>
@@ -254,7 +260,7 @@ export default function Leads() {
         </Card>
         {isOpen && (
           <ModalRegistroLeads
-            // leadInfo={leadDataToEdit}
+            leadInfo={leadDataToEdit}
             isOpen={isOpen}
             setIsOpen={setIsOpen}
           />

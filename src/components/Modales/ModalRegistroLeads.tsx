@@ -7,13 +7,14 @@ import {
 } from "@shopify/polaris";
 import { useState, useEffect } from "react";
 import { Toast } from "../Toast/toast";
-import { createLead } from "../../services/leads";
+import { createLead, updateLead } from "../../services/leads";
+import { Lead } from "../../services/leads";
 
 interface ModalRegistroVendedoresProps {
+  leadInfo: Lead | null;
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
 }
-
 interface FormValues {
   nombre: string;
   apellidop: string;
@@ -35,14 +36,15 @@ const initialFormValues: FormValues = {
   correo: "",
   telefono: "",
   ciudad: "",
-  state: "",                 
-  birthday_date: "",          
-  age: 0,                     
-  type_lead: "TIBIO",          
-  gender: "MALE",              
+  state: "",
+  birthday_date: "",
+  age: 0,
+  type_lead: "TIBIO",
+  gender: "MALE",
 };
 
 export default function ModalRegistroLeads({
+  leadInfo,
   isOpen,
   setIsOpen,
 }: ModalRegistroVendedoresProps) {
@@ -63,7 +65,30 @@ export default function ModalRegistroLeads({
     { label: "Caliente", value: "CALIENTE" },
   ];
 
-  const handleFieldChange = (field: keyof FormValues, value: string | number) => {
+  useEffect(() => {
+    if (leadInfo) {
+      setFormValues({
+        nombre: leadInfo.names || "",
+        apellidop: leadInfo.paternal_surname || "",
+        apellidom: leadInfo.maternal_surname || "",
+        correo: leadInfo.email || "",
+        telefono: leadInfo.phone_number || "",
+        ciudad: leadInfo.city || "",
+        state: leadInfo.state || "",
+        birthday_date: leadInfo.birthday_date || "",
+        age: leadInfo.age || 0,
+        type_lead: leadInfo.type_lead || "TIBIO",
+        gender: leadInfo.gender || "MALE",
+      });
+    } else {
+      setFormValues(initialFormValues);
+    }
+  }, [leadInfo]);
+
+  const handleFieldChange = (
+    field: keyof FormValues,
+    value: string | number
+  ) => {
     setFormValues((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, [field]: "" }));
   };
@@ -77,54 +102,78 @@ export default function ModalRegistroLeads({
 
   const handleSubmit = async () => {
     setIsLoading(true);
-    const newErrors: { [key: string]: string } = {};
-    Object.keys(formValues).forEach((key) => {
-      if (!formValues[key as keyof FormValues]) {
-        newErrors[key] = "Campo obligatorio";
-      }
-    });
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      setIsLoading(false);
-      return;
-    }
     setErrors({});
 
     try {
-      const leadData = {
+      const leadData: Lead = {
         names: formValues.nombre,
         paternal_surname: formValues.apellidop,
         maternal_surname: formValues.apellidom,
         email: formValues.correo,
         phone_number: formValues.telefono,
         city: formValues.ciudad,
-        state: formValues.state,        
-        type_lead: formValues.type_lead,       
-        gender: formValues.gender,              
-        is_client: false,                       
-        age: formValues.age,                   
+        state: formValues.state,
+        type_lead: formValues.type_lead,
+        gender: formValues.gender,
+        age: formValues.age,
         birthday_date: formValues.birthday_date,
+        is_client: false,
       };
 
-      const leadResponse = await createLead(leadData);
-      console.log("Lead creado con éxito:", leadResponse);
+      if (leadInfo && leadInfo._id) {
+        await updateLead(leadInfo._id, leadData);
+        Toast.fire({ icon: "success", title: "Lead actualizado con éxito" });
+      } else {
+        await createLead(leadData);
+        Toast.fire({ icon: "success", title: "Lead registrado con éxito" });
+      }
 
-      Toast.fire({ icon: "success", title: "Lead registrado con éxito" });
       setIsOpen(false);
-    } catch (error) {
-      console.error("Error al registrar el lead:", error);
-      setErrors((prev) => ({
-        ...prev,
-        correo: "Hubo un problema al registrar el lead",
-      }));
+    } catch (error: unknown) {
+      console.error("Error al registrar o actualizar el lead:", error);
 
-      const errorMessage = typeof error === "string" ? error : String(error);
+      // Manejo del error si es un JSON stringified y tiene la estructura esperada
+      if (error instanceof Error) {
+        try {
+          const parsedError = JSON.parse(error.message);
+          if (parsedError.data) {
+            const apiErrors = parsedError.data;
+            const newErrors: { [key: string]: string } = {};
 
-      Toast.fire({
-        icon: "error",
-        title: errorMessage,
-      });
+            if (apiErrors.names) {
+              newErrors.nombre = apiErrors.names.join(", ");
+            }
+
+            // Manejar otros campos si la API devuelve errores adicionales
+            if (apiErrors.paternal_surname) {
+              newErrors.apellidop = apiErrors.paternal_surname.join(", ");
+            }
+            if (apiErrors.maternal_surname) {
+              newErrors.apellidom = apiErrors.maternal_surname.join(", ");
+            }
+            if (apiErrors.email) {
+              newErrors.correo = apiErrors.email.join(", ");
+            }
+            if (apiErrors.phone_number) {
+              newErrors.telefono = apiErrors.phone_number.join(", ");
+            }
+
+            setErrors(newErrors);
+          }
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        } catch (parseError) {
+          // Si no se puede parsear el error, mostrar un mensaje genérico
+          Toast.fire({
+            icon: "error",
+            title: "Error al procesar el formulario",
+          });
+        }
+      } else {
+        Toast.fire({
+          icon: "error",
+          title: "Ocurrió un error inesperado",
+        });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -136,9 +185,13 @@ export default function ModalRegistroLeads({
         <Modal
           open={isOpen}
           onClose={() => setIsOpen(false)}
-          title="Registro de Leads"
+          title={leadInfo ? "Editar Lead" : "Registro de Leads"}
           primaryAction={{
-            content: isLoading ? "Cargando..." : "Registrar",
+            content: isLoading
+              ? "Cargando..."
+              : leadInfo
+              ? "Actualizar"
+              : "Registrar",
             onAction: handleSubmit,
             disabled: isSubmitDisabled || isLoading,
           }}

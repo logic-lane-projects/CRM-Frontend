@@ -1,6 +1,6 @@
 // src/services/leads.ts
 export interface Lead {
-    _id?: string;
+    _id?: string | undefined;
     names: string;
     paternal_surname: string;
     maternal_surname: string;
@@ -162,7 +162,7 @@ export const getLeadsByPhoneNumber = async (
 // Editar lead
 export const updateLead = async (id: string, leadData: Lead): Promise<Lead> => {
   try {
-    const response = await fetch(`${API_URL}/leads/${id}`, {
+    const response = await fetch(`${API_URL}leads/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -171,7 +171,10 @@ export const updateLead = async (id: string, leadData: Lead): Promise<Lead> => {
     });
 
     if (!response.ok) {
-      throw new Error(`Error al actualizar el lead con ID ${id}`);
+      // Capturar el error en formato JSON si la respuesta no es correcta
+      const errorResponse = await response.json();
+      // Lanzar un nuevo error con la información recibida
+      throw new Error(JSON.stringify(errorResponse));
     }
 
     const updatedLead: Lead = await response.json();
@@ -181,6 +184,7 @@ export const updateLead = async (id: string, leadData: Lead): Promise<Lead> => {
     throw error;
   }
 };
+
 
 // Eliminar lead
 export const deleteLead = async (id: string): Promise<void> => {
