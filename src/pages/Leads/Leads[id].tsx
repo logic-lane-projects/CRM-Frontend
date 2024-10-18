@@ -8,6 +8,7 @@ import {
   ListBulletedFilledIcon,
   NoteIcon,
 } from "@shopify/polaris-icons";
+import { getLeadById } from "../../services/leads";
 import Actividad from "./Actividad";
 import Correos from "./Correos";
 import Llamadas from "./Llamadas";
@@ -15,42 +16,48 @@ import Tareas from "./Tareas";
 import Notas from "./Notas";
 import InfoLead from "./LeadInfo";
 import Whatsapp from "./Whatsapp";
-
-const mockLeadData = {
-  id: "1",
-  nombre: "Juan",
-  apellidoPaterno: "Pérez",
-  apellidoMaterno: "González",
-  organizacion: "Tech Solutions",
-  website: "www.techsolutions.com",
-  industria: "Tecnología",
-  jobTitle: "Ingeniero de Software",
-  source: "Facebook",
-  asignadoA: "Carlos García",
-  referirseComo: {
-    nombre: "Juan",
-    apellidoPaterno: "Pérez",
-    apellidoMaterno: "González",
-  },
-  email: "juan.perez@email.com",
-  telefono: "555-123-4567",
-  emailsRecibidos: 5,
-  llamadasRealizadas: 3,
-};
+import { Toast } from "../../components/Toast/toast";
+import type { Lead } from "../../services/leads";
 
 export default function LeadInfo() {
-  const { id } = useParams();
-  const [leadData, setLeadData] = useState<any>(true); //Regresar a false cuando se tengan enpoints
+  const { id } = useParams<{ id: string }>();
+  const [leadData, setLeadData] = useState<Lead | null>(null);
   const [selectedTab, setSelectedTab] = useState<string>("Actividad");
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (id === "1") {
-      setLeadData(mockLeadData);
-    }
+    const fetchLeadData = async () => {
+      try {
+        if (id) {
+          const response = await getLeadById(id);
+          setLeadData(response);
+        }
+      } catch (error) {
+        const errorMessage = typeof error === "string" ? error : String(error);
+        setError(errorMessage);
+        Toast.fire({
+          icon: "error",
+          title: errorMessage,
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLeadData();
   }, [id]);
 
-  if (!leadData) {
+  if (loading) {
     return <div>Cargando datos del lead...</div>;
+  }
+
+  if (error) {
+    return <div>{error}</div>;
+  }
+
+  if (!leadData) {
+    return <div>No se encontró el lead</div>;
   }
 
   const handleTabClick = (tab: string) => {
@@ -64,7 +71,7 @@ export default function LeadInfo() {
         <div>
           <span className="font-semibold text-lg">Leads/</span>
           <span className="ml-1 text-[15px]">
-            {`${mockLeadData?.nombre} ${mockLeadData?.apellidoPaterno}`}
+            {`${leadData?.names} ${leadData?.maternal_surname} ${leadData?.paternal_surname}`}
           </span>
         </div>
         <Button variant="primary">Hacer trato</Button>
@@ -97,59 +104,63 @@ export default function LeadInfo() {
               <div className="flex gap-1">
                 <Icon source={EmailIcon} />
                 <span>Correos</span>
-              </div>{" "}
+              </div>
             </div>
             <div
               className={`cursor-pointer overflow-hidden ${
                 selectedTab === "Llamadas"
                   ? "border-b-2 border-b-black"
-                  : "hover:border-b-2 hover:border-b-black"
+                  : "hover:border-b-2 hover-border-b-black"
               }`}
               onClick={() => handleTabClick("Llamadas")}
             >
               <div className="flex gap-1">
                 <Icon source={PhoneIcon} />
                 <span>Llamadas</span>
-              </div>{" "}
+              </div>
             </div>
             <div
               className={`cursor-pointer overflow-hidden ${
                 selectedTab === "Whatsapp"
                   ? "border-b-2 border-b-black"
-                  : "hover:border-b-2 hover:border-b-black"
+                  : "hover:border-b-2 hover-border-b-black"
               }`}
               onClick={() => handleTabClick("Whatsapp")}
             >
               <div className="flex gap-1 items-center">
-                <img className="w-3 h-3" src="../../../public/images/whatsapp.png"/>
+                <img
+                  className="w-3 h-3"
+                  src="../../../public/images/whatsapp.png"
+                  alt="Whatsapp"
+                />
                 <span>Whatsapp</span>
-              </div>{" "}
+              </div>
             </div>
             <div
               className={`cursor-pointer overflow-hidden ${
                 selectedTab === "Tareas"
                   ? "border-b-2 border-b-black"
-                  : "hover:border-b-2 hover:border-b-black"
+                  : "hover-border-b-2 hover-border-b-black"
               }`}
               onClick={() => handleTabClick("Tareas")}
             >
               <div className="flex gap-1">
                 <Icon source={ListBulletedFilledIcon} />
                 <span>Tareas</span>
-              </div>{" "}
+              </div>
             </div>
             <div
               className={`cursor-pointer overflow-hidden ${
                 selectedTab === "Notas"
                   ? "border-b-2 border-b-black"
-                  : "hover:border-b-2 hover:border-b-black"
+                  : "hover-border-b-2 hover-border-b-black"
               }`}
               onClick={() => handleTabClick("Notas")}
             >
               <div className="flex gap-1">
                 <Icon source={NoteIcon} />
                 <span>Notas</span>
-              </div>{" "}
+              </div>
             </div>
           </div>
           <div className="border-[1px] border-gray-300 p-2">
@@ -163,12 +174,19 @@ export default function LeadInfo() {
         </div>
         <div className="flex flex-col gap-3 w-full col-span-1">
           <div className="flex gap-10 bg-white border-gray-300 border-[1px] p-2 pt-2.5">
-            <span className="font-semibold flex  justify-center w-full">
+            <span className="font-semibold flex justify-center w-full">
               Acerca de este Lead
             </span>
           </div>
-          <div className="border-[1px]  border-gray-300 p-2">
-            <InfoLead lead={mockLeadData} />
+          <div className="border-[1px] border-gray-300 p-2">
+            <InfoLead
+              lead={{
+                ...leadData,
+                status: leadData?.status ?? null,
+                created_at: leadData?.created_at ?? "",
+                updated_at: leadData?.updated_at ?? "",
+              }}
+            />
           </div>
         </div>
       </div>
