@@ -270,15 +270,17 @@ export default function Leads() {
               ? "Comprador"
               : ""}
           </span>
-          <Button
-            onClick={() => {
-              setIsOpen(true);
-              setLeadDataToEdit(null);
-            }}
-            variant="primary"
-          >
-            Crear
-          </Button>
+          {selected === "lead" && (
+            <Button
+              onClick={() => {
+                setIsOpen(true);
+                setLeadDataToEdit(null);
+              }}
+              variant="primary"
+            >
+              Crear
+            </Button>
+          )}
         </div>
         <Card>
           <div className="flex flex-col gap-4">
