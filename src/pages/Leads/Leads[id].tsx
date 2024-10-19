@@ -1,14 +1,15 @@
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { Button, Card, Icon } from "@shopify/polaris";
+import { Button, Card, Icon, Spinner } from "@shopify/polaris";
 import {
   NotificationIcon,
   EmailIcon,
   PhoneIcon,
   ListBulletedFilledIcon,
   NoteIcon,
+  FileIcon,
 } from "@shopify/polaris-icons";
-import { getLeadById } from "../../services/leads";
+import { getLeadById, changeLeadToProspect } from "../../services/leads";
 import Actividad from "./Actividad";
 import Correos from "./Correos";
 import Llamadas from "./Llamadas";
@@ -16,6 +17,7 @@ import Tareas from "./Tareas";
 import Notas from "./Notas";
 import InfoLead from "./LeadInfo";
 import Whatsapp from "./Whatsapp";
+import Archivos from "./Archivos";
 import { Toast } from "../../components/Toast/toast";
 import type { Lead } from "../../services/leads";
 
@@ -25,6 +27,7 @@ export default function LeadInfo() {
   const [selectedTab, setSelectedTab] = useState<string>("Actividad");
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [isLoadingChange, setIsLoadingChange] = useState(false);
 
   useEffect(() => {
     const fetchLeadData = async () => {
@@ -64,6 +67,22 @@ export default function LeadInfo() {
     setSelectedTab(tab);
   };
 
+  const handlePreClient = async () => {
+    setIsLoadingChange(true);
+    try {
+      await changeLeadToProspect(id);
+      Toast.fire({ icon: "success", title: "Lead pasado a prospecto" });
+    } catch (error) {
+      const errorMessage = typeof error === "string" ? error : String(error);
+      Toast.fire({
+        icon: "error",
+        title: errorMessage,
+      });
+    } finally {
+      setIsLoadingChange(false);
+    }
+  };
+
   return (
     <Card>
       {/* Topbar */}
@@ -74,7 +93,15 @@ export default function LeadInfo() {
             {`${leadData?.names} ${leadData?.maternal_surname} ${leadData?.paternal_surname}`}
           </span>
         </div>
-        <Button variant="primary">Hacer trato</Button>
+        {isLoadingChange ? (
+          <div>
+            <Spinner size="small" />
+          </div>
+        ) : (
+          <Button variant="primary" onClick={handlePreClient}>
+            Pasar a pre-cliente
+          </Button>
+        )}
       </div>
 
       <div className="grid grid-cols-3">
@@ -162,6 +189,19 @@ export default function LeadInfo() {
                 <span>Notas</span>
               </div>
             </div>
+            <div
+              className={`cursor-pointer overflow-hidden ${
+                selectedTab === "Notas"
+                  ? "border-b-2 border-b-black"
+                  : "hover-border-b-2 hover-border-b-black"
+              }`}
+              onClick={() => handleTabClick("Archivos")}
+            >
+              <div className="flex gap-1">
+                <Icon source={FileIcon} />
+                <span>Archivos</span>
+              </div>
+            </div>
           </div>
           <div className="border-[1px] border-gray-300 p-2">
             {selectedTab === "Actividad" && <Actividad />}
@@ -170,6 +210,7 @@ export default function LeadInfo() {
             {selectedTab === "Tareas" && <Tareas />}
             {selectedTab === "Notas" && <Notas />}
             {selectedTab === "Whatsapp" && <Whatsapp />}
+            {selectedTab === "Archivos" && <Archivos id={id}/>}
           </div>
         </div>
         <div className="flex flex-col gap-3 w-full col-span-1">
