@@ -184,7 +184,7 @@ export default function Leads() {
         if (selectedResources.length === 1) {
           const path =
             selected === "lead"
-              ? "lead"
+              ? "leads"
               : selected === "client"
               ? "cliente"
               : selected === "pre-cliente"
