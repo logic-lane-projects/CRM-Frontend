@@ -12,8 +12,8 @@ import NotFound from "./pages/NotFound/NotFound";
 import Sidebar from "./components/Sidebar/Sidebar";
 import { TopBar1 } from "./components/Topbar/Topbar";
 import Vendedores from "./pages/Vendedores/Vendedores";
-import Leads from "./pages/Leads/Leads";
-import Clientes from "./pages/Clientes/Clientes";
+import Leads from "./pages/Leads/All";
+// import Clientes from "./pages/Clientes/Clientes";
 import LeadInfo from "./pages/Leads/Leads[id]";
 import InfoVendedores from "./pages/Vendedores/Vendedores[id]";
 
@@ -121,7 +121,7 @@ const App: React.FC = () => {
             </PrivateRoute>
           }
         />
-        <Route
+        {/* <Route
           path="/clientes"
           element={
             <PrivateRoute>
@@ -130,7 +130,7 @@ const App: React.FC = () => {
               </AppLayout>
             </PrivateRoute>
           }
-        />
+        /> */}
         <Route
           path="*"
           element={

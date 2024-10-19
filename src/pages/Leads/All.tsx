@@ -16,6 +16,9 @@ import { Toast } from "../../components/Toast/toast";
 import { useNavigate } from "react-router-dom";
 import { getAllLeads, deleteLead } from "../../services/leads";
 import { Lead } from "../../services/leads";
+import { getActiveClient } from "../../services/clientes";
+import { getActivePreClients } from "../../services/preClient";
+import { getActiveBuyers } from "../../services/buyer";
 
 export default function Leads() {
   const navigate = useNavigate();
@@ -24,30 +27,81 @@ export default function Leads() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState("10");
   const [leads, setLeads] = useState<Lead[]>([]);
-  const [loading, setLoading] = useState(true);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<string | null>(null);
   const [leadDataToEdit, setLeadDataToEdit] = useState<Lead | null>(null);
+  const [selectedData, setSelectedData] = useState<Lead[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [selected, setSelected] = useState("");
+
+  const fetchLeads = async () => {
+    setIsLoading(true);
+    setSelected("lead");
+    try {
+      const response = await getAllLeads();
+      if (!Array.isArray(response)) {
+        console.error("Error: La respuesta no es un array.");
+        return;
+      }
+      setLeads(response);
+      setSelectedData(response);
+      setIsLoading(false);
+    } catch (error) {
+      setIsLoading(false);
+      console.error("Error al obtener los leads:", error);
+    }
+  };
+
+  const fetchClients = async () => {
+    setSelected("client");
+    setIsLoading(true);
+    try {
+      const clients = await getActiveClient();
+      if (clients.result) {
+        setSelectedData(clients.data);
+        setIsLoading(false);
+      }
+    } catch (error) {
+      setIsLoading(false);
+      console.error("Error al obtener clientes activos", error);
+    }
+  };
+
+  const fetchPreClient = async () => {
+    setSelected("pre-cliente");
+    setIsLoading(true);
+    try {
+      const clients = await getActivePreClients();
+      if (clients.result) {
+        setSelectedData(clients.data);
+        setIsLoading(false);
+      }
+    } catch (error) {
+      setIsLoading(false);
+      console.error("Error al obtener clientes activos", error);
+    }
+  };
+
+  const fetchComprador = async () => {
+    setSelected("comprador");
+    setIsLoading(true);
+    try {
+      const clients = await getActiveBuyers();
+      if (clients.result) {
+        setSelectedData(clients.data);
+        setIsLoading(false);
+      }
+    } catch (error) {
+      setIsLoading(false);
+      console.error("Error al obtener clientes activos", error);
+    }
+  };
 
   useEffect(() => {
-    const fetchLeads = async () => {
-      try {
-        const response = await getAllLeads();
-        if (!Array.isArray(response)) {
-          console.error("Error: La respuesta no es un array.");
-          return;
-        }
-        setLeads(response);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error al obtener los leads:", error);
-        setLoading(false);
-      }
-    };
     fetchLeads();
-  }, [isOpen]);
+  }, []);
 
-  const leadsForIndexTable = leads.map((lead) => ({
+  const leadsForIndexTable = selectedData.map((lead) => ({
     id: lead._id,
     names: lead.names,
     email: lead.email,
@@ -116,10 +170,32 @@ export default function Leads() {
 
   const promotedBulkActions = [
     {
-      content: "Ver Lead",
+      content:
+        selected === "lead"
+          ? "Ver Lead"
+          : selected === "client"
+          ? "Ver Cliente"
+          : selected === "pre-cliente"
+          ? "Ver Pre-Cliente"
+          : selected === "comprador"
+          ? "Ver Comprador"
+          : "",
       onAction: () => {
         if (selectedResources.length === 1) {
-          navigate(`/leads/${selectedResources[0]}`);
+          const path =
+            selected === "lead"
+              ? "lead"
+              : selected === "client"
+              ? "cliente"
+              : selected === "pre-cliente"
+              ? "pre-cliente"
+              : selected === "comprador"
+              ? "comprador"
+              : "";
+
+          if (path) {
+            navigate(`/${path}/${selectedResources[0]}`);
+          }
         } else {
           console.warn("Por favor selecciona solo un lead");
         }
@@ -154,6 +230,7 @@ export default function Leads() {
     });
   };
 
+  // Funcion que te ayuda a detectar que usuarios se estan mostrando
   const rowMarkup = paginatedLeads.map(
     ({ id, names, email, phone_number, city, type_lead, status }, index) => (
       <IndexTable.Row
@@ -182,7 +259,17 @@ export default function Leads() {
     <Frame>
       <div className="w-full flex flex-col gap-4">
         <div className="flex w-full justify-between items-center">
-          <span className="font-semibold text-[20px]">Leads</span>
+          <span className="font-semibold text-[20px]">
+            {selected === "lead"
+              ? "Leads"
+              : selected === "client"
+              ? "Clientes"
+              : selected === "pre-cliente"
+              ? "Pre-Cliente"
+              : selected === "comprador"
+              ? "Comprador"
+              : ""}
+          </span>
           <Button
             onClick={() => {
               setIsOpen(true);
@@ -195,6 +282,13 @@ export default function Leads() {
         </div>
         <Card>
           <div className="flex flex-col gap-4">
+            {/* Botones de filtro */}
+            <div className="flex gap-2">
+              <Button onClick={fetchLeads}>Leads</Button>
+              <Button onClick={fetchPreClient}>Pre-Clientes</Button>
+              <Button onClick={fetchComprador}>Comprador</Button>
+              <Button onClick={fetchClients}>Clientes</Button>
+            </div>
             {/* Campo de búsqueda */}
             <TextField
               label=""
@@ -209,12 +303,33 @@ export default function Leads() {
               autoComplete="off"
             />
 
-            {loading ? (
+            {isLoading ? (
               <p>Cargando leads...</p>
             ) : (
               <>
                 <IndexTable
-                  resourceName={{ singular: "lead", plural: "leads" }}
+                  resourceName={{
+                    singular:
+                      selected === "lead"
+                        ? "lead"
+                        : selected === "pre-cliente"
+                        ? "Pre-Cliente"
+                        : selected === "comprador"
+                        ? "Comprador"
+                        : selected === "cliente"
+                        ? "Cliente"
+                        : "",
+                    plural:
+                      selected === "lead"
+                        ? "lead"
+                        : selected === "pre-cliente"
+                        ? "Pre-Cliente"
+                        : selected === "comprador"
+                        ? "Comprador"
+                        : selected === "cliente"
+                        ? "Cliente"
+                        : "",
+                  }}
                   itemCount={filteredLeads.length}
                   selectedItemsCount={
                     allResourcesSelected ? "All" : selectedResources.length

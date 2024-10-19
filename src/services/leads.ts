@@ -87,7 +87,7 @@ export const getActiveLeadById = async (id: string): Promise<Lead> => {
 // Obtener todos los leads (borrados y no borrados)
 export const getAllLeads = async (): Promise<Lead[]> => {
   try {
-    const response = await fetch(`${API_URL}/leads`, {
+    const response = await fetch(`${API_URL}leads`, {
       method: "GET",
     });
     const data = await response.json();
