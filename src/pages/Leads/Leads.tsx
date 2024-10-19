@@ -16,6 +16,7 @@ import { Toast } from "../../components/Toast/toast";
 import { useNavigate } from "react-router-dom";
 import { getAllLeads, deleteLead } from "../../services/leads";
 import { Lead } from "../../services/leads";
+import { Client, getActiveClient } from "../../services/clientes";
 
 export default function Leads() {
   const navigate = useNavigate();
@@ -24,14 +25,12 @@ export default function Leads() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState("10");
   const [leads, setLeads] = useState<Lead[]>([]);
-  // Se inicializa pre cliente
-  const [preClient, setPreClient] = useState([])
-  // se inicializa cliente
-  const [client, setClient] = useState([])
   const [loading, setLoading] = useState(true);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<string | null>(null);
   const [leadDataToEdit, setLeadDataToEdit] = useState<Lead | null>(null);
+  
+
 
   useEffect(() => {
     const fetchLeads = async () => {
@@ -51,6 +50,16 @@ export default function Leads() {
     fetchLeads();
   }, [isOpen]);
 
+
+  const handleButton = async () => {
+    try {
+      const clients = await getActiveClient();
+      console.log('Clientes activos:', clients);
+    } catch (error) {
+      console.error('Error al obtener clientes activos', error);
+    }
+  }
+  
   const leadsForIndexTable = leads.map((lead) => ({
     id: lead._id,
     names: lead.names,
@@ -106,14 +115,10 @@ export default function Leads() {
     setSelectedLead(null);
   };
 
-  // funcion para cambiar entre datos
-  const changeTable = ()=>{
-    // por defecto pintar los leads
-
-    // Si se eligen los pre clientes, se pintan los clientes
-
-    // si se eligen los clientes se pintan los clientes
-  }
+  // Funcion para cambiar entre datos
+  const handleFilter = (filterType: string) =>{
+    console.log(`Filtro aplicado: ${filterType}`);
+  };
 
   const handleEditAction = () => {
     if (selectedResources.length === 1) {
@@ -209,6 +214,12 @@ export default function Leads() {
         </div>
         <Card>
           <div className="flex flex-col gap-4">
+            {/* Botones de filtro */}
+            <div className="flex gap-2">
+              <Button onClick={() => handleFilter('Todos')}>Todos</Button>
+              <Button onClick={() => handleFilter('Pre-cliente')}>Pre-Clientes</Button>
+              <Button onClick={handleButton}>Clientes</Button>              
+            </div>
             {/* Campo de búsqueda */}
             <TextField
               label=""
