@@ -21,7 +21,7 @@ export default function Sidebar({ isOpen }: SidebarProps) {
                 url: "/inicio",
                 label: "Inicio",
                 icon: HomeIcon,
-                selected: currentPath === "/inicio", // Marca como seleccionado si coincide con la URL actual
+                selected: currentPath === "/inicio",
               },
               {
                 url: "/leads",
@@ -29,12 +29,12 @@ export default function Sidebar({ isOpen }: SidebarProps) {
                 icon: PersonIcon,
                 selected: currentPath === "/leads",
               },
-              {
-                url: "/clientes",
-                label: "Clientes",
-                icon: PersonIcon,
-                selected: currentPath === "/clientes",
-              },
+              // {
+              //   url: "/clientes",
+              //   label: "Clientes",
+              //   icon: PersonIcon,
+              //   selected: currentPath === "/clientes",
+              // },
               {
                 url: "/vendedores",
                 label: "Vendedores",

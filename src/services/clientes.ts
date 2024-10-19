@@ -21,19 +21,18 @@ export interface Client {
   const API_URL = import.meta.env.VITE_API_URL;
 
 // Consultar clientes activos
-  export const getActiveClient = async (): Promise<Client[]> => {
-    try {
-      const response = await fetch(`${API_URL}client/active`, {
-        method: "GET",
-      });
-      if (!response.ok) {
-        throw new Error("Error al obtener los clientes activos");
-      }
-      const clientes: Client[] = await response.json();
-      console.log(clientes);
-      return clientes;
-    } catch (error) {
-      console.error("Error al obtener los clientes activos:", error);
-      throw error;
+export const getActiveClient = async (): Promise<{ result: boolean, error: string, data: Client[] }> => {
+  try {
+    const response = await fetch(`${API_URL}client/active`, {
+      method: "GET",
+    });
+    if (!response.ok) {
+      throw new Error("Error al obtener los clientes activos");
     }
-  };
+    const jsonResponse = await response.json(); // Parsear la respuesta como JSON
+    return jsonResponse; // Devolver el objeto completo con result, error y data
+  } catch (error) {
+    console.error("Error al obtener los clientes activos:", error);
+    throw error;
+  }
+};
