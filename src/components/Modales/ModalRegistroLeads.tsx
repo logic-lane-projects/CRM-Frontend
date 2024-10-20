@@ -15,6 +15,7 @@ interface ModalRegistroVendedoresProps {
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
 }
+
 interface FormValues {
   nombre: string;
   apellidop: string;
@@ -90,7 +91,7 @@ export default function ModalRegistroLeads({
     value: string | number
   ) => {
     setFormValues((prev) => ({ ...prev, [field]: value }));
-    setErrors((prev) => ({ ...prev, [field]: "" }));
+    setErrors((prev) => ({ ...prev, [field]: "" })); // Limpiar el error al cambiar el campo
   };
 
   useEffect(() => {
@@ -102,7 +103,7 @@ export default function ModalRegistroLeads({
 
   const handleSubmit = async () => {
     setIsLoading(true);
-    setErrors({});
+    setErrors({}); // Limpiar errores anteriores
 
     try {
       const leadData: Lead = {
@@ -130,39 +131,44 @@ export default function ModalRegistroLeads({
 
       setIsOpen(false);
     } catch (error: unknown) {
-      console.error("Error al registrar o actualizar el lead:", error);
-
-      // Manejo del error si es un JSON stringified y tiene la estructura esperada
       if (error instanceof Error) {
         try {
           const parsedError = JSON.parse(error.message);
-          if (parsedError.data) {
-            const apiErrors = parsedError.data;
-            const newErrors: { [key: string]: string } = {};
 
-            if (apiErrors.names) {
-              newErrors.nombre = apiErrors.names.join(", ");
-            }
+          // Asignar los errores de la API a los campos correspondientes
+          const apiErrors = parsedError.data;
+          const newErrors: { [key: string]: string } = {};
 
-            // Manejar otros campos si la API devuelve errores adicionales
-            if (apiErrors.paternal_surname) {
-              newErrors.apellidop = apiErrors.paternal_surname.join(", ");
-            }
-            if (apiErrors.maternal_surname) {
-              newErrors.apellidom = apiErrors.maternal_surname.join(", ");
-            }
-            if (apiErrors.email) {
-              newErrors.correo = apiErrors.email.join(", ");
-            }
-            if (apiErrors.phone_number) {
-              newErrors.telefono = apiErrors.phone_number.join(", ");
-            }
-
-            setErrors(newErrors);
+          if (apiErrors.names) {
+            newErrors.nombre = apiErrors.names.join(", ");
           }
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        } catch (parseError) {
-          // Si no se puede parsear el error, mostrar un mensaje genérico
+          if (apiErrors.paternal_surname) {
+            newErrors.apellidop = apiErrors.paternal_surname.join(", ");
+          }
+          if (apiErrors.maternal_surname) {
+            newErrors.apellidom = apiErrors.maternal_surname.join(", ");
+          }
+          if (apiErrors.email) {
+            newErrors.correo = apiErrors.email.join(", ");
+          }
+          if (apiErrors.phone_number) {
+            newErrors.telefono = apiErrors.phone_number.join(", ");
+          }
+          if (apiErrors.age) {
+            newErrors.age = apiErrors.age.join(", ");
+          }
+
+          // Actualizar el estado de errores
+          setErrors(newErrors);
+
+          // También mostrar los errores en el Toast
+          const errorMessages = Object.values(apiErrors).flat().join(", ");
+          Toast.fire({
+            icon: "error",
+            title: `Error en el formulario: ${errorMessages}`,
+            timer: 10000,
+          });
+        } catch {
           Toast.fire({
             icon: "error",
             title: "Error al procesar el formulario",
@@ -209,49 +215,47 @@ export default function ModalRegistroLeads({
                 value={formValues.nombre}
                 onChange={(value) => handleFieldChange("nombre", value)}
                 autoComplete="off"
-                error={errors.nombre}
+                error={errors.nombre} // Mostrar error de nombre
               />
               <TextField
                 label="Apellido Paterno"
                 value={formValues.apellidop}
                 onChange={(value) => handleFieldChange("apellidop", value)}
                 autoComplete="off"
-                error={errors.apellidop}
+                error={errors.apellidop} // Mostrar error de apellido paterno
               />
               <TextField
                 label="Apellido Materno"
                 value={formValues.apellidom}
                 onChange={(value) => handleFieldChange("apellidom", value)}
                 autoComplete="off"
-                error={errors.apellidom}
+                error={errors.apellidom} // Mostrar error de apellido materno
               />
               <TextField
                 label="Correo electrónico"
                 value={formValues.correo}
                 onChange={(value) => handleFieldChange("correo", value)}
                 autoComplete="off"
-                error={errors.correo}
+                error={errors.correo} // Mostrar error de correo
               />
               <TextField
                 label="Teléfono"
                 value={formValues.telefono}
                 onChange={(value) => handleFieldChange("telefono", value)}
                 autoComplete="off"
-                error={errors.telefono}
+                error={errors.telefono} // Mostrar error de teléfono
               />
               <TextField
                 label="Ciudad"
                 value={formValues.ciudad}
                 onChange={(value) => handleFieldChange("ciudad", value)}
                 autoComplete="off"
-                error={errors.ciudad}
               />
               <TextField
                 label="Estado"
                 value={formValues.state || ""}
                 onChange={(value) => handleFieldChange("state", value)}
                 autoComplete="off"
-                error={errors.state}
               />
               <TextField
                 label="Fecha de Nacimiento"
@@ -259,7 +263,6 @@ export default function ModalRegistroLeads({
                 value={formValues.birthday_date || ""}
                 onChange={(value) => handleFieldChange("birthday_date", value)}
                 autoComplete="off"
-                error={errors.birthday_date}
               />
               <TextField
                 label="Edad"
@@ -267,7 +270,7 @@ export default function ModalRegistroLeads({
                 value={formValues.age.toString()}
                 onChange={(value) => handleFieldChange("age", Number(value))}
                 autoComplete="off"
-                error={errors.age}
+                error={errors.age} // Mostrar error de edad
               />
               <Select
                 label="Género"
@@ -276,14 +279,12 @@ export default function ModalRegistroLeads({
                   handleFieldChange("gender", value as "MALE" | "FEMALE")
                 }
                 value={formValues.gender || ""}
-                error={errors.gender}
               />
               <Select
                 label="Tipo de Lead"
                 options={typeLeadOptions}
                 onChange={(value) => handleFieldChange("type_lead", value)}
                 value={formValues.type_lead || ""}
-                error={errors.type_lead}
               />
             </TextContainer>
           </Modal.Section>

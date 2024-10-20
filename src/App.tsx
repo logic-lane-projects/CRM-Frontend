@@ -17,6 +17,8 @@ import Leads from "./pages/Leads/All";
 import LeadInfo from "./pages/Leads/Leads[id]";
 import InfoVendedores from "./pages/Vendedores/Vendedores[id]";
 import ClientInfo from "./pages/Clientes/Clients[id]";
+import ProspectInfo from "./pages/Prospect/Prospect[id]";
+import CompradorInfo from "./pages/Buyer/Buyer[id]";
 
 const App: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
@@ -128,6 +130,26 @@ const App: React.FC = () => {
             <PrivateRoute>
               <AppLayout>
                 <ClientInfo />
+              </AppLayout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/pre-cliente/:id"
+          element={
+            <PrivateRoute>
+              <AppLayout>
+                <ProspectInfo />
+              </AppLayout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/comprador/:id"
+          element={
+            <PrivateRoute>
+              <AppLayout>
+                <CompradorInfo />
               </AppLayout>
             </PrivateRoute>
           }
