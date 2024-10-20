@@ -20,8 +20,10 @@ import Whatsapp from "../Leads/Whatsapp";
 import Archivos from "../Leads/Archivos";
 import { Toast } from "../../components/Toast/toast";
 import type { Lead } from "../../services/leads";
+import { useNavigate } from "react-router-dom";
 
 export default function BuyerInfo() {
+  const navitate = useNavigate()
   const { id } = useParams<{ id: string }>();
   const [leadData, setLeadData] = useState<Lead | null>(null);
   const [selectedTab, setSelectedTab] = useState<string>("Actividad");
@@ -73,6 +75,7 @@ export default function BuyerInfo() {
     try {
       await changeProspectToClient(id);
       Toast.fire({ icon: "success", title: "Prospecto pasado a Cliente" });
+      navitate("/leads")
     } catch (error) {
       const errorMessage = typeof error === "string" ? error : String(error);
       Toast.fire({

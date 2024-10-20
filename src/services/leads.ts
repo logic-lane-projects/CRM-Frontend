@@ -36,9 +36,13 @@ export const createLead = async (leadData: Lead): Promise<Lead> => {
 
   try {
     const response = await fetch(`${API_URL}leads`, requestOptions);
+
+    // Si la respuesta no es exitosa, intenta leer el cuerpo del error
     if (!response.ok) {
-      throw new Error("Error al crear el lead");
+      const errorResponse = await response.json(); // Capturar el cuerpo de la respuesta con los errores
+      throw new Error(JSON.stringify(errorResponse)); // Lanzar el error con los detalles
     }
+
     const newLead: Lead = await response.json();
     return newLead;
   } catch (error) {
@@ -46,6 +50,7 @@ export const createLead = async (leadData: Lead): Promise<Lead> => {
     throw error;
   }
 };
+
 
 // Obtener un lead por ID
 export const getLeadById = async (id: string): Promise<Lead> => {

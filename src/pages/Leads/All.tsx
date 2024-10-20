@@ -99,7 +99,7 @@ export default function Leads() {
 
   useEffect(() => {
     fetchLeads();
-  }, []);
+  }, [isOpen]);
 
   const leadsForIndexTable = selectedData.map((lead) => ({
     id: lead._id,

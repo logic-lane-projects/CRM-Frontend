@@ -68,7 +68,7 @@ export const getPreClientById = async (
 export const changeProspectToClient = async (id?: string | number): Promise<void> => {
   try {
     const response = await fetch(
-      `${API_URL}client/change/customer_prospectus/${id}`,
+      `${API_URL}client/change/buyer/${id}`,
       {
         method: "PATCH",
       }

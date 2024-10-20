@@ -23,8 +23,10 @@ import Whatsapp from "../Leads/Whatsapp";
 import Archivos from "../Leads/Archivos";
 import { Toast } from "../../components/Toast/toast";
 import type { Lead } from "../../services/leads";
+import { useNavigate } from "react-router-dom";
 
 export default function ProspectInfo() {
+  const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [leadData, setLeadData] = useState<Lead | null>(null);
   const [selectedTab, setSelectedTab] = useState<string>("Actividad");
@@ -76,6 +78,7 @@ export default function ProspectInfo() {
     try {
       await changeProspectToClient(id);
       Toast.fire({ icon: "success", title: "Prospecto pasado a Cliente" });
+      navigate("/leads")
     } catch (error) {
       const errorMessage = typeof error === "string" ? error : String(error);
       Toast.fire({
@@ -92,7 +95,7 @@ export default function ProspectInfo() {
       {/* Topbar */}
       <div className="flex justify-between items-center bg-white w-full px-2 py-3">
         <div>
-          <span className="font-semibold text-lg">Leads/</span>
+          <span className="font-semibold text-lg">Pre Cliente/</span>
           <span className="ml-1 text-[15px]">
             {`${leadData?.names} ${leadData?.maternal_surname} ${leadData?.paternal_surname}`}
           </span>
