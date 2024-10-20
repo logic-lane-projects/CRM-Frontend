@@ -99,7 +99,7 @@ export default function Leads() {
 
   useEffect(() => {
     fetchLeads();
-  }, []);
+  }, [isOpen]);
 
   const leadsForIndexTable = selectedData.map((lead) => ({
     id: lead._id,
@@ -184,7 +184,7 @@ export default function Leads() {
         if (selectedResources.length === 1) {
           const path =
             selected === "lead"
-              ? "lead"
+              ? "leads"
               : selected === "client"
               ? "cliente"
               : selected === "pre-cliente"

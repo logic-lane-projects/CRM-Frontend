@@ -73,7 +73,7 @@ export default function LeadInfo() {
       {/* Topbar */}
       <div className="flex justify-between items-center bg-white w-full px-2 py-3">
         <div>
-          <span className="font-semibold text-lg">Leads/</span>
+          <span className="font-semibold text-lg">Cliente/</span>
           <span className="ml-1 text-[15px]">
             {`${clientData?.names} ${clientData?.maternal_surname} ${clientData?.paternal_surname}`}
           </span>
@@ -179,7 +179,7 @@ export default function LeadInfo() {
         <div className="flex flex-col gap-3 w-full col-span-1">
           <div className="flex gap-10 bg-white border-gray-300 border-[1px] p-2 pt-2.5">
             <span className="font-semibold flex justify-center w-full">
-              Acerca de este Lead
+              Acerca de este Cliente
             </span>
           </div>
           <div className="border-[1px] border-gray-300 p-2">

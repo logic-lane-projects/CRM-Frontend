@@ -44,3 +44,43 @@ export const getActivePreClients = async (): Promise<{
     throw error;
   }
 };
+
+export const getPreClientById = async (
+  id: string
+): Promise<{ result: boolean; error: string; data: PreClient }> => { // data es un objeto Client
+  try {
+    const response = await fetch(`${API_URL}customer_prospectus/active/${id}`, {
+      method: "GET",
+    });
+
+    if (!response.ok) {
+      throw new Error("Error al obtener los datos del cliente");
+    }
+
+    const jsonResponse = await response.json();
+    return jsonResponse; // Asegurarse de que `data` es un objeto `Client`
+  } catch (error) {
+    console.error("Error al obtener la información del cliente", error);
+    throw error;
+  }
+};
+
+export const changeProspectToClient = async (id?: string | number): Promise<void> => {
+  try {
+    const response = await fetch(
+      `${API_URL}client/change/buyer/${id}`,
+      {
+        method: "PATCH",
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Error al pasar el lead a prospecto");
+    }
+    console.log("El lead se hizo cliente existosamente");
+  } catch (error) {
+    console.error("Error al pasar el lead a prospecto", error);
+    throw error;
+  }
+};
+
+

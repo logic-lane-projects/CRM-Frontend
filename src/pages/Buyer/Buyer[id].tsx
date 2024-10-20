@@ -9,21 +9,21 @@ import {
   NoteIcon,
   FileIcon,
 } from "@shopify/polaris-icons";
-import { getLeadById, changeLeadToProspect } from "../../services/leads";
-import Actividad from "./Actividad";
-import Correos from "./Correos";
-import Llamadas from "./Llamadas";
-import Tareas from "./Tareas";
-import Notas from "./Notas";
-import InfoLead from "./LeadInfo";
-import Whatsapp from "./Whatsapp";
-import Archivos from "./Archivos";
+import { getBuyerById, changeProspectToClient } from "../../services/buyer";
+import Actividad from "../Leads/Actividad";
+import Correos from "../Leads/Correos";
+import Llamadas from "../Leads/Llamadas";
+import Tareas from "../Leads/Tareas";
+import Notas from "../Leads/Notas";
+import InfoLead from "../Leads/LeadInfo";
+import Whatsapp from "../Leads/Whatsapp";
+import Archivos from "../Leads/Archivos";
 import { Toast } from "../../components/Toast/toast";
 import type { Lead } from "../../services/leads";
 import { useNavigate } from "react-router-dom";
 
-export default function LeadInfo() {
-  const navigate = useNavigate()
+export default function BuyerInfo() {
+  const navitate = useNavigate()
   const { id } = useParams<{ id: string }>();
   const [leadData, setLeadData] = useState<Lead | null>(null);
   const [selectedTab, setSelectedTab] = useState<string>("Actividad");
@@ -35,8 +35,9 @@ export default function LeadInfo() {
     const fetchLeadData = async () => {
       try {
         if (id) {
-          const response = await getLeadById(id);
-          setLeadData(response);
+          const response = await getBuyerById(id);
+          console.log("Respuesta", response);
+          setLeadData(response.data);
         }
       } catch (error) {
         const errorMessage = typeof error === "string" ? error : String(error);
@@ -54,7 +55,7 @@ export default function LeadInfo() {
   }, [id]);
 
   if (loading) {
-    return <div>Cargando datos del lead...</div>;
+    return <div>Cargando datos del comprador...</div>;
   }
 
   if (error) {
@@ -62,19 +63,19 @@ export default function LeadInfo() {
   }
 
   if (!leadData) {
-    return <div>No se encontró el lead</div>;
+    return <div>No se encontró el comprador</div>;
   }
 
   const handleTabClick = (tab: string) => {
     setSelectedTab(tab);
   };
 
-  const handlePreClient = async () => {
+  const handleClient = async () => {
     setIsLoadingChange(true);
     try {
-      await changeLeadToProspect(id);
-      Toast.fire({ icon: "success", title: "Lead pasado a prospecto" });
-      navigate("/leads")
+      await changeProspectToClient(id);
+      Toast.fire({ icon: "success", title: "Prospecto pasado a Cliente" });
+      navitate("/leads")
     } catch (error) {
       const errorMessage = typeof error === "string" ? error : String(error);
       Toast.fire({
@@ -91,7 +92,7 @@ export default function LeadInfo() {
       {/* Topbar */}
       <div className="flex justify-between items-center bg-white w-full px-2 py-3">
         <div>
-          <span className="font-semibold text-lg">Leads/</span>
+          <span className="font-semibold text-lg">Comprador/</span>
           <span className="ml-1 text-[15px]">
             {`${leadData?.names} ${leadData?.maternal_surname} ${leadData?.paternal_surname}`}
           </span>
@@ -101,8 +102,8 @@ export default function LeadInfo() {
             <Spinner size="small" />
           </div>
         ) : (
-          <Button variant="primary" onClick={handlePreClient}>
-            Pasar a pre-cliente
+          <Button variant="primary" onClick={handleClient}>
+            Pasar a Cliente
           </Button>
         )}
       </div>
@@ -213,13 +214,13 @@ export default function LeadInfo() {
             {selectedTab === "Tareas" && <Tareas />}
             {selectedTab === "Notas" && <Notas />}
             {selectedTab === "Whatsapp" && <Whatsapp />}
-            {selectedTab === "Archivos" && <Archivos id={id}/>}
+            {selectedTab === "Archivos" && <Archivos id={id} />}
           </div>
         </div>
         <div className="flex flex-col gap-3 w-full col-span-1">
           <div className="flex gap-10 bg-white border-gray-300 border-[1px] p-2 pt-2.5">
             <span className="font-semibold flex justify-center w-full">
-              Acerca de este Lead
+              Acerca de este Comprador
             </span>
           </div>
           <div className="border-[1px] border-gray-300 p-2">
