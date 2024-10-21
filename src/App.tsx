@@ -135,7 +135,7 @@ const App: React.FC = () => {
           }
         />
         <Route
-          path="/pre-cliente/:id"
+          path="/prospecto/:id"
           element={
             <PrivateRoute>
               <AppLayout>

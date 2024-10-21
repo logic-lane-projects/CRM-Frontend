@@ -7,6 +7,7 @@ import {
   PhoneIcon,
   ListBulletedFilledIcon,
   NoteIcon,
+  FileIcon
 } from "@shopify/polaris-icons";
 import { Client, getClientById } from "../../services/clientes";
 import Actividad from "../Leads/Actividad";
@@ -17,6 +18,7 @@ import Notas from "../Leads/Notas";
 import InfoLead from "../Leads/LeadInfo";
 import Whatsapp from "../Leads/Whatsapp";
 import { Toast } from "../../components/Toast/toast";
+import Archivos from "../Leads/Archivos";
 
 export default function LeadInfo() {
   const { id } = useParams<{ id: string }>();
@@ -134,7 +136,7 @@ export default function LeadInfo() {
               <div className="flex gap-1 items-center">
                 <img
                   className="w-3 h-3"
-                  src="../../../public/images/whatsapp.png"
+                  src="/images/whatsapp.png"
                   alt="Whatsapp"
                 />
                 <span>Whatsapp</span>
@@ -166,6 +168,19 @@ export default function LeadInfo() {
                 <span>Notas</span>
               </div>
             </div>
+            <div
+              className={`cursor-pointer overflow-hidden ${
+                selectedTab === "Notas"
+                  ? "border-b-2 border-b-black"
+                  : "hover-border-b-2 hover-border-b-black"
+              }`}
+              onClick={() => handleTabClick("Archivos")}
+            >
+              <div className="flex gap-1">
+                <Icon source={FileIcon} />
+                <span>Archivos</span>
+              </div>
+            </div>
           </div>
           <div className="border-[1px] border-gray-300 p-2">
             {selectedTab === "Actividad" && <Actividad />}
@@ -174,6 +189,7 @@ export default function LeadInfo() {
             {selectedTab === "Tareas" && <Tareas />}
             {selectedTab === "Notas" && <Notas />}
             {selectedTab === "Whatsapp" && <Whatsapp />}
+            {selectedTab === "Archivos" && <Archivos id={id}/>}
           </div>
         </div>
         <div className="flex flex-col gap-3 w-full col-span-1">

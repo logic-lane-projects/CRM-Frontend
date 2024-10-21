@@ -68,7 +68,7 @@ export default function Leads() {
   };
 
   const fetchPreClient = async () => {
-    setSelected("pre-cliente");
+    setSelected("prospecto");
     setIsLoading(true);
     try {
       const clients = await getActivePreClients();
@@ -175,8 +175,8 @@ export default function Leads() {
           ? "Ver Lead"
           : selected === "client"
           ? "Ver Cliente"
-          : selected === "pre-cliente"
-          ? "Ver Pre-Cliente"
+          : selected === "prospecto"
+          ? "Ver Prospecto"
           : selected === "comprador"
           ? "Ver Comprador"
           : "",
@@ -187,8 +187,8 @@ export default function Leads() {
               ? "leads"
               : selected === "client"
               ? "cliente"
-              : selected === "pre-cliente"
-              ? "pre-cliente"
+              : selected === "prospecto"
+              ? "prospecto"
               : selected === "comprador"
               ? "comprador"
               : "";
@@ -264,8 +264,8 @@ export default function Leads() {
               ? "Leads"
               : selected === "client"
               ? "Clientes"
-              : selected === "pre-cliente"
-              ? "Pre-Cliente"
+              : selected === "prospecto"
+              ? "Prospecto"
               : selected === "comprador"
               ? "Comprador"
               : ""}
@@ -287,7 +287,7 @@ export default function Leads() {
             {/* Botones de filtro */}
             <div className="flex gap-2">
               <Button onClick={fetchLeads}>Leads</Button>
-              <Button onClick={fetchPreClient}>Pre-Clientes</Button>
+              <Button onClick={fetchPreClient}>Prospecto</Button>
               <Button onClick={fetchComprador}>Comprador</Button>
               <Button onClick={fetchClients}>Clientes</Button>
             </div>
@@ -314,8 +314,8 @@ export default function Leads() {
                     singular:
                       selected === "lead"
                         ? "lead"
-                        : selected === "pre-cliente"
-                        ? "Pre-Cliente"
+                        : selected === "prospecto"
+                        ? "Prospecto"
                         : selected === "comprador"
                         ? "Comprador"
                         : selected === "cliente"
@@ -324,8 +324,8 @@ export default function Leads() {
                     plural:
                       selected === "lead"
                         ? "lead"
-                        : selected === "pre-cliente"
-                        ? "Pre-Cliente"
+                        : selected === "prospecto"
+                        ? "Prospecto"
                         : selected === "comprador"
                         ? "Comprador"
                         : selected === "cliente"

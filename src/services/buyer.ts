@@ -35,7 +35,7 @@ export const getActiveBuyers = async (): Promise<{
       }
     );
     if (!response.ok) {
-      throw new Error("Error al obtener los pre-clientes activos");
+      throw new Error("Error al obtener los prospectos activos");
     }
     const jsonResponse = await response.json(); // Parsear la respuesta como JSON
     return jsonResponse; // Devolver el objeto completo con result, error y data
