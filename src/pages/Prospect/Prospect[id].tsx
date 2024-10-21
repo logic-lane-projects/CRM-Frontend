@@ -164,7 +164,7 @@ export default function ProspectInfo() {
               <div className="flex gap-1 items-center">
                 <img
                   className="w-3 h-3"
-                  src="../../../public/images/whatsapp.png"
+                  src="/images/whatsapp.png"
                   alt="Whatsapp"
                 />
                 <span>Whatsapp</span>
