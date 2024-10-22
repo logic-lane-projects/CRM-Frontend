@@ -10,7 +10,6 @@ import "./Login.css";
 import { useNavigate } from "react-router-dom";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "./../../../firebase";
-import { errorID } from "@shopify/polaris/build/ts/src/components/Labelled";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
