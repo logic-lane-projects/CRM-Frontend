@@ -12,6 +12,7 @@ import {
 import {
   getPreClientById,
   changeProspectToClient,
+  PreClient,
 } from "./../../services/preClient";
 import Actividad from "../Leads/Actividad";
 import Correos from "../Leads/Correos";
@@ -22,13 +23,12 @@ import InfoLead from "../Leads/LeadInfo";
 import Whatsapp from "../Leads/Whatsapp";
 import Archivos from "../Leads/Archivos";
 import { Toast } from "../../components/Toast/toast";
-import type { Lead } from "../../services/leads";
 import { useNavigate } from "react-router-dom";
 
 export default function ProspectInfo() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const [leadData, setLeadData] = useState<Lead | null>(null);
+  const [leadData, setLeadData] = useState<PreClient | null>(null);
   const [selectedTab, setSelectedTab] = useState<string>("Actividad");
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -39,7 +39,6 @@ export default function ProspectInfo() {
       try {
         if (id) {
           const response = await getPreClientById(id);
-          console.log("Respuesta", response);
           setLeadData(response.data);
         }
       } catch (error) {
@@ -78,7 +77,7 @@ export default function ProspectInfo() {
     try {
       await changeProspectToClient(id);
       Toast.fire({ icon: "success", title: "Prospecto pasado a Cliente" });
-      navigate("/leads")
+      navigate("/leads");
     } catch (error) {
       const errorMessage = typeof error === "string" ? error : String(error);
       Toast.fire({
@@ -89,13 +88,12 @@ export default function ProspectInfo() {
       setIsLoadingChange(false);
     }
   };
-
   return (
     <Card>
       {/* Topbar */}
       <div className="flex justify-between items-center bg-white w-full px-2 py-3">
         <div>
-          <span className="font-semibold text-lg">Pre Cliente/</span>
+          <span className="font-semibold text-lg">Prospecto/</span>
           <span className="ml-1 text-[15px]">
             {`${leadData?.names} ${leadData?.maternal_surname} ${leadData?.paternal_surname}`}
           </span>
@@ -105,12 +103,23 @@ export default function ProspectInfo() {
             <Spinner size="small" />
           </div>
         ) : (
-          <Button variant="primary" onClick={handlePreClient}>
+          <Button
+            variant="primary"
+            onClick={() => {
+              // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+              leadData?.files_legal?.length == 0
+                ? Toast.fire({
+                    icon: "error",
+                    title:
+                      "Se debe de confirmar el primer deposito del cliente",
+                  })
+                : handlePreClient();
+            }}
+          >
             Pasar a Comprador
           </Button>
         )}
       </div>
-
       <div className="grid grid-cols-3">
         <div className="flex flex-col gap-3 col-span-2">
           <div className="flex gap-4 bg-white border-gray-300 border-[1px] p-2">

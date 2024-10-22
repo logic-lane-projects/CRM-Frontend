@@ -16,6 +16,7 @@ export interface PreClient {
   is_client: boolean | null;
   created_at?: string;
   updated_at?: string;
+  files_legal?: [];
 }
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -47,7 +48,8 @@ export const getActivePreClients = async (): Promise<{
 
 export const getPreClientById = async (
   id: string
-): Promise<{ result: boolean; error: string; data: PreClient }> => { // data es un objeto Client
+): Promise<{ result: boolean; error: string; data: PreClient }> => {
+  // data es un objeto Client
   try {
     const response = await fetch(`${API_URL}customer_prospectus/active/${id}`, {
       method: "GET",
@@ -65,14 +67,13 @@ export const getPreClientById = async (
   }
 };
 
-export const changeProspectToClient = async (id?: string | number): Promise<void> => {
+export const changeProspectToClient = async (
+  id?: string | number
+): Promise<void> => {
   try {
-    const response = await fetch(
-      `${API_URL}client/change/buyer/${id}`,
-      {
-        method: "PATCH",
-      }
-    );
+    const response = await fetch(`${API_URL}client/change/buyer/${id}`, {
+      method: "PATCH",
+    });
     if (!response.ok) {
       throw new Error("Error al pasar el lead a prospecto");
     }
@@ -82,5 +83,3 @@ export const changeProspectToClient = async (id?: string | number): Promise<void
     throw error;
   }
 };
-
-
