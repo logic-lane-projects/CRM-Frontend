@@ -67,6 +67,7 @@ export default function InfoVendedores() {
       setIsSaving(true);
       try {
         const updatedUser = await updateUser(id, {
+          id,
           name,
           paternal_surname: paternalSurname,
           maternal_surname: maternalSurname,

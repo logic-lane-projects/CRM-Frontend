@@ -28,7 +28,7 @@ export default function InfoLead({ lead }: InfoLeadProps) {
     <div>
       {/* Foto y Nombre */}
       <div className="flex items-center border-b-2">
-        <img src="../../../public/images/avatar.png" className="w-20" alt="Avatar" />
+        <img src="/images/avatar.png" className="w-20" alt="Avatar" />
         <div>
           <span className="font-medium text-lg">
             {lead.names} {lead.paternal_surname} {lead.maternal_surname}

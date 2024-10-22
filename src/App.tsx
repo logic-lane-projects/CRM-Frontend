@@ -12,10 +12,13 @@ import NotFound from "./pages/NotFound/NotFound";
 import Sidebar from "./components/Sidebar/Sidebar";
 import { TopBar1 } from "./components/Topbar/Topbar";
 import Vendedores from "./pages/Vendedores/Vendedores";
-import Leads from "./pages/Leads/Leads";
-import Clientes from "./pages/Clientes/Clientes";
+import Leads from "./pages/Leads/All";
+// import Clientes from "./pages/Clientes/Clientes";
 import LeadInfo from "./pages/Leads/Leads[id]";
 import InfoVendedores from "./pages/Vendedores/Vendedores[id]";
+import ClientInfo from "./pages/Clientes/Clients[id]";
+import ProspectInfo from "./pages/Prospect/Prospect[id]";
+import CompradorInfo from "./pages/Buyer/Buyer[id]";
 
 const App: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
@@ -122,6 +125,36 @@ const App: React.FC = () => {
           }
         />
         <Route
+          path="/cliente/:id"
+          element={
+            <PrivateRoute>
+              <AppLayout>
+                <ClientInfo />
+              </AppLayout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/prospecto/:id"
+          element={
+            <PrivateRoute>
+              <AppLayout>
+                <ProspectInfo />
+              </AppLayout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/comprador/:id"
+          element={
+            <PrivateRoute>
+              <AppLayout>
+                <CompradorInfo />
+              </AppLayout>
+            </PrivateRoute>
+          }
+        />
+        {/* <Route
           path="/clientes"
           element={
             <PrivateRoute>
@@ -130,7 +163,7 @@ const App: React.FC = () => {
               </AppLayout>
             </PrivateRoute>
           }
-        />
+        /> */}
         <Route
           path="*"
           element={

@@ -1,5 +1,5 @@
 // src/services/clientes.ts
-export interface Client {
+export interface PreClient {
   _id?: string | undefined;
   names: string;
   paternal_surname: string;
@@ -21,17 +21,21 @@ export interface Client {
 const API_URL = import.meta.env.VITE_API_URL;
 
 // Consultar clientes activos
-export const getActiveClient = async (): Promise<{
+export const getActivePreClients = async (): Promise<{
   result: boolean;
   error: string;
-  data: Client[];
+  data: PreClient[];
 }> => {
   try {
-    const response = await fetch(`${API_URL}client/active`, {
-      method: "GET",
-    });
+    const response = await fetch(
+      `${API_URL}customer_prospectus/active
+`,
+      {
+        method: "GET",
+      }
+    );
     if (!response.ok) {
-      throw new Error("Error al obtener los clientes activos");
+      throw new Error("Error al obtener los prospectos activos");
     }
     const jsonResponse = await response.json(); // Parsear la respuesta como JSON
     return jsonResponse; // Devolver el objeto completo con result, error y data
@@ -41,11 +45,11 @@ export const getActiveClient = async (): Promise<{
   }
 };
 
-export const getClientById = async (
+export const getPreClientById = async (
   id: string
-): Promise<{ result: boolean; error: string; data: Client }> => { // data es un objeto Client
+): Promise<{ result: boolean; error: string; data: PreClient }> => { // data es un objeto Client
   try {
-    const response = await fetch(`${API_URL}client/active/${id}`, {
+    const response = await fetch(`${API_URL}customer_prospectus/active/${id}`, {
       method: "GET",
     });
 
@@ -60,4 +64,23 @@ export const getClientById = async (
     throw error;
   }
 };
+
+export const changeProspectToClient = async (id?: string | number): Promise<void> => {
+  try {
+    const response = await fetch(
+      `${API_URL}client/change/buyer/${id}`,
+      {
+        method: "PATCH",
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Error al pasar el lead a prospecto");
+    }
+    console.log("El lead se hizo cliente existosamente");
+  } catch (error) {
+    console.error("Error al pasar el lead a prospecto", error);
+    throw error;
+  }
+};
+
 

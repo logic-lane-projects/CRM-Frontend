@@ -9,21 +9,24 @@ import {
   NoteIcon,
   FileIcon,
 } from "@shopify/polaris-icons";
-import { getLeadById, changeLeadToProspect } from "../../services/leads";
-import Actividad from "./Actividad";
-import Correos from "./Correos";
-import Llamadas from "./Llamadas";
-import Tareas from "./Tareas";
-import Notas from "./Notas";
-import InfoLead from "./LeadInfo";
-import Whatsapp from "./Whatsapp";
-import Archivos from "./Archivos";
+import {
+  getPreClientById,
+  changeProspectToClient,
+} from "./../../services/preClient";
+import Actividad from "../Leads/Actividad";
+import Correos from "../Leads/Correos";
+import Llamadas from "../Leads/Llamadas";
+import Tareas from "../Leads/Tareas";
+import Notas from "../Leads/Notas";
+import InfoLead from "../Leads/LeadInfo";
+import Whatsapp from "../Leads/Whatsapp";
+import Archivos from "../Leads/Archivos";
 import { Toast } from "../../components/Toast/toast";
 import type { Lead } from "../../services/leads";
 import { useNavigate } from "react-router-dom";
 
-export default function LeadInfo() {
-  const navigate = useNavigate()
+export default function ProspectInfo() {
+  const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [leadData, setLeadData] = useState<Lead | null>(null);
   const [selectedTab, setSelectedTab] = useState<string>("Actividad");
@@ -35,8 +38,9 @@ export default function LeadInfo() {
     const fetchLeadData = async () => {
       try {
         if (id) {
-          const response = await getLeadById(id);
-          setLeadData(response);
+          const response = await getPreClientById(id);
+          console.log("Respuesta", response);
+          setLeadData(response.data);
         }
       } catch (error) {
         const errorMessage = typeof error === "string" ? error : String(error);
@@ -72,8 +76,8 @@ export default function LeadInfo() {
   const handlePreClient = async () => {
     setIsLoadingChange(true);
     try {
-      await changeLeadToProspect(id);
-      Toast.fire({ icon: "success", title: "Lead pasado a prospecto" });
+      await changeProspectToClient(id);
+      Toast.fire({ icon: "success", title: "Prospecto pasado a Cliente" });
       navigate("/leads")
     } catch (error) {
       const errorMessage = typeof error === "string" ? error : String(error);
@@ -91,7 +95,7 @@ export default function LeadInfo() {
       {/* Topbar */}
       <div className="flex justify-between items-center bg-white w-full px-2 py-3">
         <div>
-          <span className="font-semibold text-lg">Leads/</span>
+          <span className="font-semibold text-lg">Pre Cliente/</span>
           <span className="ml-1 text-[15px]">
             {`${leadData?.names} ${leadData?.maternal_surname} ${leadData?.paternal_surname}`}
           </span>
@@ -102,7 +106,7 @@ export default function LeadInfo() {
           </div>
         ) : (
           <Button variant="primary" onClick={handlePreClient}>
-            Pasar a Prospecto
+            Pasar a Comprador
           </Button>
         )}
       </div>
@@ -213,7 +217,7 @@ export default function LeadInfo() {
             {selectedTab === "Tareas" && <Tareas />}
             {selectedTab === "Notas" && <Notas />}
             {selectedTab === "Whatsapp" && <Whatsapp />}
-            {selectedTab === "Archivos" && <Archivos id={id}/>}
+            {selectedTab === "Archivos" && <Archivos id={id} />}
           </div>
         </div>
         <div className="flex flex-col gap-3 w-full col-span-1">

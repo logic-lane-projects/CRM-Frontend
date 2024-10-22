@@ -1,23 +1,22 @@
 // src/services/leads.ts
 export interface Lead {
-    _id?: string | undefined;
-    names: string;
-    paternal_surname: string;
-    maternal_surname: string;
-    email: string;
-    phone_number: string;
-    age: number;
-    birthday_date: string;
-    city: string | null;
-    state: string | null;
-    status?: string | null;
-    type_lead: string;
-    gender: "MALE" | "FEMALE" | null;
-    is_client: boolean | null;
-    created_at?: string;
-    updated_at?: string;
-  }
-  
+  _id?: string | undefined;
+  names: string;
+  paternal_surname: string;
+  maternal_surname: string;
+  email: string;
+  phone_number: string;
+  age: number;
+  birthday_date: string;
+  city: string | null;
+  state: string | null;
+  status?: string | null;
+  type_lead: string;
+  gender: "MALE" | "FEMALE" | null;
+  is_client: boolean | null;
+  created_at?: string;
+  updated_at?: string;
+}
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -37,9 +36,13 @@ export const createLead = async (leadData: Lead): Promise<Lead> => {
 
   try {
     const response = await fetch(`${API_URL}leads`, requestOptions);
+
+    // Si la respuesta no es exitosa, intenta leer el cuerpo del error
     if (!response.ok) {
-      throw new Error("Error al crear el lead");
+      const errorResponse = await response.json(); // Capturar el cuerpo de la respuesta con los errores
+      throw new Error(JSON.stringify(errorResponse)); // Lanzar el error con los detalles
     }
+
     const newLead: Lead = await response.json();
     return newLead;
   } catch (error) {
@@ -48,24 +51,24 @@ export const createLead = async (leadData: Lead): Promise<Lead> => {
   }
 };
 
+
 // Obtener un lead por ID
 export const getLeadById = async (id: string): Promise<Lead> => {
-    try {
-      const response = await fetch(`${API_URL}leads/${id}`, {
-        method: "GET",
-      });
-      if (!response.ok) {
-        throw new Error(`Error al obtener el lead con ID ${id}`);
-      }
-      
-      const data = await response.json(); 
-      return data.data; 
-    } catch (error) {
-      console.error(`Error al obtener el lead con ID ${id}:`, error);
-      throw error;
+  try {
+    const response = await fetch(`${API_URL}leads/${id}`, {
+      method: "GET",
+    });
+    if (!response.ok) {
+      throw new Error(`Error al obtener el lead con ID ${id}`);
     }
-  };
-  
+
+    const data = await response.json();
+    return data.data;
+  } catch (error) {
+    console.error(`Error al obtener el lead con ID ${id}:`, error);
+    throw error;
+  }
+};
 
 // Obtener un lead activo por ID
 export const getActiveLeadById = async (id: string): Promise<Lead> => {
@@ -87,11 +90,11 @@ export const getActiveLeadById = async (id: string): Promise<Lead> => {
 // Obtener todos los leads (borrados y no borrados)
 export const getAllLeads = async (): Promise<Lead[]> => {
   try {
-    const response = await fetch(`${API_URL}/leads`, {
+    const response = await fetch(`${API_URL}leads`, {
       method: "GET",
     });
     const data = await response.json();
-    return data.data; 
+    return data.data;
   } catch (error) {
     console.error("Error al obtener los leads:", error);
     throw error;
@@ -185,7 +188,6 @@ export const updateLead = async (id: string, leadData: Lead): Promise<Lead> => {
   }
 };
 
-
 // Eliminar lead
 export const deleteLead = async (id: string): Promise<void> => {
   try {
@@ -198,6 +200,24 @@ export const deleteLead = async (id: string): Promise<void> => {
     console.log(`Lead con ID ${id} eliminado`);
   } catch (error) {
     console.error(`Error al eliminar el lead con ID ${id}:`, error);
+    throw error;
+  }
+};
+
+export const changeLeadToProspect = async (id?: string | number): Promise<void> => {
+  try {
+    const response = await fetch(
+      `${API_URL}client/change/customer_prospectus/${id}`,
+      {
+        method: "PATCH",
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Error al pasar el lead a prospecto");
+    }
+    console.log("El lead se hizo cliente existosamente");
+  } catch (error) {
+    console.error("Error al pasar el lead a prospecto", error);
     throw error;
   }
 };
