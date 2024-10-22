@@ -20,6 +20,35 @@ const Login: React.FC = () => {
     undefined
   );
   const [isLoading, setIsLoading] = useState(false);
+  const API_URL = import.meta.env.VITE_API_URL;
+
+  const verifyToken = async (tokens: string): Promise<boolean> => {
+
+    const raw = JSON.stringify({token: tokens});
+    console.log(raw);  
+
+    const requestOptions: RequestInit = {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: raw,
+      redirect: "follow" as RequestRedirect,
+    };
+
+    try{      
+      const response = await fetch(`${API_URL}verifyToken`, requestOptions);
+      if (!response.ok) {
+        throw new Error('Error en la solicitud');        
+      }
+      const data = await response.json();
+      console.log('Respuesta del servidor:', data);
+      return true;
+    } catch (error){
+      console.error('Error:', error);
+      return false;
+    }
+  };
 
   useEffect(() => {
     const accessToken = localStorage.getItem("accessTokenCRM");
@@ -60,15 +89,23 @@ const Login: React.FC = () => {
 
       const token = await user.getIdToken();
 
-      localStorage.setItem("accessTokenCRM", token);
-      if (user.email) {
-        localStorage.setItem("email", user.email);
-      } else {
-        console.warn("El usuario no tiene un email");
-      }
+      const isUser = await verifyToken(token);
+      console.log(isUser);
 
-      setIsLoading(false);
-      navigate("/inicio");
+      if (isUser === true){
+        localStorage.setItem("accessTokenCRM", token);
+        if (user.email) {
+          localStorage.setItem("email", user.email);
+        } else {
+          console.warn("El usuario no tiene un email");
+        }
+        setIsLoading(false);
+        navigate("/inicio");
+      }else {
+        console.warn("El usuario no tiene un token");
+        throw new Error("El usuario no tiene un token");
+      }
+      
     } catch (error) {
       console.error("Error en el inicio de sesión:", error);
       setEmailError("Credenciales incorrectas o el usuario no existe.");

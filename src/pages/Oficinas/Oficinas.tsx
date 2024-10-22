@@ -21,7 +21,6 @@ export default function Oficinas() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Cargar los vendedores desde la API al montar el componente
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -50,7 +49,7 @@ export default function Oficinas() {
       vendedor.city.toLowerCase().includes(searchValue.toLowerCase())
   );
 
-  // Convertimos el valor de itemsPerPage en un número o tomamos el total de vendedores si es "todos"
+  // Convertimos el valor de itemsPerPage en un número o tomamos el total de oficinas si es "todos"
   const numItemsPerPage =
     itemsPerPage === "todos"
       ? filteredVendedores.length
@@ -77,7 +76,7 @@ export default function Oficinas() {
   const promotedBulkActions = [
     {
       content: "Ver Oficina",
-      onAction: () => console.log("Ver Vendedor"),
+      onAction: () => console.log("Ver Oficina"),
     },
     {
       content: "Eliminar",
@@ -116,7 +115,7 @@ export default function Oficinas() {
   );
 
   if (loading) {
-    return <p>Cargando vendedores...</p>;
+    return <p>Cargando Oficinas...</p>;
   }
 
   if (error) {
@@ -150,7 +149,7 @@ export default function Oficinas() {
           />
 
           <IndexTable
-            resourceName={{ singular: "vendedor", plural: "vendedores" }}
+            resourceName={{ singular: "oficina", plural: "oficinas" }}
             itemCount={filteredVendedores.length}
             selectedItemsCount={
               allResourcesSelected ? "All" : selectedResources.length
@@ -194,7 +193,7 @@ export default function Oficinas() {
           </div>
         </div>
       </Card>
-      {/* Modal para registrar vendedores */}
+      {/* Modal para registrar oficinas */}
       {isOpen && (
         <ModalRegistroOficinas isOpen={isOpen} setIsOpen={setIsOpen} />
       )}
