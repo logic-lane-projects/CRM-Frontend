@@ -1,15 +1,15 @@
 // components/Sidebar.tsx
 import { Frame, Navigation } from "@shopify/polaris";
-import { HomeIcon, PersonIcon } from "@shopify/polaris-icons";
-import { useLocation } from "react-router-dom"; // Importa el hook useLocation para obtener la URL actual
+import { HomeIcon, PersonIcon, WorkIcon } from "@shopify/polaris-icons";
+import { useLocation } from "react-router-dom";
 
 interface SidebarProps {
   isOpen: boolean;
 }
 
 export default function Sidebar({ isOpen }: SidebarProps) {
-  const location = useLocation(); // Obtiene la ubicación actual en react-router
-  const currentPath = location.pathname; // Obtiene la ruta actual
+  const location = useLocation();
+  const currentPath = location.pathname;
 
   return (
     <div className={`${isOpen ? "block" : "hidden"} md:block h-full`}>
@@ -18,17 +18,17 @@ export default function Sidebar({ isOpen }: SidebarProps) {
           <Navigation.Section
             items={[
               {
-                url: "/inicio",
+                url: "/leads",
                 label: "Inicio",
                 icon: HomeIcon,
-                selected: currentPath === "/inicio",
-              },
-              {
-                url: "/leads",
-                label: "Leads",
-                icon: PersonIcon,
                 selected: currentPath === "/leads",
               },
+              // {
+              //   url: "/leads",
+              //   label: "Leads",
+              //   icon: PersonIcon,
+              //   selected: currentPath === "/leads",
+              // },
               // {
               //   url: "/clientes",
               //   label: "Clientes",
@@ -40,6 +40,12 @@ export default function Sidebar({ isOpen }: SidebarProps) {
                 label: "Vendedores",
                 icon: PersonIcon,
                 selected: currentPath === "/vendedores",
+              },
+              {
+                url: "/oficinas",
+                label: "Oficinas",
+                icon: WorkIcon,
+                selected: currentPath === "/oficinas",
               },
             ]}
           />

@@ -195,7 +195,7 @@ export default function BuyerInfo() {
             </div>
             <div
               className={`cursor-pointer overflow-hidden ${
-                selectedTab === "Notas"
+                selectedTab === "Archivos"
                   ? "border-b-2 border-b-black"
                   : "hover-border-b-2 hover-border-b-black"
               }`}

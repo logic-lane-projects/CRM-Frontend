@@ -19,6 +19,7 @@ import InfoVendedores from "./pages/Vendedores/Vendedores[id]";
 import ClientInfo from "./pages/Clientes/Clients[id]";
 import ProspectInfo from "./pages/Prospect/Prospect[id]";
 import CompradorInfo from "./pages/Buyer/Buyer[id]";
+import Oficinas from "./pages/Oficinas/Oficinas";
 
 const App: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
@@ -164,6 +165,16 @@ const App: React.FC = () => {
             </PrivateRoute>
           }
         /> */}
+        <Route
+          path="/oficinas"
+          element={
+            <PrivateRoute>
+              <AppLayout>
+                <Oficinas />
+              </AppLayout>
+            </PrivateRoute>
+          }
+        />
         <Route
           path="*"
           element={
