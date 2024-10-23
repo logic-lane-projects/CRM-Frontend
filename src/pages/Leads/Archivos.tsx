@@ -1,5 +1,8 @@
-import { useState, useEffect } from "react";
-import { Button } from "@shopify/polaris";
+import React, { useState, useEffect, useCallback, useRef} from "react";
+import { Button,
+        Modal,
+        LegacyStack,
+ } from "@shopify/polaris";
 import {
   getAllFilesByClientId,
   uploadFileByClientId,
@@ -19,6 +22,11 @@ export default function Archivos({ id }: ArchivosProps) {
   const [error, setError] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [fileToUpload, setFileToUpload] = useState<File | null>(null);
+  const [active, setActive] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);//Ref para el input del archivo
+  const toggleActive = useCallback(() => {
+      setActive((active) => !active);
+  }, []);
 
   useEffect(() => {
     const fetchFiles = async () => {
@@ -126,18 +134,58 @@ export default function Archivos({ id }: ArchivosProps) {
     setSelectedFile(formattedUrl);
   };
 
+  //Funcion que simula el click del boton sustituyendo al input
+  const handleButtonClick = () => {
+    fileInputRef.current?.click();
+  }
+
   return (
     <div>
       <div className="flex w-full items-center justify-between">
         <span className="font-semibold text-[15px]">Archivos</span>
-        <Button variant="primary" onClick={handleFileUpload}>
+        <Button variant="primary" onClick={toggleActive}>
           Subir archivo
         </Button>
       </div>
-
-      {/* Input para seleccionar solo archivos PDF */}
-      <input type="file" onChange={handleFileChange} accept="application/pdf" />
-
+        {/* Modal */}
+          <Modal
+            size="small"
+            open={active}
+            onClose={toggleActive}
+            title="Seleccion de archivo"
+            primaryAction={{
+              content: 'Subir',
+              onAction: async () => {
+                await handleFileUpload();
+                toggleActive();
+              },              
+            }}
+            secondaryActions={[
+              {
+                content: 'Cancelar',
+                onAction: toggleActive,
+              },
+            ]}
+          >
+            <Modal.Section>
+              <LegacyStack vertical>                 
+                  <div className="flex items-center justify-center">
+                    <div className="border-dashed border-2 border-gray-400 p-16 m-2">
+                      <Button variant="tertiary" onClick={handleButtonClick}>
+                        Seleccionar archivo
+                      </Button>                     
+                      <input 
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleFileChange} 
+                        accept="application/pdf"
+                        style={{display:"none"}}
+                      />
+                    </div>                    
+                  </div>                                                                         
+              </LegacyStack>
+            </Modal.Section>
+          </Modal>
       <ul>
         {files.length > 0 ? (
           files.map((file, index) => (
@@ -189,6 +237,7 @@ export default function Archivos({ id }: ArchivosProps) {
           ></iframe>
         </div>
       )}
+      
     </div>
   );
 }
