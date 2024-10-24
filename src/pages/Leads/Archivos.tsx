@@ -7,13 +7,19 @@ import {
 } from "../../services/files";
 import { Toast } from "../../components/Toast/toast";
 
-const API_URL = import.meta.env.VITE_API_URL; 
+const API_URL = import.meta.env.VITE_API_URL;
 
 interface ArchivosProps {
   id?: string;
+  isPayment?: boolean;
+  setFinishLoading: (loading: boolean) => void;
 }
 
-export default function Archivos({ id }: ArchivosProps) {
+export default function Archivos({
+  id,
+  isPayment,
+  setFinishLoading,
+}: ArchivosProps) {
   const [files, setFiles] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -68,8 +74,14 @@ export default function Archivos({ id }: ArchivosProps) {
       return;
     }
 
+    // Renombrar archivo a "primer_pago.pdf" si no es un archivo de pago
+    const fileName = isPayment ? fileToUpload.name : "primer_pago.pdf";
+    const renamedFile = new File([fileToUpload], fileName, {
+      type: fileToUpload.type,
+    });
+
     try {
-      await uploadFileByClientId(id!, fileToUpload); // Subir archivo
+      await uploadFileByClientId(id!, renamedFile); // Subir archivo
       Toast.fire({
         icon: "success",
         title: "Archivo subido correctamente",
@@ -78,7 +90,9 @@ export default function Archivos({ id }: ArchivosProps) {
       // Actualizar la lista de archivos después de la subida
       const clientFiles = await getAllFilesByClientId(id!);
       setFiles(clientFiles);
+      setFinishLoading(true);
     } catch (error) {
+      setFinishLoading(true);
       const errorMessage = typeof error === "string" ? error : String(error);
       Toast.fire({
         icon: "error",
@@ -131,7 +145,7 @@ export default function Archivos({ id }: ArchivosProps) {
       <div className="flex w-full items-center justify-between">
         <span className="font-semibold text-[15px]">Archivos</span>
         <Button variant="primary" onClick={handleFileUpload}>
-          Subir archivo
+          {isPayment ? "Subir archivo" : "Subir Pago"}
         </Button>
       </div>
 
@@ -158,7 +172,7 @@ export default function Archivos({ id }: ArchivosProps) {
                     : API_URL + file
                 }`}
                 download={file.split("/").pop()}
-                target="_blank" 
+                target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-500 hover:underline"
               >

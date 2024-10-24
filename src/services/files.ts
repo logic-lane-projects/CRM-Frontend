@@ -75,3 +75,24 @@ export async function deleteFileByClientId(
     throw error;
   }
 }
+
+export const uploadPaymentFileById = async (id: string) => {
+  try {
+    const response = await fetch(
+      `${API_URL}change/upload_archivo_pago/${id}`,
+      {
+        method: "POST",
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status} - ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching payment file:", error);
+    throw error;
+  }
+};
