@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef} from "react";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faFilePdf } from '@fortawesome/free-solid-svg-icons';
 import { Button,
         Modal,
         LegacyStack,
@@ -25,8 +27,14 @@ export default function Archivos({ id }: ArchivosProps) {
   const [active, setActive] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);//Ref para el input del archivo
   const toggleActive = useCallback(() => {
-      setActive((active) => !active);
+    setActive((active) => {
+      if (active) {
+        setFileToUpload(null);//Resetea el estado "Seleccionar archivo" al cancelar
+      }
+      return !active;
+    });
   }, []);
+  
 
   useEffect(() => {
     const fetchFiles = async () => {
@@ -86,6 +94,7 @@ export default function Archivos({ id }: ArchivosProps) {
       // Actualizar la lista de archivos después de la subida
       const clientFiles = await getAllFilesByClientId(id!);
       setFiles(clientFiles);
+      setFileToUpload(null);//Resetea el estado "Seleccionar archivo"
     } catch (error) {
       const errorMessage = typeof error === "string" ? error : String(error);
       Toast.fire({
@@ -139,6 +148,20 @@ export default function Archivos({ id }: ArchivosProps) {
     fileInputRef.current?.click();
   }
 
+  //Boton personalizado
+  const CustomButton: React.FC<{ onClick: () => void; children: React.ReactNode }> = ({
+    onClick,
+    children,
+  }) => {
+    return (
+      <button
+        onClick={onClick}
+        className="w-full h-full overflow-hidden truncate border-none rounded-md bg-[#ffffff] text-black cursor-pointer y-2">
+        {children}
+      </button>
+    );
+  };
+
   return (
     <div>
       <div className="flex w-full items-center justify-between">
@@ -170,10 +193,16 @@ export default function Archivos({ id }: ArchivosProps) {
             <Modal.Section>
               <LegacyStack vertical>                 
                   <div className="flex items-center justify-center">
-                    <div className="border-dashed border-2 border-gray-400 p-16 m-2">
-                      <Button variant="tertiary" onClick={handleButtonClick}>
-                        Seleccionar archivo
-                      </Button>                     
+                    <div className="border-dashed border-2 border-gray-400 w-64 h-48">
+                      <CustomButton onClick={handleButtonClick}>
+                        <span className="flex justify-center overflow-hidden truncate text-base">
+                          {fileToUpload ? (
+                            <>
+                              <FontAwesomeIcon icon={faFilePdf} className="text-4xl" style={{ marginRight: '8px'  }}/>                                                        
+                            </>
+                          ):('Seleccionar archivo')}
+                        </span>                                                                       
+                      </CustomButton>                     
                       <input 
                         type="file"
                         ref={fileInputRef}
