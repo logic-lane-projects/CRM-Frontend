@@ -1,6 +1,6 @@
 // src/services/clientes.ts
 export interface Buyer {
-  _id?: string | undefined;
+  _id?: string;
   names: string;
   paternal_surname: string;
   maternal_surname: string;
@@ -10,13 +10,20 @@ export interface Buyer {
   birthday_date: string;
   city: string | null;
   state: string | null;
-  status?: string | null;
+  status?: boolean | null;
   type_lead: string;
+  type_client?: string; 
+  type_person?: string; 
   gender: "MALE" | "FEMALE" | null;
   is_client: boolean | null;
+  assigned_to?: string | null; 
+  files_legal_extra?: string[]; 
+  files_legal_fisica?: string[]; 
+  files_legal_moral?: string[];
   created_at?: string;
   updated_at?: string;
 }
+
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -37,8 +44,8 @@ export const getActiveBuyers = async (): Promise<{
     if (!response.ok) {
       throw new Error("Error al obtener los prospectos activos");
     }
-    const jsonResponse = await response.json(); // Parsear la respuesta como JSON
-    return jsonResponse; // Devolver el objeto completo con result, error y data
+    const jsonResponse = await response.json(); 
+    return jsonResponse; 
   } catch (error) {
     console.error("Error al obtener los clientes activos:", error);
     throw error;
@@ -58,7 +65,7 @@ export const getBuyerById = async (
     }
 
     const jsonResponse = await response.json();
-    return jsonResponse; // Asegurarse de que `data` es un objeto `Client`
+    return jsonResponse;
   } catch (error) {
     console.error("Error al obtener la información del cliente", error);
     throw error;

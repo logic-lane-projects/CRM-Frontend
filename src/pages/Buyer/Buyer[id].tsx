@@ -19,25 +19,34 @@ import InfoLead from "../Leads/LeadInfo";
 import Whatsapp from "../Leads/Whatsapp";
 import Archivos from "../Leads/Archivos";
 import { Toast } from "../../components/Toast/toast";
-import type { Lead } from "../../services/leads";
+import type { Buyer } from "../../services/buyer";
 import { useNavigate } from "react-router-dom";
 
 export default function BuyerInfo() {
   const navitate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const [leadData, setLeadData] = useState<Lead | null>(null);
+  const [leadData, setLeadData] = useState<Buyer | null>(null);
   const [selectedTab, setSelectedTab] = useState<string>("Actividad");
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isLoadingChange, setIsLoadingChange] = useState(false);
   const [finishLoading, setFinishLoading] = useState(false);
+  const [isPayment, setIsPayment] = useState(false);
 
   useEffect(() => {
     const fetchLeadData = async () => {
       try {
         if (id) {
           const response = await getBuyerById(id);
-          console.log("Respuesta", response);
+          if (response.data && response.data.files_legal_extra) {
+            response.data.files_legal_extra.map((el) => {
+              if (el.includes("archivo_pago")) {
+                setIsPayment(true);
+              } else {
+                setIsPayment(false);
+              }
+            });
+          }
           setLeadData(response.data);
         }
       } catch (error) {
@@ -224,7 +233,11 @@ export default function BuyerInfo() {
             {selectedTab === "Notas" && <Notas />}
             {selectedTab === "Whatsapp" && <Whatsapp />}
             {selectedTab === "Archivos" && (
-              <Archivos id={id} setFinishLoading={setFinishLoading} />
+              <Archivos
+                id={id}
+                setFinishLoading={setFinishLoading}
+                isPayment={isPayment}
+              />
             )}
           </div>
         </div>

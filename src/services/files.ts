@@ -1,19 +1,21 @@
 const API_URL = import.meta.env.VITE_API_URL;
 
+export interface FilesData {
+  type_person: string;
+  files_legal_extra: string[];
+  files_legal_fisica: string[];
+  files_legal_moral: string[];
+}
+
 // funcion para obtener todos los archivos de un cliente
-export async function getAllFilesByClientId(id: string): Promise<string[]> {
+export async function getAllFilesByClientId(id: string): Promise<FilesData> {
   try {
     const response = await fetch(`${API_URL}client/legal_files/${id}`, {
       method: "GET",
     });
-
-    if (!response.ok) {
-      throw new Error("Error al obtener los archivos del cliente");
-    }
-
     const data = await response.json();
 
-    return data.data;
+    return data.data as FilesData;
   } catch (error) {
     console.error("Error al obtener los archivos del cliente", error);
     throw error;
@@ -78,13 +80,10 @@ export async function deleteFileByClientId(
 
 export const uploadPaymentFileById = async (id: string, formData: FormData) => {
   try {
-    const response = await fetch(
-      `${API_URL}change/upload_archivo_pago/${id}`,
-      {
-        method: "POST",
-        body: formData, 
-      }
-    );
+    const response = await fetch(`${API_URL}change/upload_archivo_pago/${id}`, {
+      method: "POST",
+      body: formData,
+    });
 
     if (!response.ok) {
       throw new Error(`Error: ${response.status} - ${response.statusText}`);
@@ -97,4 +96,3 @@ export const uploadPaymentFileById = async (id: string, formData: FormData) => {
     throw error;
   }
 };
-

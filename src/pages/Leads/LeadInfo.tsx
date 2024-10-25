@@ -1,8 +1,8 @@
 import { Button, Icon } from "@shopify/polaris";
 import { PhoneIcon, EmailIcon } from "@shopify/polaris-icons";
-import { useState } from "react";
+import {useState } from "react";
 import ModalRegimenFiscal from "../../components/Modales/ModalRegimenFiscal";
-
+import { useLocation } from "react-router-dom";
 interface InfoLead {
   _id?: string;
   names: string;
@@ -28,6 +28,8 @@ interface InfoLeadProps {
 
 export default function InfoLead({ lead }: InfoLeadProps) {
   const [isRegimenOpen, setIsRegimenOpen] = useState(false);
+  const location = useLocation();
+  const pathname = location.pathname;
 
   return (
     <div>
@@ -84,18 +86,20 @@ export default function InfoLead({ lead }: InfoLeadProps) {
           <strong>Última actualización:</strong>{" "}
           {new Date(lead.updated_at).toLocaleDateString()}
         </p>
-        <div className="flex items-center gap-3">
-          <strong>Regimen fiscal: </strong>
-          {lead.type_person ? lead.type_person : "Sin Asignacion"}
-          <Button
-            onClick={() => {
-              setIsRegimenOpen(true);
-            }}
-            variant="primary"
-          >
-            Cambiar
-          </Button>
-        </div>
+        {(!pathname.includes("leads") || pathname.includes("prospecto")) && (
+          <div className="flex items-center gap-3">
+            <strong>Regimen fiscal: </strong>
+            {lead.type_person ? lead.type_person : "Sin Asignacion"}
+            <Button
+              onClick={() => {
+                setIsRegimenOpen(true);
+              }}
+              variant="primary"
+            >
+              Cambiar
+            </Button>
+          </div>
+        )}
       </div>
       {isRegimenOpen && (
         <ModalRegimenFiscal

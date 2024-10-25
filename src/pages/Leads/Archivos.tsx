@@ -7,6 +7,8 @@ import {
   uploadPaymentFileById,
 } from "../../services/files";
 import { Toast } from "../../components/Toast/toast";
+import { useNavigate } from "react-router-dom";
+import type { FilesData } from "../../services/files";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -21,18 +23,24 @@ export default function Archivos({
   isPayment,
   setFinishLoading,
 }: ArchivosProps) {
-  const [files, setFiles] = useState<string[]>([]);
+  const [files, setFiles] = useState<FilesData>({
+    type_person: "",
+    files_legal_extra: [],
+    files_legal_fisica: [],
+    files_legal_moral: [],
+  });
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [fileToUpload, setFileToUpload] = useState<File | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchFiles = async () => {
       if (id) {
         try {
-          const clientFiles = await getAllFilesByClientId(id);
-          setFiles(clientFiles);
+          const response = await getAllFilesByClientId(id);
+          setFiles(response);
         } catch (error) {
           const errorMessage =
             error instanceof Error ? error.message : String(error);
@@ -50,7 +58,6 @@ export default function Archivos({
     fetchFiles();
   }, [id]);
 
-  // Función para manejar la selección del archivo
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
       const selectedFile = event.target.files[0];
@@ -65,7 +72,6 @@ export default function Archivos({
     }
   };
 
-  // Función para manejar la subida del archivo
   const handleFileUpload = async () => {
     if (!fileToUpload) {
       Toast.fire({
@@ -77,27 +83,21 @@ export default function Archivos({
 
     try {
       if (isPayment) {
-        // Subir archivo normal
         const renamedFile = new File([fileToUpload], fileToUpload.name, {
           type: fileToUpload.type,
         });
         await uploadFileByClientId(id!, renamedFile);
       } else {
-        // Subir archivo de pago utilizando FormData con el nombre "archivo_pago"
         const formData = new FormData();
         formData.append("archivo_pago", fileToUpload, "archivo_pago");
-
-        await uploadPaymentFileById(id!, formData); // Mandar formData al endpoint
+        await uploadPaymentFileById(id!, formData);
+        navigate("/leads");
       }
 
       Toast.fire({
         icon: "success",
         title: "Archivo subido correctamente",
       });
-
-      // Actualizar la lista de archivos después de la subida
-      const clientFiles = await getAllFilesByClientId(id!);
-      setFiles(clientFiles);
       setFinishLoading(true);
     } catch (error) {
       setFinishLoading(true);
@@ -109,7 +109,6 @@ export default function Archivos({
     }
   };
 
-  // Función para manejar la eliminación del archivo
   const handleDeleteFile = async (filePath: string) => {
     if (!id) return;
 
@@ -119,10 +118,6 @@ export default function Archivos({
         icon: "success",
         title: "Archivo eliminado correctamente",
       });
-
-      // Actualizar la lista de archivos después de eliminar
-      const clientFiles = await getAllFilesByClientId(id);
-      setFiles(clientFiles);
     } catch (error) {
       const errorMessage = typeof error === "string" ? error : String(error);
       Toast.fire({
@@ -140,7 +135,13 @@ export default function Archivos({
     return <div>{error}</div>;
   }
 
-  // Función para manejar clic en archivo para previsualizar
+  const filesToDisplay = [
+    ...files.files_legal_extra,
+    ...(files.type_person === "MORAL"
+      ? files.files_legal_moral
+      : files.files_legal_fisica),
+  ];
+
   const handleFileClick = (file: string) => {
     const formattedUrl = API_URL.endsWith("/")
       ? `${API_URL}${file.slice(1)}`
@@ -157,14 +158,11 @@ export default function Archivos({
         </Button>
       </div>
 
-      {/* Input para seleccionar solo archivos PDF */}
       <input type="file" onChange={handleFileChange} accept="application/pdf" />
-      {console.log(files)}
       <ul>
-        {files?.files_legal_extra?.length > 0 ? (
-          files?.files_legal_extra?.map((file, index) => (
+        {filesToDisplay.length > 0 ? (
+          filesToDisplay.map((file, index) => (
             <li key={index}>
-              {/* Al hacer clic en el nombre del archivo, se previsualiza */}
               <a
                 href="#"
                 onClick={() => handleFileClick(file)}
@@ -200,7 +198,6 @@ export default function Archivos({
         )}
       </ul>
 
-      {/* Previsualización del archivo PDF */}
       {selectedFile && (
         <div className="mt-4">
           <iframe
