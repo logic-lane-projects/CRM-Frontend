@@ -2,13 +2,11 @@ import { useState, useEffect } from "react";
 import { Button } from "@shopify/polaris";
 import {
   getAllFilesByClientId,
-  uploadFileByClientId,
   deleteFileByClientId,
-  uploadPaymentFileById,
 } from "../../services/files";
 import { Toast } from "../../components/Toast/toast";
-import { useNavigate } from "react-router-dom";
 import type { FilesData } from "../../services/files";
+import ModalSubirArchivos from "../../components/Modales/ModalSubirArchivos";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -32,15 +30,20 @@ export default function Archivos({
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
-  const [fileToUpload, setFileToUpload] = useState<File | null>(null);
-  const navigate = useNavigate();
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     const fetchFiles = async () => {
       if (id) {
         try {
           const response = await getAllFilesByClientId(id);
-          setFiles(response);
+          // Aseguramos que los arrays siempre estén definidos
+          setFiles({
+            ...response,
+            files_legal_extra: response.files_legal_extra || [],
+            files_legal_fisica: response.files_legal_fisica || [],
+            files_legal_moral: response.files_legal_moral || [],
+          });
         } catch (error) {
           const errorMessage =
             error instanceof Error ? error.message : String(error);
@@ -57,57 +60,6 @@ export default function Archivos({
 
     fetchFiles();
   }, [id]);
-
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files.length > 0) {
-      const selectedFile = event.target.files[0];
-      if (selectedFile.type !== "application/pdf") {
-        Toast.fire({
-          icon: "warning",
-          title: "Por favor selecciona un archivo PDF",
-        });
-        return;
-      }
-      setFileToUpload(selectedFile);
-    }
-  };
-
-  const handleFileUpload = async () => {
-    if (!fileToUpload) {
-      Toast.fire({
-        icon: "warning",
-        title: "Por favor selecciona un archivo",
-      });
-      return;
-    }
-
-    try {
-      if (isPayment) {
-        const renamedFile = new File([fileToUpload], fileToUpload.name, {
-          type: fileToUpload.type,
-        });
-        await uploadFileByClientId(id!, renamedFile);
-      } else {
-        const formData = new FormData();
-        formData.append("archivo_pago", fileToUpload, "archivo_pago");
-        await uploadPaymentFileById(id!, formData);
-        navigate("/leads");
-      }
-
-      Toast.fire({
-        icon: "success",
-        title: "Archivo subido correctamente",
-      });
-      setFinishLoading(true);
-    } catch (error) {
-      setFinishLoading(true);
-      const errorMessage = typeof error === "string" ? error : String(error);
-      Toast.fire({
-        icon: "error",
-        title: errorMessage,
-      });
-    }
-  };
 
   const handleDeleteFile = async (filePath: string) => {
     if (!id) return;
@@ -153,12 +105,15 @@ export default function Archivos({
     <div>
       <div className="flex w-full items-center justify-between">
         <span className="font-semibold text-[15px]">{`Archivos`}</span>
-        <Button variant="primary" onClick={handleFileUpload}>
-          {isPayment ? "Subir archivo" : "Subir Pago"}
+        <Button
+          onClick={() => {
+            setIsOpen(true);
+          }}
+        >
+          Subir Archivo
         </Button>
       </div>
 
-      <input type="file" onChange={handleFileChange} accept="application/pdf" />
       <ul>
         {filesToDisplay.length > 0 ? (
           filesToDisplay.map((file, index) => (
@@ -207,6 +162,16 @@ export default function Archivos({
             title="Previsualización de PDF"
           ></iframe>
         </div>
+      )}
+
+      {isOpen && (
+        <ModalSubirArchivos
+          isOpen={isOpen}
+          setIsOpen={setIsOpen}
+          setFinishLoading={setFinishLoading}
+          id={id}
+          isPayment={isPayment}
+        />
       )}
     </div>
   );

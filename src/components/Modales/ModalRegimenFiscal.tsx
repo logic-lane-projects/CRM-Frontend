@@ -25,7 +25,7 @@ export default function ModalRegimenFiscal({
       Toast.fire({ icon: "success", title: "Regimen cambiado" });
       setTimeout(() => {
         window.location.reload();
-      }, 1000);
+      }, 500);
       setIsOpen(false);
     } catch (error) {
       Toast.fire({
