@@ -23,13 +23,14 @@ import type { Lead } from "../../services/leads";
 import { useNavigate } from "react-router-dom";
 
 export default function BuyerInfo() {
-  const navitate = useNavigate()
+  const navitate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [leadData, setLeadData] = useState<Lead | null>(null);
   const [selectedTab, setSelectedTab] = useState<string>("Actividad");
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isLoadingChange, setIsLoadingChange] = useState(false);
+  const [finishLoading, setFinishLoading] = useState(false);
 
   useEffect(() => {
     const fetchLeadData = async () => {
@@ -52,7 +53,7 @@ export default function BuyerInfo() {
     };
 
     fetchLeadData();
-  }, [id]);
+  }, [id, finishLoading]);
 
   if (loading) {
     return <div>Cargando datos del comprador...</div>;
@@ -75,7 +76,7 @@ export default function BuyerInfo() {
     try {
       await changeProspectToClient(id);
       Toast.fire({ icon: "success", title: "Prospecto pasado a Cliente" });
-      navitate("/leads")
+      navitate("/leads");
     } catch (error) {
       const errorMessage = typeof error === "string" ? error : String(error);
       Toast.fire({
@@ -91,11 +92,19 @@ export default function BuyerInfo() {
     <Card>
       {/* Topbar */}
       <div className="flex justify-between items-center bg-white w-full px-2 py-3">
-        <div>
+        <div className="flex items-center gap-1">
           <span className="font-semibold text-lg">Comprador/</span>
           <span className="ml-1 text-[15px]">
             {`${leadData?.names} ${leadData?.maternal_surname} ${leadData?.paternal_surname}`}
           </span>
+          {leadData?.type_person === "" ||
+            (leadData.type_person === null && (
+              <div className="ml-4 bg-red-700 px-2">
+                <span>
+                  Este comprador aun no tiene registrado su regimen fiscal
+                </span>
+              </div>
+            ))}
         </div>
         {isLoadingChange ? (
           <div>
@@ -214,7 +223,9 @@ export default function BuyerInfo() {
             {selectedTab === "Tareas" && <Tareas />}
             {selectedTab === "Notas" && <Notas />}
             {selectedTab === "Whatsapp" && <Whatsapp />}
-            {selectedTab === "Archivos" && <Archivos id={id} />}
+            {selectedTab === "Archivos" && (
+              <Archivos id={id} setFinishLoading={setFinishLoading} />
+            )}
           </div>
         </div>
         <div className="flex flex-col gap-3 w-full col-span-1">

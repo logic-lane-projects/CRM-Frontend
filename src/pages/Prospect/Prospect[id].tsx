@@ -44,7 +44,7 @@ export default function ProspectInfo() {
           setLeadData(response.data);
           if (response.data && response.data.files_legal) {
             const hasPrimerPago = response.data.files_legal.some((el: string) =>
-              el.includes("primer_pago")
+              el.includes("archivo_pago")
             );
             setIsPayment(hasPrimerPago);
           }

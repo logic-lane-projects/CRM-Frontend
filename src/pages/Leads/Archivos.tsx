@@ -4,6 +4,7 @@ import {
   getAllFilesByClientId,
   uploadFileByClientId,
   deleteFileByClientId,
+  uploadPaymentFileById,
 } from "../../services/files";
 import { Toast } from "../../components/Toast/toast";
 
@@ -34,12 +35,12 @@ export default function Archivos({
           setFiles(clientFiles);
         } catch (error) {
           const errorMessage =
-            typeof error === "string" ? error : String(error);
+            error instanceof Error ? error.message : String(error);
           Toast.fire({
             icon: "error",
             title: errorMessage,
           });
-          setError("Error al cargar los archivos del cliente");
+          setError(errorMessage);
         } finally {
           setLoading(false);
         }
@@ -74,14 +75,21 @@ export default function Archivos({
       return;
     }
 
-    // Renombrar archivo a "primer_pago.pdf" si no es un archivo de pago
-    const fileName = isPayment ? fileToUpload.name : "primer_pago.pdf";
-    const renamedFile = new File([fileToUpload], fileName, {
-      type: fileToUpload.type,
-    });
-
     try {
-      await uploadFileByClientId(id!, renamedFile); // Subir archivo
+      if (isPayment) {
+        // Subir archivo normal
+        const renamedFile = new File([fileToUpload], fileToUpload.name, {
+          type: fileToUpload.type,
+        });
+        await uploadFileByClientId(id!, renamedFile);
+      } else {
+        // Subir archivo de pago utilizando FormData con el nombre "archivo_pago"
+        const formData = new FormData();
+        formData.append("archivo_pago", fileToUpload, "archivo_pago");
+
+        await uploadPaymentFileById(id!, formData); // Mandar formData al endpoint
+      }
+
       Toast.fire({
         icon: "success",
         title: "Archivo subido correctamente",
@@ -151,10 +159,10 @@ export default function Archivos({
 
       {/* Input para seleccionar solo archivos PDF */}
       <input type="file" onChange={handleFileChange} accept="application/pdf" />
-
+      {console.log(files)}
       <ul>
-        {files.length > 0 ? (
-          files.map((file, index) => (
+        {files?.files_legal_extra?.length > 0 ? (
+          files?.files_legal_extra?.map((file, index) => (
             <li key={index}>
               {/* Al hacer clic en el nombre del archivo, se previsualiza */}
               <a

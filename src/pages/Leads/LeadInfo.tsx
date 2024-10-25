@@ -1,5 +1,7 @@
-import { Icon } from "@shopify/polaris";
+import { Button, Icon } from "@shopify/polaris";
 import { PhoneIcon, EmailIcon } from "@shopify/polaris-icons";
+import { useState } from "react";
+import ModalRegimenFiscal from "../../components/Modales/ModalRegimenFiscal";
 
 interface InfoLead {
   _id?: string;
@@ -17,6 +19,7 @@ interface InfoLead {
   gender: "MALE" | "FEMALE" | null;
   created_at: string;
   updated_at: string;
+  type_person?: string;
 }
 
 interface InfoLeadProps {
@@ -24,6 +27,8 @@ interface InfoLeadProps {
 }
 
 export default function InfoLead({ lead }: InfoLeadProps) {
+  const [isRegimenOpen, setIsRegimenOpen] = useState(false);
+
   return (
     <div>
       {/* Foto y Nombre */}
@@ -43,20 +48,62 @@ export default function InfoLead({ lead }: InfoLeadProps) {
           </div>
         </div>
       </div>
-      
+
       {/* Detalles Lead */}
       <div className="p-2">
-        <p><strong>Correo:</strong> {lead.email}</p>
-        <p><strong>Teléfono:</strong> {lead.phone_number}</p>
-        <p><strong>Ciudad:</strong> {lead.city ? lead.city : "No disponible"}</p>
-        <p><strong>Estado:</strong> {lead.state ? lead.state : "No disponible"}</p>
-        <p><strong>Fecha de nacimiento:</strong> {lead.birthday_date}</p>
-        <p><strong>Edad:</strong> {lead.age}</p>
-        <p><strong>Tipo de lead:</strong> {lead.type_lead}</p>
-        <p><strong>Género:</strong> {lead.gender === "MALE" ? "Masculino" : "Femenino"}</p>
-        <p><strong>Fecha de creación:</strong> {new Date(lead.created_at).toLocaleDateString()}</p>
-        <p><strong>Última actualización:</strong> {new Date(lead.updated_at).toLocaleDateString()}</p>
+        <p>
+          <strong>Correo:</strong> {lead.email}
+        </p>
+        <p>
+          <strong>Teléfono:</strong> {lead.phone_number}
+        </p>
+        <p>
+          <strong>Ciudad:</strong> {lead.city ? lead.city : "No disponible"}
+        </p>
+        <p>
+          <strong>Estado:</strong> {lead.state ? lead.state : "No disponible"}
+        </p>
+        <p>
+          <strong>Fecha de nacimiento:</strong> {lead.birthday_date}
+        </p>
+        <p>
+          <strong>Edad:</strong> {lead.age}
+        </p>
+        <p>
+          <strong>Tipo de lead:</strong> {lead.type_lead}
+        </p>
+        <p>
+          <strong>Género:</strong>{" "}
+          {lead.gender === "MALE" ? "Masculino" : "Femenino"}
+        </p>
+        <p>
+          <strong>Fecha de creación:</strong>{" "}
+          {new Date(lead.created_at).toLocaleDateString()}
+        </p>
+        <p>
+          <strong>Última actualización:</strong>{" "}
+          {new Date(lead.updated_at).toLocaleDateString()}
+        </p>
+        <div className="flex items-center gap-3">
+          <strong>Regimen fiscal: </strong>
+          {lead.type_person ? lead.type_person : "Sin Asignacion"}
+          <Button
+            onClick={() => {
+              setIsRegimenOpen(true);
+            }}
+            variant="primary"
+          >
+            Cambiar
+          </Button>
+        </div>
       </div>
+      {isRegimenOpen && (
+        <ModalRegimenFiscal
+          isOpen={isRegimenOpen}
+          setIsOpen={setIsRegimenOpen}
+          id={lead._id || ""}
+        />
+      )}
     </div>
   );
 }

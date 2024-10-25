@@ -16,6 +16,7 @@ export interface Lead {
   is_client: boolean | null;
   created_at?: string;
   updated_at?: string;
+  type_person?: string;
 }
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -50,7 +51,6 @@ export const createLead = async (leadData: Lead): Promise<Lead> => {
     throw error;
   }
 };
-
 
 // Obtener un lead por ID
 export const getLeadById = async (id: string): Promise<Lead> => {
@@ -204,7 +204,9 @@ export const deleteLead = async (id: string): Promise<void> => {
   }
 };
 
-export const changeLeadToProspect = async (id?: string | number): Promise<void> => {
+export const changeLeadToProspect = async (
+  id?: string | number
+): Promise<void> => {
   try {
     const response = await fetch(
       `${API_URL}client/change/customer_prospectus/${id}`,

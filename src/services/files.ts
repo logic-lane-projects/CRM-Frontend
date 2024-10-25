@@ -76,12 +76,13 @@ export async function deleteFileByClientId(
   }
 }
 
-export const uploadPaymentFileById = async (id: string) => {
+export const uploadPaymentFileById = async (id: string, formData: FormData) => {
   try {
     const response = await fetch(
       `${API_URL}change/upload_archivo_pago/${id}`,
       {
         method: "POST",
+        body: formData, 
       }
     );
 
@@ -92,7 +93,8 @@ export const uploadPaymentFileById = async (id: string) => {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error("Error fetching payment file:", error);
+    console.error("Error uploading payment file:", error);
     throw error;
   }
 };
+
