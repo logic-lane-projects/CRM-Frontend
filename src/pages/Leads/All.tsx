@@ -15,7 +15,7 @@ import {
 import { Toast } from "../../components/Toast/toast";
 import { useNavigate } from "react-router-dom";
 import { getAllLeads, deleteLead } from "../../services/leads";
-import { Lead } from "../../services/leads";
+import { All as Lead } from "../../services/buyer";
 import { getActiveClient } from "../../services/clientes";
 import { getActivePreClients } from "../../services/preClient";
 import { getActiveBuyers } from "../../services/buyer";

@@ -1,6 +1,6 @@
 // src/services/leads.ts
 export interface Lead {
-  _id?: string | undefined;
+  _id?: string;
   names: string;
   paternal_surname: string;
   maternal_surname: string;
@@ -10,13 +10,18 @@ export interface Lead {
   birthday_date: string;
   city: string | null;
   state: string | null;
-  status?: string | null;
+  status?: boolean | null;
   type_lead: string;
+  type_client?: string;
+  type_person?: string;
   gender: "MALE" | "FEMALE" | null;
   is_client: boolean | null;
+  assigned_to?: string | null;
+  files_legal_extra?: string[];
+  files_legal_fisica?: string[];
+  files_legal_moral?: string[];
   created_at?: string;
   updated_at?: string;
-  type_person?: string;
 }
 
 const API_URL = import.meta.env.VITE_API_URL;

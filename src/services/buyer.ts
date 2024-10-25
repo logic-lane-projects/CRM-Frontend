@@ -1,5 +1,5 @@
 // src/services/clientes.ts
-export interface Buyer {
+export interface All {
   _id?: string;
   names: string;
   paternal_surname: string;
@@ -31,7 +31,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 export const getActiveBuyers = async (): Promise<{
   result: boolean;
   error: string;
-  data: Buyer[];
+  data: All[];
 }> => {
   try {
     const response = await fetch(
@@ -54,7 +54,7 @@ export const getActiveBuyers = async (): Promise<{
 
 export const getBuyerById = async (
   id: string
-): Promise<{ result: boolean; error: string; data: Buyer }> => { 
+): Promise<{ result: boolean; error: string; data: All }> => { 
   try {
     const response = await fetch(`${API_URL}buyer/active/${id}`, {
       method: "GET",

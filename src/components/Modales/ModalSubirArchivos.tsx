@@ -12,7 +12,7 @@ interface ModalArchivos {
   setIsOpen: (isOpen: boolean) => void;
   id?: string;
   isPayment?: boolean;
-  setFinishLoading: (loading: boolean) => void;
+  setFinishLoading?: (loading: boolean) => void;
   regimen: string | undefined;
 }
 
@@ -68,10 +68,14 @@ export default function ModalSubirArchivos({
         icon: "success",
         title: "Archivo subido correctamente",
       });
-      setFinishLoading(true);
+      if (setFinishLoading) {
+        setFinishLoading(true);
+      }
       setIsOpen(false);
     } catch (error) {
-      setFinishLoading(true);
+      if (setFinishLoading) {
+        setFinishLoading(true);
+      }
       const errorMessage = typeof error === "string" ? error : String(error);
       Toast.fire({
         icon: "error",
@@ -93,7 +97,10 @@ export default function ModalSubirArchivos({
   const opcionesMoral = [
     { label: "INE del representante", value: "ine_representante" },
     { label: "Domicilio del representante", value: "domicilio_representante" },
-    { label: "Situación fiscal del representante", value: "situacion_fiscal_representante" },
+    {
+      label: "Situación fiscal del representante",
+      value: "situacion_fiscal_representante",
+    },
     { label: "Acta constitutiva", value: "acta_constitutiva" },
     { label: "Poderes de representación", value: "poderes_representacion" },
     { label: "Domicilio de la moral", value: "domicilio_moral" },

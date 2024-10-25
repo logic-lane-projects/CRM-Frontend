@@ -19,7 +19,7 @@ import InfoLead from "../Leads/LeadInfo";
 import Whatsapp from "../Leads/Whatsapp";
 import Archivos from "../Leads/Archivos";
 import { Toast } from "../../components/Toast/toast";
-import type { Buyer } from "../../services/buyer";
+import type { All as Buyer } from "../../services/buyer";
 import { useNavigate } from "react-router-dom";
 
 export default function BuyerInfo() {
@@ -39,7 +39,7 @@ export default function BuyerInfo() {
         if (id) {
           const response = await getBuyerById(id);
           if (response.data && response.data.files_legal_extra) {
-            response.data.files_legal_extra.map((el) => {
+            response.data.files_legal_extra.map((el: string) => {
               if (el.includes("archivo_pago")) {
                 setIsPayment(true);
               } else {

@@ -13,7 +13,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 interface ArchivosProps {
   id?: string;
   isPayment?: boolean;
-  setFinishLoading: (loading: boolean) => void;
+  setFinishLoading?: (loading: boolean) => void;
   regimen?: string;
 }
 

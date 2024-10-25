@@ -1,4 +1,5 @@
 // src/services/clientes.ts
+import { All } from "./buyer";
 export interface Client {
   _id?: string | undefined;
   names: string;
@@ -24,7 +25,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 export const getActiveClient = async (): Promise<{
   result: boolean;
   error: string;
-  data: Client[];
+  data: All[];
 }> => {
   try {
     const response = await fetch(`${API_URL}client/active`, {
