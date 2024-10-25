@@ -14,12 +14,14 @@ interface ArchivosProps {
   id?: string;
   isPayment?: boolean;
   setFinishLoading: (loading: boolean) => void;
+  regimen?: string;
 }
 
 export default function Archivos({
   id,
   isPayment,
   setFinishLoading,
+  regimen,
 }: ArchivosProps) {
   const [files, setFiles] = useState<FilesData>({
     type_person: "",
@@ -107,7 +109,14 @@ export default function Archivos({
         <span className="font-semibold text-[15px]">{`Archivos`}</span>
         <Button
           onClick={() => {
-            setIsOpen(true);
+            if (regimen === null || regimen === "") {
+              Toast.fire({
+                icon: "error",
+                title: "Primero debes de elegir el regimen del cliente",
+              });
+            } else {
+              setIsOpen(true);
+            }
           }}
         >
           Subir Archivo
@@ -171,6 +180,7 @@ export default function Archivos({
           setFinishLoading={setFinishLoading}
           id={id}
           isPayment={isPayment}
+          regimen={regimen}
         />
       )}
     </div>

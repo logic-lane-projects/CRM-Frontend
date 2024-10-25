@@ -237,6 +237,7 @@ export default function BuyerInfo() {
                 id={id}
                 setFinishLoading={setFinishLoading}
                 isPayment={isPayment}
+                regimen={leadData.type_person}
               />
             )}
           </div>

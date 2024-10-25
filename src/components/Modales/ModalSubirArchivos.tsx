@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Modal, TextContainer } from "@shopify/polaris";
+import { Modal, TextContainer, Select } from "@shopify/polaris";
 import { Toast } from "../../components/Toast/toast";
 import {
   uploadFileByClientId,
@@ -13,6 +13,7 @@ interface ModalArchivos {
   id?: string;
   isPayment?: boolean;
   setFinishLoading: (loading: boolean) => void;
+  regimen: string | undefined;
 }
 
 export default function ModalSubirArchivos({
@@ -21,8 +22,10 @@ export default function ModalSubirArchivos({
   id,
   isPayment,
   setFinishLoading,
+  regimen,
 }: ModalArchivos) {
   const [fileToUpload, setFileToUpload] = useState<File | null>(null);
+  const [selectedOption, setSelectedOption] = useState<string>("");
   const navigate = useNavigate();
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -66,7 +69,7 @@ export default function ModalSubirArchivos({
         title: "Archivo subido correctamente",
       });
       setFinishLoading(true);
-      setIsOpen(false); // Cierra el modal después de la subida
+      setIsOpen(false);
     } catch (error) {
       setFinishLoading(true);
       const errorMessage = typeof error === "string" ? error : String(error);
@@ -77,11 +80,34 @@ export default function ModalSubirArchivos({
     }
   };
 
+  // Opciones para regimen FISICA
+  const opcionesFisica = [
+    { label: "INE", value: "ine" },
+    { label: "CURP", value: "curp" },
+    { label: "Acta de nacimiento", value: "acta_nacimiento" },
+    { label: "Comprobante de domicilio", value: "domicilio" },
+    { label: "Situación fiscal", value: "situacion_fiscal" },
+  ];
+
+  // Opciones para regimen MORAL
+  const opcionesMoral = [
+    { label: "INE del representante", value: "ine_representante" },
+    { label: "Domicilio del representante", value: "domicilio_representante" },
+    { label: "Situación fiscal del representante", value: "situacion_fiscal_representante" },
+    { label: "Acta constitutiva", value: "acta_constitutiva" },
+    { label: "Poderes de representación", value: "poderes_representacion" },
+    { label: "Domicilio de la moral", value: "domicilio_moral" },
+    { label: "Situación fiscal de la moral", value: "situacion_fiscal_moral" },
+  ];
+
+  // Opciones basadas en el régimen
+  const opciones = regimen === "FISICA" ? opcionesFisica : opcionesMoral;
+
   return (
     <Modal
       open={isOpen}
       onClose={() => setIsOpen(false)}
-      title="Sube un archivo"
+      title={`Sube un archivo del régimen ${regimen}`}
       primaryAction={{
         content: isPayment ? "Subir Pago" : "Subir Archivo",
         onAction: handleFileUpload,
@@ -96,6 +122,12 @@ export default function ModalSubirArchivos({
       <Modal.Section>
         <TextContainer>
           <p>Selecciona el archivo PDF que deseas subir.</p>
+          <Select
+            label="Selecciona el tipo de archivo"
+            options={opciones}
+            onChange={(value) => setSelectedOption(value)}
+            value={selectedOption}
+          />
           <input
             type="file"
             onChange={handleFileChange}
