@@ -21,16 +21,18 @@ export default function ModalRegimenFiscal({
   const changeRegimen = async () => {
     setIsLoading(true);
     try {
-      const response = await selectTypePerson(id, typePerson);
-      console.log("Cambio de régimen exitoso:", response);
-      setIsOpen(false); // Cerrar el modal después del cambio
+      await selectTypePerson(id, typePerson);
+      Toast.fire({ icon: "success", title: "Regimen cambiado" });
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+      setIsOpen(false);
     } catch (error) {
       Toast.fire({
         icon: "error",
         title: error || "Error al cambiar el Regimen fiscal",
         timer: 2000,
       });
-      console.error("Error al cambiar el régimen fiscal:", error);
     } finally {
       setIsLoading(false);
     }
@@ -53,7 +55,7 @@ export default function ModalRegimenFiscal({
         primaryAction={{
           content: isLoading ? "Cambiando..." : "Cambiar",
           onAction: changeRegimen,
-          disabled: isLoading, // Deshabilitar botón durante la carga
+          disabled: isLoading,
         }}
         secondaryActions={[
           {
@@ -73,8 +75,8 @@ export default function ModalRegimenFiscal({
             <Select
               label="Tipo de Régimen"
               options={options}
-              onChange={(value) => setTypePerson(value)} // Actualizar el valor seleccionado
-              value={typePerson} // Valor seleccionado actualmente
+              onChange={(value) => setTypePerson(value)}
+              value={typePerson}
             />
           </TextContainer>
         </Modal.Section>

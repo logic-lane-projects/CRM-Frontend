@@ -152,7 +152,7 @@ export default function Archivos({
   return (
     <div>
       <div className="flex w-full items-center justify-between">
-        <span className="font-semibold text-[15px]">Archivos</span>
+        <span className="font-semibold text-[15px]">{`Archivos ${files.type_person}`}</span>
         <Button variant="primary" onClick={handleFileUpload}>
           {isPayment ? "Subir archivo" : "Subir Pago"}
         </Button>
