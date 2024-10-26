@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Button, Card, Icon, Spinner } from "@shopify/polaris";
 import {
@@ -20,10 +20,10 @@ import Whatsapp from "../Leads/Whatsapp";
 import Archivos from "../Leads/Archivos";
 import { Toast } from "../../components/Toast/toast";
 import type { All as Buyer } from "../../services/buyer";
-import { useNavigate } from "react-router-dom";
 
 export default function BuyerInfo() {
-  const navitate = useNavigate();
+  const navigate = useNavigate();
+  const location = useLocation();
   const { id } = useParams<{ id: string }>();
   const [leadData, setLeadData] = useState<Buyer | null>(null);
   const [selectedTab, setSelectedTab] = useState<string>("Actividad");
@@ -32,6 +32,12 @@ export default function BuyerInfo() {
   const [isLoadingChange, setIsLoadingChange] = useState(false);
   const [finishLoading, setFinishLoading] = useState(false);
   const [isPayment, setIsPayment] = useState(false);
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const tabFromUrl = searchParams.get("selected") || "Actividad";
+    setSelectedTab(tabFromUrl);
+  }, [location.search]);
 
   useEffect(() => {
     const fetchLeadData = async () => {
@@ -78,6 +84,7 @@ export default function BuyerInfo() {
 
   const handleTabClick = (tab: string) => {
     setSelectedTab(tab);
+    navigate(`/comprador/${id}?selected=${tab}`);
   };
 
   const handleClient = async () => {
@@ -85,7 +92,7 @@ export default function BuyerInfo() {
     try {
       await changeProspectToClient(id);
       Toast.fire({ icon: "success", title: "Prospecto pasado a Cliente" });
-      navitate("/leads");
+      navigate("/leads");
     } catch (error) {
       const errorMessage = typeof error === "string" ? error : String(error);
       Toast.fire({
@@ -159,7 +166,7 @@ export default function BuyerInfo() {
               className={`cursor-pointer overflow-hidden ${
                 selectedTab === "Llamadas"
                   ? "border-b-2 border-b-black"
-                  : "hover:border-b-2 hover-border-b-black"
+                  : "hover-border-b-2 hover-border-b-black"
               }`}
               onClick={() => handleTabClick("Llamadas")}
             >

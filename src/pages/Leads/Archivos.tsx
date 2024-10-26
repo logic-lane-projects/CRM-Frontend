@@ -7,6 +7,7 @@ import {
 import { Toast } from "../../components/Toast/toast";
 import type { FilesData } from "../../services/files";
 import ModalSubirArchivos from "../../components/Modales/ModalSubirArchivos";
+import { useLocation } from "react-router-dom";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -23,6 +24,8 @@ export default function Archivos({
   setFinishLoading,
   regimen,
 }: ArchivosProps) {
+  const location = useLocation();
+  const pathname = location.pathname;
   const [files, setFiles] = useState<FilesData>({
     type_person: "",
     files_legal_extra: [],
@@ -31,7 +34,10 @@ export default function Archivos({
   });
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedFile, setSelectedFile] = useState<string | null>(null);
+  // const [isLoading, setIsLoading] = useState({
+  //   eliminar: false
+  // })
+  // const [setSelectedFile] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
@@ -72,6 +78,9 @@ export default function Archivos({
         icon: "success",
         title: "Archivo eliminado correctamente",
       });
+      setTimeout(() => {
+        window.location.reload();
+      }, 300);
     } catch (error) {
       const errorMessage = typeof error === "string" ? error : String(error);
       Toast.fire({
@@ -96,12 +105,48 @@ export default function Archivos({
       : files.files_legal_fisica),
   ];
 
-  const handleFileClick = (file: string) => {
-    const formattedUrl = API_URL.endsWith("/")
-      ? `${API_URL}${file.slice(1)}`
-      : `${API_URL}${file}`;
-    setSelectedFile(formattedUrl);
+  // const handleFileClick = (file: string) => {
+  //   const formattedUrl = API_URL.endsWith("/")
+  //     ? `${API_URL}${file.slice(1)}`
+  //     : `${API_URL}${file}`;
+  //   setSelectedFile(formattedUrl);
+  // };
+
+  const getFileLabel = (fileName: string) => {
+    const normalizedFileName = fileName.toLowerCase();
+  
+    // Archivos para persona física
+    if (normalizedFileName.includes("ine") && !normalizedFileName.includes("representante")) {
+      return "INE";
+    } else if (normalizedFileName.includes("curp")) {
+      return "CURP";
+    } else if (normalizedFileName.includes("acta_nacimiento")) {
+      return "Acta de nacimiento";
+    } else if (normalizedFileName.includes("domicilio") && !normalizedFileName.includes("moral") && !normalizedFileName.includes("representante")) {
+      return "Comprobante de domicilio";
+    } else if (normalizedFileName.includes("situacion_fiscal") && !normalizedFileName.includes("moral") && !normalizedFileName.includes("representante")) {
+      return "Situación fiscal";
+  
+    // Archivos para persona moral
+    } else if (normalizedFileName.includes("ine_representante")) {
+      return "INE del representante";
+    } else if (normalizedFileName.includes("domicilio_representante")) {
+      return "Domicilio del representante";
+    } else if (normalizedFileName.includes("situacion_fiscal_representante")) {
+      return "Situación fiscal del representante";
+    } else if (normalizedFileName.includes("acta_constitutiva")) {
+      return "Acta constitutiva";
+    } else if (normalizedFileName.includes("poderes_representacion")) {
+      return "Poderes de representación";
+    } else if (normalizedFileName.includes("domicilio_moral")) {
+      return "Domicilio de la moral";
+    } else if (normalizedFileName.includes("situacion_fiscal_moral")) {
+      return "Situación fiscal de la moral";
+    }
+  
+    return fileName.split("/").pop() || "Archivo desconocido";
   };
+  
 
   return (
     <div>
@@ -109,13 +154,18 @@ export default function Archivos({
         <span className="font-semibold text-[15px]">{`Archivos`}</span>
         <Button
           onClick={() => {
-            if (regimen === null || regimen === "") {
-              Toast.fire({
-                icon: "error",
-                title: "Primero debes de elegir el regimen del cliente",
-              });
-            } else {
+            if (pathname.includes("prospecto")) {
               setIsOpen(true);
+            }
+            if (pathname.includes("comprador")) {
+              if (!regimen) {
+                Toast.fire({
+                  icon: "error",
+                  title: "Primero debes de elegir el regimen del usuario",
+                });
+              } else {
+                setIsOpen(true);
+              }
             }
           }}
         >
@@ -123,55 +173,43 @@ export default function Archivos({
         </Button>
       </div>
 
-      <ul>
+      <div className="grid grid-cols-3 items-center gap-7">
         {filesToDisplay.length > 0 ? (
           filesToDisplay.map((file, index) => (
-            <li key={index}>
-              <a
-                href="#"
-                onClick={() => handleFileClick(file)}
-                className="text-blue-500 hover:underline"
-              >
-                {file.split("/").pop()}
-              </a>
-              {" - "}
-              <a
-                href={`${
-                  API_URL.endsWith("/")
-                    ? API_URL + file.slice(1)
-                    : API_URL + file
-                }`}
-                download={file.split("/").pop()}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-500 hover:underline"
-              >
-                Descargar
-              </a>
-              <Button
-                onClick={() => {
-                  handleDeleteFile(file);
-                }}
-              >
-                Eliminar
-              </Button>
-            </li>
+            <div
+              className="flex flex-col min-w-[200px] max-w-[250px] min-h-[200px] max-h-[200px] items-center justify-around"
+              key={index}
+            >
+              <span className="text-semibold">{getFileLabel(file)}</span>
+              <img src="/images/pdfIcon.png" alt="" />
+              <div>
+                <a
+                  href={`${
+                    API_URL.endsWith("/")
+                      ? API_URL + file.slice(1)
+                      : API_URL + file
+                  }`}
+                  download={file.split("/").pop()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="border px-2 py-[4px] rounded-md bg-green-500 text-white"
+                >
+                  Descargar
+                </a>
+                <Button
+                  onClick={() => {
+                    handleDeleteFile(file);
+                  }}
+                >
+                  Eliminar
+                </Button>
+              </div>
+            </div>
           ))
         ) : (
           <li>No hay archivos disponibles.</li>
         )}
-      </ul>
-
-      {selectedFile && (
-        <div className="mt-4">
-          <iframe
-            src={selectedFile}
-            width="100%"
-            height="600px"
-            title="Previsualización de PDF"
-          ></iframe>
-        </div>
-      )}
+      </div>
 
       {isOpen && (
         <ModalSubirArchivos
@@ -181,6 +219,7 @@ export default function Archivos({
           id={id}
           isPayment={isPayment}
           regimen={regimen}
+          uploadedFiles={filesToDisplay}
         />
       )}
     </div>
