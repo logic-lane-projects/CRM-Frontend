@@ -97,9 +97,6 @@ export default function ModalSubirArchivos({
         const formData = new FormData();
         formData.append("archivo_pago", renamedFile);
         await uploadPaymentFileById(id!, formData);
-        if (pathname.includes("prospecto")) {
-          navigate("/leads");
-        }
       } else if (!regimen && !isPayment) {
         renamedFile = new File([fileToUpload], "archivo_pago", {
           type: fileToUpload.type,
@@ -113,9 +110,14 @@ export default function ModalSubirArchivos({
         icon: "success",
         title: "Archivo subido correctamente",
       });
-      setTimeout(() => {
-        window.location.reload();
-      }, 500);
+      if (pathname.includes("prospecto")) {
+        navigate("/leads");
+      }
+      if (!pathname.includes("prospecto")) {
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
+      }
       if (setFinishLoading) {
         setFinishLoading(true);
       }

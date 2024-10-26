@@ -115,7 +115,7 @@ export default function Archivos({
   const getFileLabel = (fileName: string) => {
     const normalizedFileName = fileName.toLowerCase();
   
-    // Archivos para persona física
+    // Archivos para persona fisica
     if (normalizedFileName.includes("ine") && !normalizedFileName.includes("representante")) {
       return "INE";
     } else if (normalizedFileName.includes("curp")) {

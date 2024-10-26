@@ -86,7 +86,7 @@ export default function InfoLead({ lead }: InfoLeadProps) {
           <strong>Última actualización:</strong>{" "}
           {new Date(lead.updated_at).toLocaleDateString()}
         </p>
-        {(!pathname.includes("leads") || pathname.includes("prospecto")) && (
+        {(pathname.includes("comprador") || pathname.includes("cliente")) && (
           <div className="flex items-center gap-3">
             <strong>Regimen fiscal: </strong>
             {lead.type_person ? lead.type_person : "Sin Asignacion"}
