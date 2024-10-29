@@ -91,7 +91,7 @@ export default function ModalRegistroLeads({
     value: string | number
   ) => {
     setFormValues((prev) => ({ ...prev, [field]: value }));
-    setErrors((prev) => ({ ...prev, [field]: "" })); // Limpiar el error al cambiar el campo
+    setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
   useEffect(() => {
@@ -103,7 +103,7 @@ export default function ModalRegistroLeads({
 
   const handleSubmit = async () => {
     setIsLoading(true);
-    setErrors({}); // Limpiar errores anteriores
+    setErrors({});
 
     try {
       const leadData: Lead = {

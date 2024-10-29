@@ -11,7 +11,9 @@
   },
   "dependencies": {
     "@shopify/polaris": "^13.9.0",
+    "crypto-js": "^4.2.0",
     "firebase": "^10.14.0",
+    "jwt-decode": "^4.0.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.26.2",
@@ -19,6 +21,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.11.1",
+    "@types/crypto-js": "^4.2.2",
     "@types/react": "^18.3.10",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.2",
