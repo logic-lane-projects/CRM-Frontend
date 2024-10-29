@@ -90,7 +90,6 @@ const Login: React.FC = () => {
       const token = await user.getIdToken();
 
       const isUser = await verifyToken(token);
-      console.log(isUser);
 
       if (isUser === true){
         localStorage.setItem("accessTokenCRM", token);

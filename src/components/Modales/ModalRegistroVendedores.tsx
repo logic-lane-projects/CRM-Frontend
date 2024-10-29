@@ -12,13 +12,11 @@ import { Toast } from "../Toast/toast";
 import { UserRole } from "../../types/enums";
 import { createUser } from '../../services/users';
 
-// Declaración de la interfaz para las props del modal
 interface ModalRegistroVendedoresProps {
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
 }
 
-// Tipo para los valores del formulario
 interface FormValues {
   nombre: string;
   apellidop: string;
@@ -31,7 +29,6 @@ interface FormValues {
   rol: UserRole;
 }
 
-// Inicialización de los valores del formulario
 const initialFormValues: FormValues = {
   nombre: "",
   apellidop: "",
@@ -54,18 +51,15 @@ export default function ModalRegistroVendedores({
   const [isLoading, setIsLoading] = useState(false);
   const [passwordsMatch, setPasswordsMatch] = useState(true);
 
-  // Opciones para el select de roles, usando el enum
   const roleOptions = [
     { label: "Vendedor", value: UserRole.Vendedor },
     { label: "Administrador", value: UserRole.Administrador },
   ];
 
-  // Manejador genérico de cambios en los campos del formulario
   const handleFieldChange = (field: keyof FormValues, value: string) => {
     setFormValues((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, [field]: "" }));
 
-    // Verifica si las contraseñas coinciden al cambiar cualquier campo de contraseña
     if (field === "contrasena" || field === "confirmContrasena") {
       setPasswordsMatch(
         formValues.contrasena === value ||
@@ -74,7 +68,6 @@ export default function ModalRegistroVendedores({
     }
   };
 
-  // Valida si todos los campos están completos y si las contraseñas coinciden para habilitar el botón
   useEffect(() => {
     const allFieldsFilled = Object.values(formValues).every(
       (value) => value.trim() !== ""
@@ -103,7 +96,6 @@ export default function ModalRegistroVendedores({
     setErrors({});
   
     try {
-      // 1. Crear el usuario en la base de datos primero
       const newUser = await createUser({
         id:"",
         name: formValues.nombre,
@@ -117,7 +109,6 @@ export default function ModalRegistroVendedores({
       
       console.log("Usuario creado en la base de datos:", newUser);
   
-      // 2. Crear el usuario en Firebase después de que haya sido creado en la base de datos
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         formValues.correo,
@@ -127,7 +118,7 @@ export default function ModalRegistroVendedores({
   
       console.log("Usuario registrado con éxito en Firebase:", user);
       Toast.fire({ icon: "success", title: "Usuario registrado" });
-      setIsOpen(false); // Cerrar el modal tras el registro exitoso
+      setIsOpen(false);
     } catch (error) {
       console.error("Error al registrar el usuario:", error);
       setErrors((prev) => ({
