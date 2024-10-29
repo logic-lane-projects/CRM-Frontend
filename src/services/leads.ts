@@ -27,7 +27,7 @@ export interface Lead {
 const API_URL = import.meta.env.VITE_API_URL;
 
 // Crear un nuevo lead
-export const createLead = async (leadData: Lead): Promise<Lead> => {
+export const createLead = async (leadData: Lead, userId:string): Promise<Lead> => {
   const myHeaders = new Headers();
   myHeaders.append("Content-Type", "application/json");
 
@@ -41,12 +41,11 @@ export const createLead = async (leadData: Lead): Promise<Lead> => {
   };
 
   try {
-    const response = await fetch(`${API_URL}leads`, requestOptions);
+    const response = await fetch(`${API_URL}leads/${userId}`, requestOptions);
 
-    // Si la respuesta no es exitosa, intenta leer el cuerpo del error
     if (!response.ok) {
-      const errorResponse = await response.json(); // Capturar el cuerpo de la respuesta con los errores
-      throw new Error(JSON.stringify(errorResponse)); // Lanzar el error con los detalles
+      const errorResponse = await response.json(); 
+      throw new Error(JSON.stringify(errorResponse));
     }
 
     const newLead: Lead = await response.json();

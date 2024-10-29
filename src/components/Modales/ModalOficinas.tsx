@@ -11,13 +11,11 @@ import {
   import { UserRole } from "../../types/enums";
   import { createUser } from '../../services/users';
   
-  // Declaración de la interfaz para las props del modal
   interface ModalRegistroVendedoresProps {
     isOpen: boolean;
     setIsOpen: (value: boolean) => void;
   }
   
-  // Tipo para los valores del formulario
   interface FormValues {
     apellidop: string;
     apellidom: string;
@@ -29,7 +27,6 @@ import {
     rol: UserRole;
   }
   
-  // Inicialización de los valores del formulario
   const initialFormValues: FormValues = {
     ciudad: "",
     apellidop: "",
@@ -50,13 +47,11 @@ import {
     const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
 
-    // Manejador genérico de cambios en los campos del formulario
     const handleFieldChange = (field: keyof FormValues, value: string) => {
       setFormValues((prev) => ({ ...prev, [field]: value }));
       setErrors((prev) => ({ ...prev, [field]: "" }));
     };
   
-    // Valida si todos los campos están completos y si las contraseñas coinciden para habilitar el botón
     useEffect(() => {
       const allFieldsFilled = Object.values(formValues).every(
         (value) => value.trim() !== ""
@@ -85,7 +80,6 @@ import {
       setErrors({});
     
       try {
-        // 1. Crear el usuario en la base de datos primero
         const newUser = await createUser({
           id:"",
           name: formValues.ciudad,
@@ -99,7 +93,6 @@ import {
         
         console.log("Usuario creado en la base de datos:", newUser);
     
-        // 2. Crear el usuario en Firebase después de que haya sido creado en la base de datos
         const userCredential = await createUserWithEmailAndPassword(
           auth,
           formValues.correo,
@@ -109,7 +102,7 @@ import {
     
         console.log("Usuario registrado con éxito en Firebase:", user);
         Toast.fire({ icon: "success", title: "Usuario registrado" });
-        setIsOpen(false); // Cerrar el modal tras el registro exitoso
+        setIsOpen(false);
       } catch (error) {
         console.error("Error al registrar el usuario:", error);
         setErrors((prev) => ({

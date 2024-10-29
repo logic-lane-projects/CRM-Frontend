@@ -9,6 +9,7 @@ import { useState, useEffect } from "react";
 import { Toast } from "../Toast/toast";
 import { createLead, updateLead } from "../../services/leads";
 import { Lead } from "../../services/leads";
+import { useAuthToken } from "../../hooks/useAuthToken";
 
 interface ModalRegistroVendedoresProps {
   leadInfo: Lead | null;
@@ -49,11 +50,11 @@ export default function ModalRegistroLeads({
   isOpen,
   setIsOpen,
 }: ModalRegistroVendedoresProps) {
+  const { userInfo } = useAuthToken();
   const [formValues, setFormValues] = useState<FormValues>(initialFormValues);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-
   const genderOptions = [
     { label: "Selecciona una opción", value: "" },
     { label: "Masculino", value: "MALE" },
@@ -102,9 +103,15 @@ export default function ModalRegistroLeads({
   }, [formValues]);
 
   const handleSubmit = async () => {
-    setIsLoading(true);
-    setErrors({});
+    if (!userInfo) {
+      Toast.fire({
+        icon: "error",
+        title: "No se ha podido obtener la información del usuario",
+      });
+      return;
+    }
 
+    setIsLoading(true);
     try {
       const leadData: Lead = {
         names: formValues.nombre,
@@ -125,61 +132,17 @@ export default function ModalRegistroLeads({
         await updateLead(leadInfo._id, leadData);
         Toast.fire({ icon: "success", title: "Lead actualizado con éxito" });
       } else {
-        await createLead(leadData);
+        await createLead(leadData, userInfo.id);
         Toast.fire({ icon: "success", title: "Lead registrado con éxito" });
       }
 
       setIsOpen(false);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        try {
-          const parsedError = JSON.parse(error.message);
-
-          // Asignar los errores de la API a los campos correspondientes
-          const apiErrors = parsedError.data;
-          const newErrors: { [key: string]: string } = {};
-
-          if (apiErrors.names) {
-            newErrors.nombre = apiErrors.names.join(", ");
-          }
-          if (apiErrors.paternal_surname) {
-            newErrors.apellidop = apiErrors.paternal_surname.join(", ");
-          }
-          if (apiErrors.maternal_surname) {
-            newErrors.apellidom = apiErrors.maternal_surname.join(", ");
-          }
-          if (apiErrors.email) {
-            newErrors.correo = apiErrors.email.join(", ");
-          }
-          if (apiErrors.phone_number) {
-            newErrors.telefono = apiErrors.phone_number.join(", ");
-          }
-          if (apiErrors.age) {
-            newErrors.age = apiErrors.age.join(", ");
-          }
-
-          // Actualizar el estado de errores
-          setErrors(newErrors);
-
-          // También mostrar los errores en el Toast
-          const errorMessages = Object.values(apiErrors).flat().join(", ");
-          Toast.fire({
-            icon: "error",
-            title: `Error en el formulario: ${errorMessages}`,
-            timer: 10000,
-          });
-        } catch {
-          Toast.fire({
-            icon: "error",
-            title: "Error al procesar el formulario",
-          });
-        }
-      } else {
-        Toast.fire({
-          icon: "error",
-          title: "Ocurrió un error inesperado",
-        });
-      }
+    } catch (error) {
+      const errorMessage = typeof error === "string" ? error : String(error);
+      Toast.fire({
+        icon: "error",
+        title: errorMessage,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -215,35 +178,35 @@ export default function ModalRegistroLeads({
                 value={formValues.nombre}
                 onChange={(value) => handleFieldChange("nombre", value)}
                 autoComplete="off"
-                error={errors.nombre} // Mostrar error de nombre
+                error={errors.nombre}
               />
               <TextField
                 label="Apellido Paterno"
                 value={formValues.apellidop}
                 onChange={(value) => handleFieldChange("apellidop", value)}
                 autoComplete="off"
-                error={errors.apellidop} // Mostrar error de apellido paterno
+                error={errors.apellidop}
               />
               <TextField
                 label="Apellido Materno"
                 value={formValues.apellidom}
                 onChange={(value) => handleFieldChange("apellidom", value)}
                 autoComplete="off"
-                error={errors.apellidom} // Mostrar error de apellido materno
+                error={errors.apellidom}
               />
               <TextField
                 label="Correo electrónico"
                 value={formValues.correo}
                 onChange={(value) => handleFieldChange("correo", value)}
                 autoComplete="off"
-                error={errors.correo} // Mostrar error de correo
+                error={errors.correo}
               />
               <TextField
                 label="Teléfono"
                 value={formValues.telefono}
                 onChange={(value) => handleFieldChange("telefono", value)}
                 autoComplete="off"
-                error={errors.telefono} // Mostrar error de teléfono
+                error={errors.telefono}
               />
               <TextField
                 label="Ciudad"
@@ -270,7 +233,7 @@ export default function ModalRegistroLeads({
                 value={formValues.age.toString()}
                 onChange={(value) => handleFieldChange("age", Number(value))}
                 autoComplete="off"
-                error={errors.age} // Mostrar error de edad
+                error={errors.age}
               />
               <Select
                 label="Género"

@@ -1,35 +1,36 @@
-// src/hooks/useAuthToken.ts
 import { useState, useEffect } from "react";
-import CryptoJS from "crypto-js";
-import { jwtDecode } from 'jwt-decode';
+import { getUserInfo } from "../services/auth";
 
-const SECRET_KEY = "tu_clave_secreta";
-
-interface DecodedToken {
-  iid: string;
-  [key: string]: any;
+interface UserInfo {
+  id: string;
+  role: string;
 }
 
-export const useAuthToken = (): { token: string | null, iid: string | null } => {
-  const [accessToken, setAccessToken] = useState<string | null>(null);
-  const [iid, setIid] = useState<string | null>(null);
+export const useAuthToken = () => {
+  const [emailOnline, setEmailOnline] = useState<string | null>(null);
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null); 
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const encryptedToken = localStorage.getItem("accessToken");
-    if (encryptedToken) {
-      try {
-        const bytes = CryptoJS.AES.decrypt(encryptedToken, SECRET_KEY);
-        const decryptedToken = bytes.toString(CryptoJS.enc.Utf8);
+    const token = localStorage.getItem("email");
 
-        const decoded: DecodedToken = jwtDecode(decryptedToken);
-        setAccessToken(decryptedToken);
-        setIid(decoded.iid); 
+    if (token) {
+      setEmailOnline(token);
 
-      } catch (error) {
-        console.error("Error al descifrar el token", error);
-      }
+      getUserInfo(token)
+        .then((data) => {
+          setUserInfo(data?.data || null);
+          setLoading(false);
+        })
+        .catch(() => {
+          setError("Error fetching user information");
+          setLoading(false);
+        });
+    } else {
+      setLoading(false);
     }
   }, []);
 
-  return { token: accessToken, iid };
+  return { emailOnline, userInfo, loading, error };
 };
