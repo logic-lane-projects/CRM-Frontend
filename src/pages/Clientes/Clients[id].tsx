@@ -190,7 +190,7 @@ export default function LeadInfo() {
             {selectedTabFromUrl === "Tareas" && <Tareas />}
             {selectedTabFromUrl === "Notas" && <Notas />}
             {selectedTabFromUrl === "Whatsapp" && <Whatsapp />}
-            {selectedTabFromUrl === "Archivos" && <Archivos id={id}/>}
+            {selectedTabFromUrl === "Archivos" && <Archivos id={id} regimen={clientData.type_person}/>}
           </div>
         </div>
         <div className="flex flex-col gap-3 w-full col-span-1">

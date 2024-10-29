@@ -1,9 +1,13 @@
 const API_URL = import.meta.env.VITE_API_URL;
 
-export const selectTypePerson = async (id: string, type_person: string) => {
+export const selectTypePerson = async (
+  id: string,
+  type_person: string,
+  userId: string
+) => {
   try {
     const response = await fetch(
-      `${API_URL}select/type_person/${id}/${type_person}`,
+      `${API_URL}select/type_person/${id}/${type_person}/${userId}`,
       {
         method: "PATCH",
       }

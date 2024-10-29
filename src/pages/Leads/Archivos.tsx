@@ -8,6 +8,7 @@ import { Toast } from "../../components/Toast/toast";
 import type { FilesData } from "../../services/files";
 import ModalSubirArchivos from "../../components/Modales/ModalSubirArchivos";
 import { useLocation } from "react-router-dom";
+import { useAuthToken } from "../../hooks/useAuthToken";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -15,7 +16,7 @@ interface ArchivosProps {
   id?: string;
   isPayment?: boolean;
   setFinishLoading?: (loading: boolean) => void;
-  regimen?: string;
+  regimen: string;
 }
 
 export default function Archivos({
@@ -24,6 +25,7 @@ export default function Archivos({
   setFinishLoading,
   regimen,
 }: ArchivosProps) {
+  const { userInfo } = useAuthToken();
   const location = useLocation();
   const pathname = location.pathname;
   const [files, setFiles] = useState<FilesData>({
@@ -33,11 +35,8 @@ export default function Archivos({
     files_legal_moral: [],
   });
   const [loading, setLoading] = useState<boolean>(true);
+  const [deletingFile, setDeletingFile] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  // const [isLoading, setIsLoading] = useState({
-  //   eliminar: false
-  // })
-  // const [setSelectedFile] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
@@ -45,7 +44,6 @@ export default function Archivos({
       if (id) {
         try {
           const response = await getAllFilesByClientId(id);
-          // Aseguramos que los arrays siempre estén definidos
           setFiles({
             ...response,
             files_legal_extra: response.files_legal_extra || [],
@@ -71,9 +69,15 @@ export default function Archivos({
 
   const handleDeleteFile = async (filePath: string) => {
     if (!id) return;
-
     try {
-      await deleteFileByClientId(id, filePath);
+      setDeletingFile(filePath);
+      if (userInfo && userInfo.id) {
+        await deleteFileByClientId(id, filePath, userInfo.id);
+        setDeletingFile(null);
+      } else {
+        setDeletingFile(null);
+        console.log("no existe id del usuario");
+      }
       Toast.fire({
         icon: "success",
         title: "Archivo eliminado correctamente",
@@ -82,6 +86,7 @@ export default function Archivos({
         window.location.reload();
       }, 300);
     } catch (error) {
+      setDeletingFile(null);
       const errorMessage = typeof error === "string" ? error : String(error);
       Toast.fire({
         icon: "error",
@@ -105,29 +110,33 @@ export default function Archivos({
       : files.files_legal_fisica),
   ];
 
-  // const handleFileClick = (file: string) => {
-  //   const formattedUrl = API_URL.endsWith("/")
-  //     ? `${API_URL}${file.slice(1)}`
-  //     : `${API_URL}${file}`;
-  //   setSelectedFile(formattedUrl);
-  // };
-
   const getFileLabel = (fileName: string) => {
     const normalizedFileName = fileName.toLowerCase();
-  
+
     // Archivos para persona fisica
-    if (normalizedFileName.includes("ine") && !normalizedFileName.includes("representante")) {
+    if (
+      normalizedFileName.includes("ine") &&
+      !normalizedFileName.includes("representante")
+    ) {
       return "INE";
     } else if (normalizedFileName.includes("curp")) {
       return "CURP";
     } else if (normalizedFileName.includes("acta_nacimiento")) {
       return "Acta de nacimiento";
-    } else if (normalizedFileName.includes("domicilio") && !normalizedFileName.includes("moral") && !normalizedFileName.includes("representante")) {
+    } else if (
+      normalizedFileName.includes("domicilio") &&
+      !normalizedFileName.includes("moral") &&
+      !normalizedFileName.includes("representante")
+    ) {
       return "Comprobante de domicilio";
-    } else if (normalizedFileName.includes("situacion_fiscal") && !normalizedFileName.includes("moral") && !normalizedFileName.includes("representante")) {
+    } else if (
+      normalizedFileName.includes("situacion_fiscal") &&
+      !normalizedFileName.includes("moral") &&
+      !normalizedFileName.includes("representante")
+    ) {
       return "Situación fiscal";
-  
-    // Archivos para persona moral
+
+      // Archivos para persona moral
     } else if (normalizedFileName.includes("ine_representante")) {
       return "INE del representante";
     } else if (normalizedFileName.includes("domicilio_representante")) {
@@ -143,10 +152,9 @@ export default function Archivos({
     } else if (normalizedFileName.includes("situacion_fiscal_moral")) {
       return "Situación fiscal de la moral";
     }
-  
+
     return fileName.split("/").pop() || "Archivo desconocido";
   };
-  
 
   return (
     <div>
@@ -154,10 +162,16 @@ export default function Archivos({
         <span className="font-semibold text-[15px]">{`Archivos`}</span>
         <Button
           onClick={() => {
-            if (pathname.includes("prospecto")) {
+            if (
+              pathname.includes("prospecto") ||
+              pathname.includes("cliente")
+            ) {
               setIsOpen(true);
             }
-            if (pathname.includes("comprador")) {
+            if (
+              pathname.includes("comprador") ||
+              pathname.includes("cliente")
+            ) {
               if (!regimen) {
                 Toast.fire({
                   icon: "error",
@@ -197,11 +211,12 @@ export default function Archivos({
                   Descargar
                 </a>
                 <Button
+                  disabled={deletingFile === file}
                   onClick={() => {
                     handleDeleteFile(file);
                   }}
                 >
-                  Eliminar
+                  {deletingFile === file ? "Cargando..." : "Eliminar"}
                 </Button>
               </div>
             </div>

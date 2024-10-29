@@ -7,6 +7,7 @@ import {
 } from "../../services/files";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
+import { useAuthToken } from "../../hooks/useAuthToken";
 
 interface ModalArchivos {
   isOpen: boolean;
@@ -27,9 +28,11 @@ export default function ModalSubirArchivos({
   regimen,
   uploadedFiles,
 }: ModalArchivos) {
+  const { userInfo } = useAuthToken();
   const [fileToUpload, setFileToUpload] = useState<File | null>(null);
   const [selectedOption, setSelectedOption] = useState<string>("");
   const [fileName, setFileName] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const pathname = location.pathname;
@@ -83,27 +86,42 @@ export default function ModalSubirArchivos({
     }
 
     try {
+      setIsLoading(true);
       let renamedFile: File;
 
-      if (regimen && selectedOption && selectedOption !== "otro") {
+      if (
+        regimen &&
+        selectedOption &&
+        selectedOption !== "otro" &&
+        userInfo &&
+        userInfo.id
+      ) {
         renamedFile = new File([fileToUpload], `${selectedOption}.pdf`, {
           type: fileToUpload.type,
         });
-        await uploadFileByClientId(id!, renamedFile);
-      } else if (regimen && (selectedOption === "otro" || isPayment)) {
+        await uploadFileByClientId(id!, renamedFile, userInfo.id);
+        setIsLoading(false);
+      } else if (
+        regimen &&
+        (selectedOption === "otro" || isPayment) &&
+        userInfo &&
+        userInfo.id
+      ) {
         renamedFile = new File([fileToUpload], fileName || "archivo_pago", {
           type: fileToUpload.type,
         });
         const formData = new FormData();
         formData.append("archivo_pago", renamedFile);
-        await uploadPaymentFileById(id!, formData);
-      } else if (!regimen && !isPayment) {
+        await uploadPaymentFileById(id!, formData, userInfo.id);
+        setIsLoading(false);
+      } else if (!regimen && !isPayment && userInfo && userInfo.id) {
         renamedFile = new File([fileToUpload], "archivo_pago", {
           type: fileToUpload.type,
         });
         const formData = new FormData();
         formData.append("archivo_pago", renamedFile);
-        await uploadPaymentFileById(id!, formData);
+        await uploadPaymentFileById(id!, formData, userInfo?.id);
+        setIsLoading(false);
       }
 
       Toast.fire({
@@ -183,7 +201,12 @@ export default function ModalSubirArchivos({
           : "Sube el Archivo de Pago"
       }
       primaryAction={{
-        content: isPayment ? "Subir Pago" : "Subir Archivo",
+        disabled: isLoading,
+        content: !isPayment
+          ? "Subir Pago"
+          : isLoading
+          ? "Cargando..."
+          : "Subir Archivo",
         onAction: handleFileUpload,
       }}
       secondaryActions={[

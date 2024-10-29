@@ -20,8 +20,10 @@ import Whatsapp from "../Leads/Whatsapp";
 import Archivos from "../Leads/Archivos";
 import { Toast } from "../../components/Toast/toast";
 import type { All as Buyer } from "../../services/buyer";
+import { useAuthToken } from "../../hooks/useAuthToken";
 
 export default function BuyerInfo() {
+  const { userInfo } = useAuthToken();
   const navigate = useNavigate();
   const location = useLocation();
   const { id } = useParams<{ id: string }>();
@@ -90,7 +92,11 @@ export default function BuyerInfo() {
   const handleClient = async () => {
     setIsLoadingChange(true);
     try {
-      await changeProspectToClient(id);
+      if (userInfo && userInfo.id) {
+        await changeProspectToClient(id, userInfo.id);
+      } else {
+        console.log("no hay id del usuario");
+      }
       Toast.fire({ icon: "success", title: "Prospecto pasado a Cliente" });
       navigate("/leads");
     } catch (error) {
@@ -244,7 +250,7 @@ export default function BuyerInfo() {
                 id={id}
                 setFinishLoading={setFinishLoading}
                 isPayment={isPayment}
-                regimen={leadData.type_person}
+                regimen={leadData.type_person ?? ""}
               />
             )}
           </div>

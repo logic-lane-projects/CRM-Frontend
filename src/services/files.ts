@@ -25,14 +25,15 @@ export async function getAllFilesByClientId(id: string): Promise<FilesData> {
 // funcion para enviar un archivo
 export async function uploadFileByClientId(
   id: string,
-  file: File
+  file: File,
+  userId: string
 ): Promise<void> {
   try {
     const formData = new FormData();
     formData.append("files", file);
     formData.append("clientId", id);
 
-    const response = await fetch(`${API_URL}client/upload_legal_file/${id}`, {
+    const response = await fetch(`${API_URL}client/upload_legal_file/${id}/${userId}`, {
       method: "POST",
       body: formData,
     });
@@ -52,10 +53,11 @@ export async function uploadFileByClientId(
 //   funcion para eliminar un archivo
 export async function deleteFileByClientId(
   id: string,
-  filePath: string
+  filePath: string,
+  userId: string
 ): Promise<void> {
   try {
-    const response = await fetch(`${API_URL}client/delete/legal_files`, {
+    const response = await fetch(`${API_URL}client/delete/legal_files/${userId}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -78,12 +80,19 @@ export async function deleteFileByClientId(
   }
 }
 
-export const uploadPaymentFileById = async (id: string, formData: FormData) => {
+export const uploadPaymentFileById = async (
+  id: string,
+  formData: FormData,
+  userId: string
+) => {
   try {
-    const response = await fetch(`${API_URL}change/upload_archivo_pago/${id}`, {
-      method: "POST",
-      body: formData,
-    });
+    const response = await fetch(
+      `${API_URL}change/upload_archivo_pago/${id}/${userId}`,
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
 
     if (!response.ok) {
       throw new Error(`Error: ${response.status} - ${response.statusText}`);

@@ -12,18 +12,17 @@ export interface All {
   state: string | null;
   status?: boolean | null;
   type_lead: string;
-  type_client?: string; 
-  type_person?: string; 
+  type_client?: string;
+  type_person?: string;
   gender: "MALE" | "FEMALE" | null;
   is_client: boolean | null;
-  assigned_to?: string | null; 
-  files_legal_extra?: string[]; 
-  files_legal_fisica?: string[]; 
+  assigned_to?: string | null;
+  files_legal_extra?: string[];
+  files_legal_fisica?: string[];
   files_legal_moral?: string[];
   created_at?: string;
   updated_at?: string;
 }
-
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -44,8 +43,8 @@ export const getActiveBuyers = async (): Promise<{
     if (!response.ok) {
       throw new Error("Error al obtener los prospectos activos");
     }
-    const jsonResponse = await response.json(); 
-    return jsonResponse; 
+    const jsonResponse = await response.json();
+    return jsonResponse;
   } catch (error) {
     console.error("Error al obtener los clientes activos:", error);
     throw error;
@@ -54,7 +53,7 @@ export const getActiveBuyers = async (): Promise<{
 
 export const getBuyerById = async (
   id: string
-): Promise<{ result: boolean; error: string; data: All }> => { 
+): Promise<{ result: boolean; error: string; data: All }> => {
   try {
     const response = await fetch(`${API_URL}buyer/active/${id}`, {
       method: "GET",
@@ -72,10 +71,13 @@ export const getBuyerById = async (
   }
 };
 
-export const changeProspectToClient = async (id?: string | number): Promise<void> => {
+export const changeProspectToClient = async (
+  id?: string | number,
+  userId?: string
+): Promise<void> => {
   try {
     const response = await fetch(
-      `${API_URL}client/change/client/${id}`,
+      `${API_URL}client/change/client/${id}/${userId}`,
       {
         method: "PATCH",
       }
@@ -89,4 +91,3 @@ export const changeProspectToClient = async (id?: string | number): Promise<void
     throw error;
   }
 };
-

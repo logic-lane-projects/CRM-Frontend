@@ -2,6 +2,7 @@ import { Modal, TextContainer, Select } from "@shopify/polaris";
 import { useState } from "react";
 import { selectTypePerson } from "../../services/regimen";
 import { Toast } from "../Toast/toast";
+import { useAuthToken } from "../../hooks/useAuthToken";
 
 export interface ModalRegimenProps {
   isOpen: boolean;
@@ -14,6 +15,7 @@ export default function ModalRegimenFiscal({
   setIsOpen,
   id,
 }: ModalRegimenProps) {
+  const { userInfo } = useAuthToken();
   const [isLoading, setIsLoading] = useState(false);
   const [typePerson, setTypePerson] = useState("FISICA");
 
@@ -21,7 +23,11 @@ export default function ModalRegimenFiscal({
   const changeRegimen = async () => {
     setIsLoading(true);
     try {
-      await selectTypePerson(id, typePerson);
+      if (userInfo && userInfo.id) {
+        await selectTypePerson(id, typePerson, userInfo.id);
+      } else {
+        console.log("no hay user id");
+      }
       Toast.fire({ icon: "success", title: "Regimen cambiado" });
       setTimeout(() => {
         window.location.reload();
