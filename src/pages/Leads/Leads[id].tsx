@@ -19,9 +19,11 @@ import Whatsapp from "./Whatsapp";
 import { Toast } from "../../components/Toast/toast";
 import type { Lead } from "../../services/leads";
 import { useNavigate } from "react-router-dom";
+import { useAuthToken } from "../../hooks/useAuthToken";
 
 export default function LeadInfo() {
-  const navigate = useNavigate()
+  const { userInfo } = useAuthToken();
+  const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [leadData, setLeadData] = useState<Lead | null>(null);
   const [selectedTab, setSelectedTab] = useState<string>("Actividad");
@@ -70,9 +72,13 @@ export default function LeadInfo() {
   const handlePreClient = async () => {
     setIsLoadingChange(true);
     try {
-      await changeLeadToProspect(id);
-      Toast.fire({ icon: "success", title: "Lead pasado a prospecto" });
-      navigate("/leads")
+      if (userInfo && userInfo.id) {
+        await changeLeadToProspect(id, userInfo.id);
+        Toast.fire({ icon: "success", title: "Lead pasado a prospecto" });
+        navigate("/leads");
+      } else {
+        throw new Error("Información del usuario no disponible");
+      }
     } catch (error) {
       const errorMessage = typeof error === "string" ? error : String(error);
       Toast.fire({

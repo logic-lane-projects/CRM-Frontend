@@ -27,7 +27,10 @@ export interface Lead {
 const API_URL = import.meta.env.VITE_API_URL;
 
 // Crear un nuevo lead
-export const createLead = async (leadData: Lead, userId:string): Promise<Lead> => {
+export const createLead = async (
+  leadData: Lead,
+  userId: string
+): Promise<Lead> => {
   const myHeaders = new Headers();
   myHeaders.append("Content-Type", "application/json");
 
@@ -44,7 +47,7 @@ export const createLead = async (leadData: Lead, userId:string): Promise<Lead> =
     const response = await fetch(`${API_URL}leads/${userId}`, requestOptions);
 
     if (!response.ok) {
-      const errorResponse = await response.json(); 
+      const errorResponse = await response.json();
       throw new Error(JSON.stringify(errorResponse));
     }
 
@@ -209,11 +212,16 @@ export const deleteLead = async (id: string): Promise<void> => {
 };
 
 export const changeLeadToProspect = async (
-  id?: string | number
+  id?: string | number,
+  userId?: string
 ): Promise<void> => {
   try {
+    if (!id || !userId) {
+      throw new Error("ID del lead o ID del usuario faltante");
+    }
+
     const response = await fetch(
-      `${API_URL}client/change/customer_prospectus/${id}`,
+      `${API_URL}client/change/customer_prospectus/${id}/${userId}`,
       {
         method: "PATCH",
       }
