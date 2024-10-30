@@ -163,8 +163,7 @@ export default function Archivos({
         <Button
           onClick={() => {
             if (
-              pathname.includes("prospecto") ||
-              pathname.includes("cliente")
+              pathname.includes("prospecto")
             ) {
               setIsOpen(true);
             }
@@ -177,6 +176,7 @@ export default function Archivos({
                   icon: "error",
                   title: "Primero debes de elegir el regimen del usuario",
                 });
+                return;
               } else {
                 setIsOpen(true);
               }
