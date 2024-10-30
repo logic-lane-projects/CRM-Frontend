@@ -15,7 +15,7 @@ import {
 import { Toast } from "../../components/Toast/toast";
 import { useNavigate } from "react-router-dom";
 import { getAllLeads, deleteLead } from "../../services/leads";
-import { Lead } from "../../services/leads";
+import { All as Lead } from "../../services/buyer";
 import { getActiveClient } from "../../services/clientes";
 import { getActivePreClients } from "../../services/preClient";
 import { getActiveBuyers } from "../../services/buyer";
@@ -37,6 +37,7 @@ export default function Leads() {
   const fetchLeads = async () => {
     setIsLoading(true);
     setSelected("lead");
+    console.log(leads)
     try {
       const response = await getAllLeads();
       if (!Array.isArray(response)) {
@@ -156,17 +157,17 @@ export default function Leads() {
     setSelectedLead(null);
   };
 
-  const handleEditAction = () => {
-    if (selectedResources.length === 1) {
-      const leadToEdit = leads.find(
-        (lead) => lead._id === selectedResources[0]
-      ); // Buscar el lead a editar
-      setLeadDataToEdit(leadToEdit || null); // Guardar la información del lead en el estado
-      setIsOpen(true); // Abrir el modal
-    } else {
-      console.warn("Por favor selecciona solo un lead para editar");
-    }
-  };
+  // const handleEditAction = () => {
+  //   if (selectedResources.length === 1) {
+  //     const leadToEdit = leads.find(
+  //       (lead) => lead._id === selectedResources[0]
+  //     ); // Buscar el lead a editar
+  //     setLeadDataToEdit(leadToEdit || null); // Guardar la información del lead en el estado
+  //     setIsOpen(true); // Abrir el modal
+  //   } else {
+  //     console.warn("Por favor selecciona solo un lead para editar");
+  //   }
+  // };
 
   const promotedBulkActions = [
     {
@@ -212,10 +213,10 @@ export default function Leads() {
         }
       },
     },
-    {
-      content: "Editar",
-      onAction: handleEditAction,
-    },
+    // {
+    //   content: "Editar",
+    //   onAction: handleEditAction,
+    // },
   ];
 
   // Función para manejar el cambio de página

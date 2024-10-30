@@ -1,19 +1,21 @@
 const API_URL = import.meta.env.VITE_API_URL;
 
+export interface FilesData {
+  type_person: string;
+  files_legal_extra: string[];
+  files_legal_fisica: string[];
+  files_legal_moral: string[];
+}
+
 // funcion para obtener todos los archivos de un cliente
-export async function getAllFilesByClientId(id: string): Promise<string[]> {
+export async function getAllFilesByClientId(id: string): Promise<FilesData> {
   try {
     const response = await fetch(`${API_URL}client/legal_files/${id}`, {
       method: "GET",
     });
-
-    if (!response.ok) {
-      throw new Error("Error al obtener los archivos del cliente");
-    }
-
     const data = await response.json();
 
-    return data.data;
+    return data.data as FilesData;
   } catch (error) {
     console.error("Error al obtener los archivos del cliente", error);
     throw error;
@@ -23,14 +25,15 @@ export async function getAllFilesByClientId(id: string): Promise<string[]> {
 // funcion para enviar un archivo
 export async function uploadFileByClientId(
   id: string,
-  file: File
+  file: File,
+  userId: string
 ): Promise<void> {
   try {
     const formData = new FormData();
     formData.append("files", file);
     formData.append("clientId", id);
 
-    const response = await fetch(`${API_URL}client/upload_legal_file/${id}`, {
+    const response = await fetch(`${API_URL}client/upload_legal_file/${id}/${userId}`, {
       method: "POST",
       body: formData,
     });
@@ -50,10 +53,11 @@ export async function uploadFileByClientId(
 //   funcion para eliminar un archivo
 export async function deleteFileByClientId(
   id: string,
-  filePath: string
+  filePath: string,
+  userId: string
 ): Promise<void> {
   try {
-    const response = await fetch(`${API_URL}client/delete/legal_files`, {
+    const response = await fetch(`${API_URL}client/delete/legal_files/${userId}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -75,3 +79,29 @@ export async function deleteFileByClientId(
     throw error;
   }
 }
+
+export const uploadPaymentFileById = async (
+  id: string,
+  formData: FormData,
+  userId: string
+) => {
+  try {
+    const response = await fetch(
+      `${API_URL}change/upload_archivo_pago/${id}/${userId}`,
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status} - ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error uploading payment file:", error);
+    throw error;
+  }
+};

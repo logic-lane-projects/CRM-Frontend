@@ -15,7 +15,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 // Obtener todos los usuarios
 export const getUsers = async (): Promise<User[]> => {
   try {
-    const response = await fetch(`${API_URL}/users`, {
+    const response = await fetch(`${API_URL}users`, {
       method: "GET",
     });
     if (!response.ok) {
@@ -32,7 +32,7 @@ export const getUsers = async (): Promise<User[]> => {
 // Obtener un usuario por ID
 export const getUserById = async (id: string): Promise<User> => {
   try {
-    const response = await fetch(`${API_URL}/users/${id}`, {
+    const response = await fetch(`${API_URL}users/${id}`, {
       method: "GET",
     });
     if (!response.ok) {
@@ -50,7 +50,7 @@ export const getUserById = async (id: string): Promise<User> => {
 // Actualizar usuario
 export const updateUser = async (id: string, userData: User): Promise<User> => {
   try {
-    const response = await fetch(`${API_URL}/users/${id}`, {
+    const response = await fetch(`${API_URL}users/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -74,7 +74,7 @@ export const updateUser = async (id: string, userData: User): Promise<User> => {
 // Eliminar un usuario
 export const deleteUser = async (id: string): Promise<void> => {
   try {
-    const response = await fetch(`${API_URL}/users/${id}`, {
+    const response = await fetch(`${API_URL}users/${id}`, {
       method: "DELETE",
     });
     if (!response.ok) {
@@ -110,7 +110,7 @@ export const createUser = async (userData: User): Promise<User> => {
   };
 
   try {
-    const response = await fetch(`${API_URL}/users`, requestOptions);
+    const response = await fetch(`${API_URL}users`, requestOptions);
     if (!response.ok) {
       throw new Error("Error al crear el usuario");
     }

@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Button, Card, Icon } from "@shopify/polaris";
 import {
@@ -22,17 +22,22 @@ import Archivos from "../Leads/Archivos";
 
 export default function LeadInfo() {
   const { id } = useParams<{ id: string }>();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [clientData, setClientData] = useState<Client | null>(null);
-  const [selectedTab, setSelectedTab] = useState<string>("Actividad");
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  const selectedTabFromUrl = searchParams.get("selected") || "Actividad";
+
+  const handleTabClick = (selected: string) => {
+    setSearchParams({ selected });
+  };
 
   useEffect(() => {
     const fetchClientData = async () => {
       try {
         if (id) {
           const response = await getClientById(id);
-          console.log();
           if (response.result && response.data) {
             setClientData(response.data);
           } else {
@@ -66,10 +71,6 @@ export default function LeadInfo() {
     return <div>No se encontró el lead</div>;
   }
 
-  const handleTabClick = (tab: string) => {
-    setSelectedTab(tab);
-  };
-
   return (
     <Card>
       {/* Topbar */}
@@ -88,7 +89,7 @@ export default function LeadInfo() {
           <div className="flex gap-4 bg-white border-gray-300 border-[1px] p-2">
             <div
               className={`cursor-pointer overflow-hidden ${
-                selectedTab === "Actividad"
+                selectedTabFromUrl === "Actividad"
                   ? "border-b-2 border-b-black"
                   : "hover:border-b-2 hover:border-b-black"
               }`}
@@ -101,7 +102,7 @@ export default function LeadInfo() {
             </div>
             <div
               className={`cursor-pointer overflow-hidden ${
-                selectedTab === "Correos"
+                selectedTabFromUrl === "Correos"
                   ? "border-b-2 border-b-black"
                   : "hover:border-b-2 hover:border-b-black"
               }`}
@@ -114,7 +115,7 @@ export default function LeadInfo() {
             </div>
             <div
               className={`cursor-pointer overflow-hidden ${
-                selectedTab === "Llamadas"
+                selectedTabFromUrl === "Llamadas"
                   ? "border-b-2 border-b-black"
                   : "hover:border-b-2 hover-border-b-black"
               }`}
@@ -127,9 +128,9 @@ export default function LeadInfo() {
             </div>
             <div
               className={`cursor-pointer overflow-hidden ${
-                selectedTab === "Whatsapp"
+                selectedTabFromUrl === "Whatsapp"
                   ? "border-b-2 border-b-black"
-                  : "hover:border-b-2 hover-border-b-black"
+                  : "hover-border-b-2 hover-border-b-black"
               }`}
               onClick={() => handleTabClick("Whatsapp")}
             >
@@ -144,7 +145,7 @@ export default function LeadInfo() {
             </div>
             <div
               className={`cursor-pointer overflow-hidden ${
-                selectedTab === "Tareas"
+                selectedTabFromUrl === "Tareas"
                   ? "border-b-2 border-b-black"
                   : "hover-border-b-2 hover-border-b-black"
               }`}
@@ -157,7 +158,7 @@ export default function LeadInfo() {
             </div>
             <div
               className={`cursor-pointer overflow-hidden ${
-                selectedTab === "Notas"
+                selectedTabFromUrl === "Notas"
                   ? "border-b-2 border-b-black"
                   : "hover-border-b-2 hover-border-b-black"
               }`}
@@ -170,7 +171,7 @@ export default function LeadInfo() {
             </div>
             <div
               className={`cursor-pointer overflow-hidden ${
-                selectedTab === "Notas"
+                selectedTabFromUrl === "Archivos"
                   ? "border-b-2 border-b-black"
                   : "hover-border-b-2 hover-border-b-black"
               }`}
@@ -183,13 +184,13 @@ export default function LeadInfo() {
             </div>
           </div>
           <div className="border-[1px] border-gray-300 p-2">
-            {selectedTab === "Actividad" && <Actividad />}
-            {selectedTab === "Correos" && <Correos />}
-            {selectedTab === "Llamadas" && <Llamadas />}
-            {selectedTab === "Tareas" && <Tareas />}
-            {selectedTab === "Notas" && <Notas />}
-            {selectedTab === "Whatsapp" && <Whatsapp />}
-            {selectedTab === "Archivos" && <Archivos id={id}/>}
+            {selectedTabFromUrl === "Actividad" && <Actividad />}
+            {selectedTabFromUrl === "Correos" && <Correos />}
+            {selectedTabFromUrl === "Llamadas" && <Llamadas />}
+            {selectedTabFromUrl === "Tareas" && <Tareas />}
+            {selectedTabFromUrl === "Notas" && <Notas />}
+            {selectedTabFromUrl === "Whatsapp" && <Whatsapp />}
+            {selectedTabFromUrl === "Archivos" && <Archivos id={id} regimen={clientData.type_person}/>}
           </div>
         </div>
         <div className="flex flex-col gap-3 w-full col-span-1">
@@ -205,6 +206,7 @@ export default function LeadInfo() {
                 status: clientData?.status ?? null,
                 created_at: clientData?.created_at ?? "",
                 updated_at: clientData?.updated_at ?? "",
+                is_client: clientData?.is_client ?? undefined, 
               }}
             />
           </div>

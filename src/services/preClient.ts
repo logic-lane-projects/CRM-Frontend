@@ -1,4 +1,5 @@
 // src/services/clientes.ts
+import { All } from "./buyer";
 export interface PreClient {
   _id?: string | undefined;
   names: string;
@@ -25,7 +26,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 export const getActivePreClients = async (): Promise<{
   result: boolean;
   error: string;
-  data: PreClient[];
+  data: All[];
 }> => {
   try {
     const response = await fetch(

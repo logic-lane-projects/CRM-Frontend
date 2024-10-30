@@ -33,6 +33,8 @@ export default function ProspectInfo() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isLoadingChange, setIsLoadingChange] = useState(false);
+  const [isPayment, setIsPayment] = useState(false);
+  const [finishLoading, setFinishLoading] = useState(false);
 
   useEffect(() => {
     const fetchLeadData = async () => {
@@ -40,6 +42,12 @@ export default function ProspectInfo() {
         if (id) {
           const response = await getPreClientById(id);
           setLeadData(response.data);
+          if (response.data && response.data.files_legal) {
+            const hasPrimerPago = response.data.files_legal.some((el: string) =>
+              el.includes("archivo_pago")
+            );
+            setIsPayment(hasPrimerPago);
+          }
         }
       } catch (error) {
         const errorMessage = typeof error === "string" ? error : String(error);
@@ -54,7 +62,7 @@ export default function ProspectInfo() {
     };
 
     fetchLeadData();
-  }, [id]);
+  }, [id, finishLoading]);
 
   if (loading) {
     return <div>Cargando datos del lead...</div>;
@@ -73,11 +81,22 @@ export default function ProspectInfo() {
   };
 
   const handlePreClient = async () => {
+    if (!isPayment) {
+      Toast.fire({
+        icon: "error",
+        title: "Primero se debe de confirmar el primer pago del cliente",
+        timer: 5000
+      });
+      setSelectedTab("Archivos")
+      return;
+    }
+
     setIsLoadingChange(true);
+
     try {
       await changeProspectToClient(id);
-      Toast.fire({ icon: "success", title: "Prospecto pasado a Cliente" });
       navigate("/leads");
+      Toast.fire({ icon: "success", title: "Prospecto pasado a Cliente" });
     } catch (error) {
       const errorMessage = typeof error === "string" ? error : String(error);
       Toast.fire({
@@ -88,6 +107,7 @@ export default function ProspectInfo() {
       setIsLoadingChange(false);
     }
   };
+
   return (
     <Card>
       {/* Topbar */}
@@ -106,14 +126,7 @@ export default function ProspectInfo() {
           <Button
             variant="primary"
             onClick={() => {
-              // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-              leadData?.files_legal?.length == 0
-                ? Toast.fire({
-                    icon: "error",
-                    title:
-                      "Se debe de confirmar el primer deposito del cliente",
-                  })
-                : handlePreClient();
+              handlePreClient();
             }}
           >
             Pasar a Comprador
@@ -207,7 +220,7 @@ export default function ProspectInfo() {
             </div>
             <div
               className={`cursor-pointer overflow-hidden ${
-                selectedTab === "Notas"
+                selectedTab === "Archivos"
                   ? "border-b-2 border-b-black"
                   : "hover-border-b-2 hover-border-b-black"
               }`}
@@ -215,7 +228,7 @@ export default function ProspectInfo() {
             >
               <div className="flex gap-1">
                 <Icon source={FileIcon} />
-                <span>Archivos</span>
+                <span>Archivo Pago</span>
               </div>
             </div>
           </div>
@@ -226,7 +239,9 @@ export default function ProspectInfo() {
             {selectedTab === "Tareas" && <Tareas />}
             {selectedTab === "Notas" && <Notas />}
             {selectedTab === "Whatsapp" && <Whatsapp />}
-            {selectedTab === "Archivos" && <Archivos id={id} />}
+            {selectedTab === "Archivos" && (
+              <Archivos id={id} isPayment={isPayment} setFinishLoading={setFinishLoading} regimen={""}/>
+            )}
           </div>
         </div>
         <div className="flex flex-col gap-3 w-full col-span-1">
@@ -242,6 +257,7 @@ export default function ProspectInfo() {
                 status: leadData?.status ?? null,
                 created_at: leadData?.created_at ?? "",
                 updated_at: leadData?.updated_at ?? "",
+                is_client: leadData?.is_client ?? undefined, 
               }}
             />
           </div>

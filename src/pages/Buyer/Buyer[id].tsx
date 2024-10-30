@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Button, Card, Icon, Spinner } from "@shopify/polaris";
 import {
@@ -19,24 +19,42 @@ import InfoLead from "../Leads/LeadInfo";
 import Whatsapp from "../Leads/Whatsapp";
 import Archivos from "../Leads/Archivos";
 import { Toast } from "../../components/Toast/toast";
-import type { Lead } from "../../services/leads";
-import { useNavigate } from "react-router-dom";
+import type { All as Buyer } from "../../services/buyer";
+import { useAuthToken } from "../../hooks/useAuthToken";
 
 export default function BuyerInfo() {
-  const navitate = useNavigate()
+  const { userInfo } = useAuthToken();
+  const navigate = useNavigate();
+  const location = useLocation();
   const { id } = useParams<{ id: string }>();
-  const [leadData, setLeadData] = useState<Lead | null>(null);
+  const [leadData, setLeadData] = useState<Buyer | null>(null);
   const [selectedTab, setSelectedTab] = useState<string>("Actividad");
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isLoadingChange, setIsLoadingChange] = useState(false);
+  const [finishLoading, setFinishLoading] = useState(false);
+  const [isPayment, setIsPayment] = useState(false);
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const tabFromUrl = searchParams.get("selected") || "Actividad";
+    setSelectedTab(tabFromUrl);
+  }, [location.search]);
 
   useEffect(() => {
     const fetchLeadData = async () => {
       try {
         if (id) {
           const response = await getBuyerById(id);
-          console.log("Respuesta", response);
+          if (response.data && response.data.files_legal_extra) {
+            response.data.files_legal_extra.map((el: string) => {
+              if (el.includes("archivo_pago")) {
+                setIsPayment(true);
+              } else {
+                setIsPayment(false);
+              }
+            });
+          }
           setLeadData(response.data);
         }
       } catch (error) {
@@ -52,7 +70,7 @@ export default function BuyerInfo() {
     };
 
     fetchLeadData();
-  }, [id]);
+  }, [id, finishLoading]);
 
   if (loading) {
     return <div>Cargando datos del comprador...</div>;
@@ -68,14 +86,19 @@ export default function BuyerInfo() {
 
   const handleTabClick = (tab: string) => {
     setSelectedTab(tab);
+    navigate(`/comprador/${id}?selected=${tab}`);
   };
 
   const handleClient = async () => {
     setIsLoadingChange(true);
     try {
-      await changeProspectToClient(id);
+      if (userInfo && userInfo.id) {
+        await changeProspectToClient(id, userInfo.id);
+      } else {
+        console.log("no hay id del usuario");
+      }
       Toast.fire({ icon: "success", title: "Prospecto pasado a Cliente" });
-      navitate("/leads")
+      navigate("/leads");
     } catch (error) {
       const errorMessage = typeof error === "string" ? error : String(error);
       Toast.fire({
@@ -91,11 +114,19 @@ export default function BuyerInfo() {
     <Card>
       {/* Topbar */}
       <div className="flex justify-between items-center bg-white w-full px-2 py-3">
-        <div>
+        <div className="flex items-center gap-1">
           <span className="font-semibold text-lg">Comprador/</span>
           <span className="ml-1 text-[15px]">
             {`${leadData?.names} ${leadData?.maternal_surname} ${leadData?.paternal_surname}`}
           </span>
+          {leadData?.type_person === "" ||
+            (leadData.type_person === null && (
+              <div className="ml-4 bg-red-700 px-2">
+                <span>
+                  Este comprador aun no tiene registrado su regimen fiscal
+                </span>
+              </div>
+            ))}
         </div>
         {isLoadingChange ? (
           <div>
@@ -141,7 +172,7 @@ export default function BuyerInfo() {
               className={`cursor-pointer overflow-hidden ${
                 selectedTab === "Llamadas"
                   ? "border-b-2 border-b-black"
-                  : "hover:border-b-2 hover-border-b-black"
+                  : "hover-border-b-2 hover-border-b-black"
               }`}
               onClick={() => handleTabClick("Llamadas")}
             >
@@ -214,7 +245,14 @@ export default function BuyerInfo() {
             {selectedTab === "Tareas" && <Tareas />}
             {selectedTab === "Notas" && <Notas />}
             {selectedTab === "Whatsapp" && <Whatsapp />}
-            {selectedTab === "Archivos" && <Archivos id={id} />}
+            {selectedTab === "Archivos" && (
+              <Archivos
+                id={id}
+                setFinishLoading={setFinishLoading}
+                isPayment={isPayment}
+                regimen={leadData.type_person ?? ""}
+              />
+            )}
           </div>
         </div>
         <div className="flex flex-col gap-3 w-full col-span-1">
@@ -229,6 +267,7 @@ export default function BuyerInfo() {
                 ...leadData,
                 status: leadData?.status ?? null,
                 created_at: leadData?.created_at ?? "",
+                is_client: leadData?.is_client ?? undefined,
                 updated_at: leadData?.updated_at ?? "",
               }}
             />

@@ -21,11 +21,10 @@ export default function Vendedores() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Cargar los vendedores desde la API al montar el componente
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const usersData: User[] = await getUsers(); 
+        const usersData: User[] = await getUsers();
         setVendedores(usersData);
       } catch (error) {
         setError("Error al cargar los usuarios");
@@ -50,13 +49,11 @@ export default function Vendedores() {
       vendedor.city.toLowerCase().includes(searchValue.toLowerCase())
   );
 
-  // Convertimos el valor de itemsPerPage en un número o tomamos el total de vendedores si es "todos"
   const numItemsPerPage =
     itemsPerPage === "todos"
       ? filteredVendedores.length
       : parseInt(itemsPerPage, 10);
 
-  // Calcular el rango de elementos que se mostrarán en la página actual
   const paginatedVendedores = filteredVendedores.slice(
     (currentPage - 1) * numItemsPerPage,
     currentPage * numItemsPerPage
@@ -64,13 +61,11 @@ export default function Vendedores() {
 
   const totalPages = Math.ceil(filteredVendedores.length / numItemsPerPage);
 
-  // Convierte los usuarios a un formato aceptado por useIndexResourceState
   const resourceVendedores = vendedores.map((vendedor) => ({
     ...vendedor,
     id: vendedor.id ?? "unknown-id",
   }));
 
-  // Uso del estado de recursos para el IndexTable
   const { selectedResources, allResourcesSelected, handleSelectionChange } =
     useIndexResourceState(resourceVendedores);
 
@@ -100,23 +95,20 @@ export default function Vendedores() {
   const rowMarkup = paginatedVendedores.map(
     ({ id, name, email, city }: User, index: number) => (
       <IndexTable.Row
-        id={id ?? "unknown-id"} // Si id es undefined, usa "unknown-id"
-        key={id ?? index} // Usa index como respaldo si id es undefined
+        id={id ?? "unknown-id"}
+        key={id ?? index}
         position={index}
-        selected={selectedResources.includes(id ?? "")} // Si id es undefined, usa una cadena vacía
+        selected={selectedResources.includes(id ?? "")}
       >
         <IndexTable.Cell>{name ?? "Nombre desconocido"}</IndexTable.Cell>{" "}
-        {/* Proporciona un valor predeterminado si name es undefined */}
         <IndexTable.Cell>{email ?? "Correo desconocido"}</IndexTable.Cell>{" "}
-        {/* Proporciona un valor predeterminado si email es undefined */}
         <IndexTable.Cell>{city ?? "Ciudad desconocida"}</IndexTable.Cell>{" "}
-        {/* Proporciona un valor predeterminado si city es undefined */}
       </IndexTable.Row>
     )
   );
-  
+
   if (loading) {
-    return <p>Cargando vendedores...</p>; 
+    return <p>Cargando vendedores...</p>;
   }
 
   if (error) {
@@ -126,7 +118,9 @@ export default function Vendedores() {
   return (
     <div className="w-full flex flex-col gap-4">
       <div className="flex w-full justify-between items-center">
-        <span className="font-semibold text-[20px]">Clientes - esperando endpoint</span>
+        <span className="font-semibold text-[20px]">
+          Clientes - esperando endpoint
+        </span>
         <Button disabled onClick={() => setIsOpen(true)} variant="primary">
           Registro
         </Button>
@@ -173,7 +167,6 @@ export default function Vendedores() {
               onNext={() => handlePagination("next")}
             />
 
-            {/* Select para número de vendedores por página */}
             <Select
               label=""
               options={[
@@ -190,7 +183,6 @@ export default function Vendedores() {
           </div>
         </div>
       </Card>
-      {/* Modal para registrar vendedores */}
       {isOpen && (
         <ModalRegistroVendedores isOpen={isOpen} setIsOpen={setIsOpen} />
       )}

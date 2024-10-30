@@ -7,7 +7,6 @@ import {
   PhoneIcon,
   ListBulletedFilledIcon,
   NoteIcon,
-  FileIcon,
 } from "@shopify/polaris-icons";
 import { getLeadById, changeLeadToProspect } from "../../services/leads";
 import Actividad from "./Actividad";
@@ -17,13 +16,14 @@ import Tareas from "./Tareas";
 import Notas from "./Notas";
 import InfoLead from "./LeadInfo";
 import Whatsapp from "./Whatsapp";
-import Archivos from "./Archivos";
 import { Toast } from "../../components/Toast/toast";
 import type { Lead } from "../../services/leads";
 import { useNavigate } from "react-router-dom";
+import { useAuthToken } from "../../hooks/useAuthToken";
 
 export default function LeadInfo() {
-  const navigate = useNavigate()
+  const { userInfo } = useAuthToken();
+  const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [leadData, setLeadData] = useState<Lead | null>(null);
   const [selectedTab, setSelectedTab] = useState<string>("Actividad");
@@ -72,9 +72,13 @@ export default function LeadInfo() {
   const handlePreClient = async () => {
     setIsLoadingChange(true);
     try {
-      await changeLeadToProspect(id);
-      Toast.fire({ icon: "success", title: "Lead pasado a prospecto" });
-      navigate("/leads")
+      if (userInfo && userInfo.id) {
+        await changeLeadToProspect(id, userInfo.id);
+        Toast.fire({ icon: "success", title: "Lead pasado a prospecto" });
+        navigate("/leads");
+      } else {
+        throw new Error("Información del usuario no disponible");
+      }
     } catch (error) {
       const errorMessage = typeof error === "string" ? error : String(error);
       Toast.fire({
@@ -192,19 +196,6 @@ export default function LeadInfo() {
                 <span>Notas</span>
               </div>
             </div>
-            <div
-              className={`cursor-pointer overflow-hidden ${
-                selectedTab === "Archivos"
-                  ? "border-b-2 border-b-black"
-                  : "hover-border-b-2 hover-border-b-black"
-              }`}
-              onClick={() => handleTabClick("Archivos")}
-            >
-              <div className="flex gap-1">
-                <Icon source={FileIcon} />
-                <span>Archivos</span>
-              </div>
-            </div>
           </div>
           <div className="border-[1px] border-gray-300 p-2">
             {selectedTab === "Actividad" && <Actividad />}
@@ -213,7 +204,6 @@ export default function LeadInfo() {
             {selectedTab === "Tareas" && <Tareas />}
             {selectedTab === "Notas" && <Notas />}
             {selectedTab === "Whatsapp" && <Whatsapp />}
-            {selectedTab === "Archivos" && <Archivos id={id}/>}
           </div>
         </div>
         <div className="flex flex-col gap-3 w-full col-span-1">
@@ -229,6 +219,7 @@ export default function LeadInfo() {
                 status: leadData?.status ?? null,
                 created_at: leadData?.created_at ?? "",
                 updated_at: leadData?.updated_at ?? "",
+                 is_client: leadData?.is_client ?? undefined, 
               }}
             />
           </div>

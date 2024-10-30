@@ -1,4 +1,5 @@
 // src/services/clientes.ts
+import { All } from "./buyer";
 export interface Client {
   _id?: string | undefined;
   names: string;
@@ -16,6 +17,7 @@ export interface Client {
   is_client: boolean | null;
   created_at?: string;
   updated_at?: string;
+  type_person: string;
 }
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -24,7 +26,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 export const getActiveClient = async (): Promise<{
   result: boolean;
   error: string;
-  data: Client[];
+  data: All[];
 }> => {
   try {
     const response = await fetch(`${API_URL}client/active`, {
@@ -43,7 +45,8 @@ export const getActiveClient = async (): Promise<{
 
 export const getClientById = async (
   id: string
-): Promise<{ result: boolean; error: string; data: Client }> => { // data es un objeto Client
+): Promise<{ result: boolean; error: string; data: Client }> => {
+  // data es un objeto Client
   try {
     const response = await fetch(`${API_URL}client/active/${id}`, {
       method: "GET",
@@ -60,4 +63,3 @@ export const getClientById = async (
     throw error;
   }
 };
-

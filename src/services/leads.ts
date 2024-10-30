@@ -1,6 +1,7 @@
 // src/services/leads.ts
+import type { InfoLeads } from "../pages/Leads/LeadInfo";
 export interface Lead {
-  _id?: string | undefined;
+  _id?: string;
   names: string;
   paternal_surname: string;
   maternal_surname: string;
@@ -10,10 +11,16 @@ export interface Lead {
   birthday_date: string;
   city: string | null;
   state: string | null;
-  status?: string | null;
+  status?: boolean | null;
   type_lead: string;
+  type_client?: string;
+  type_person?: string;
   gender: "MALE" | "FEMALE" | null;
   is_client: boolean | null;
+  assigned_to?: string | null;
+  files_legal_extra?: string[];
+  files_legal_fisica?: string[];
+  files_legal_moral?: string[];
   created_at?: string;
   updated_at?: string;
 }
@@ -21,7 +28,10 @@ export interface Lead {
 const API_URL = import.meta.env.VITE_API_URL;
 
 // Crear un nuevo lead
-export const createLead = async (leadData: Lead): Promise<Lead> => {
+export const createLead = async (
+  leadData: Lead,
+  userId: string
+): Promise<Lead> => {
   const myHeaders = new Headers();
   myHeaders.append("Content-Type", "application/json");
 
@@ -35,12 +45,11 @@ export const createLead = async (leadData: Lead): Promise<Lead> => {
   };
 
   try {
-    const response = await fetch(`${API_URL}leads`, requestOptions);
+    const response = await fetch(`${API_URL}leads/${userId}`, requestOptions);
 
-    // Si la respuesta no es exitosa, intenta leer el cuerpo del error
     if (!response.ok) {
-      const errorResponse = await response.json(); // Capturar el cuerpo de la respuesta con los errores
-      throw new Error(JSON.stringify(errorResponse)); // Lanzar el error con los detalles
+      const errorResponse = await response.json();
+      throw new Error(JSON.stringify(errorResponse));
     }
 
     const newLead: Lead = await response.json();
@@ -50,7 +59,6 @@ export const createLead = async (leadData: Lead): Promise<Lead> => {
     throw error;
   }
 };
-
 
 // Obtener un lead por ID
 export const getLeadById = async (id: string): Promise<Lead> => {
@@ -204,10 +212,17 @@ export const deleteLead = async (id: string): Promise<void> => {
   }
 };
 
-export const changeLeadToProspect = async (id?: string | number): Promise<void> => {
+export const changeLeadToProspect = async (
+  id?: string | number,
+  userId?: string
+): Promise<void> => {
   try {
+    if (!id || !userId) {
+      throw new Error("ID del lead o ID del usuario faltante");
+    }
+
     const response = await fetch(
-      `${API_URL}client/change/customer_prospectus/${id}`,
+      `${API_URL}client/change/customer_prospectus/${id}/${userId}`,
       {
         method: "PATCH",
       }
@@ -215,9 +230,35 @@ export const changeLeadToProspect = async (id?: string | number): Promise<void> 
     if (!response.ok) {
       throw new Error("Error al pasar el lead a prospecto");
     }
-    console.log("El lead se hizo cliente existosamente");
   } catch (error) {
     console.error("Error al pasar el lead a prospecto", error);
+    throw error;
+  }
+};
+
+export const updateClient = async (
+  id: string,
+  userId: string,
+  leadData: InfoLeads
+): Promise<InfoLeads> => {
+  try {
+    const response = await fetch(`${API_URL}custom/client/${id}/${userId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(leadData),
+    });
+
+    if (!response.ok) {
+      const errorResponse = await response.json();
+      throw new Error(JSON.stringify(errorResponse));
+    }
+
+    const updatedLead: InfoLeads = await response.json();
+    return updatedLead;
+  } catch (error) {
+    console.error("Error al actualizar el cliente:", error);
     throw error;
   }
 };
