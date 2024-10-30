@@ -37,6 +37,7 @@ export default function Leads() {
   const fetchLeads = async () => {
     setIsLoading(true);
     setSelected("lead");
+    console.log(leads)
     try {
       const response = await getAllLeads();
       if (!Array.isArray(response)) {

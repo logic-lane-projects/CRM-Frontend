@@ -219,6 +219,7 @@ export default function LeadInfo() {
                 status: leadData?.status ?? null,
                 created_at: leadData?.created_at ?? "",
                 updated_at: leadData?.updated_at ?? "",
+                 is_client: leadData?.is_client ?? undefined, 
               }}
             />
           </div>

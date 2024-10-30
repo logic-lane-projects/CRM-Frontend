@@ -240,7 +240,7 @@ export default function ProspectInfo() {
             {selectedTab === "Notas" && <Notas />}
             {selectedTab === "Whatsapp" && <Whatsapp />}
             {selectedTab === "Archivos" && (
-              <Archivos id={id} isPayment={isPayment} setFinishLoading={setFinishLoading}/>
+              <Archivos id={id} isPayment={isPayment} setFinishLoading={setFinishLoading} regimen={""}/>
             )}
           </div>
         </div>
@@ -257,6 +257,7 @@ export default function ProspectInfo() {
                 status: leadData?.status ?? null,
                 created_at: leadData?.created_at ?? "",
                 updated_at: leadData?.updated_at ?? "",
+                is_client: leadData?.is_client ?? undefined, 
               }}
             />
           </div>

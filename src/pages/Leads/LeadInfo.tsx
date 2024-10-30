@@ -7,7 +7,7 @@ import { updateClient } from "../../services/leads";
 import { useAuthToken } from "../../hooks/useAuthToken";
 import { Toast } from "../../components/Toast/toast";
 
-interface InfoLead {
+export interface InfoLeads {
   _id?: string;
   names: string;
   paternal_surname: string;
@@ -28,7 +28,7 @@ interface InfoLead {
 }
 
 interface InfoLeadProps {
-  lead: InfoLead;
+  lead: InfoLeads;
 }
 
 export default function InfoLead({ lead }: InfoLeadProps) {
@@ -66,7 +66,7 @@ export default function InfoLead({ lead }: InfoLeadProps) {
 
   // Función para manejar la actualización del cliente
   const handleUpdateClient = async () => {
-    const updatedLeadData: InfoLead = {
+    const updatedLeadData: InfoLeads = {
       names,
       paternal_surname: paternalSurname,
       maternal_surname: maternalSurname,
@@ -78,7 +78,7 @@ export default function InfoLead({ lead }: InfoLeadProps) {
       age: parseInt(age),
       type_lead: typeLead,
       gender,
-      status: true,
+      status: typeof lead.status === 'boolean' ? lead.status : null,      
       is_client: true,
     };
 

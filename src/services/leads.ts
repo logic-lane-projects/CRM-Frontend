@@ -1,4 +1,5 @@
 // src/services/leads.ts
+import type { InfoLeads } from "../pages/Leads/LeadInfo";
 export interface Lead {
   _id?: string;
   names: string;
@@ -238,8 +239,8 @@ export const changeLeadToProspect = async (
 export const updateClient = async (
   id: string,
   userId: string,
-  leadData: Lead
-): Promise<Lead> => {
+  leadData: InfoLeads
+): Promise<InfoLeads> => {
   try {
     const response = await fetch(`${API_URL}custom/client/${id}/${userId}`, {
       method: "PUT",
@@ -254,7 +255,7 @@ export const updateClient = async (
       throw new Error(JSON.stringify(errorResponse));
     }
 
-    const updatedLead: Lead = await response.json();
+    const updatedLead: InfoLeads = await response.json();
     return updatedLead;
   } catch (error) {
     console.error("Error al actualizar el cliente:", error);

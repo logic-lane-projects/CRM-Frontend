@@ -206,6 +206,7 @@ export default function LeadInfo() {
                 status: clientData?.status ?? null,
                 created_at: clientData?.created_at ?? "",
                 updated_at: clientData?.updated_at ?? "",
+                is_client: clientData?.is_client ?? undefined, 
               }}
             />
           </div>

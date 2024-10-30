@@ -267,6 +267,7 @@ export default function BuyerInfo() {
                 ...leadData,
                 status: leadData?.status ?? null,
                 created_at: leadData?.created_at ?? "",
+                is_client: leadData?.is_client ?? undefined,
                 updated_at: leadData?.updated_at ?? "",
               }}
             />
