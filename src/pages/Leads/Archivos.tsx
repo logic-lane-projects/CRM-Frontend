@@ -121,6 +121,8 @@ export default function Archivos({
       return "INE";
     } else if (normalizedFileName.includes("curp")) {
       return "CURP";
+    } else if (normalizedFileName.includes("archivo_pago")) {
+      return "Archivo de pago";
     } else if (normalizedFileName.includes("acta_nacimiento")) {
       return "Acta de nacimiento";
     } else if (
@@ -162,9 +164,7 @@ export default function Archivos({
         <span className="font-semibold text-[15px]">{`Archivos`}</span>
         <Button
           onClick={() => {
-            if (
-              pathname.includes("prospecto")
-            ) {
+            if (pathname.includes("prospecto")) {
               setIsOpen(true);
             }
             if (
