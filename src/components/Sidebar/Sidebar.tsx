@@ -47,6 +47,12 @@ export default function Sidebar({ isOpen }: SidebarProps) {
                 icon: WorkIcon,
                 selected: currentPath === "/oficinas",
               },
+              {
+                url: "/coordinadores",
+                label: "Coordinadores",
+                icon: WorkIcon,
+                selected: currentPath === "/coordinadores",
+              },
             ]}
           />
         </Navigation>

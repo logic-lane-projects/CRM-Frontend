@@ -234,3 +234,30 @@ export const changeLeadToProspect = async (
     throw error;
   }
 };
+
+export const updateClient = async (
+  id: string,
+  userId: string,
+  leadData: Lead
+): Promise<Lead> => {
+  try {
+    const response = await fetch(`${API_URL}custom/client/${id}/${userId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(leadData),
+    });
+
+    if (!response.ok) {
+      const errorResponse = await response.json();
+      throw new Error(JSON.stringify(errorResponse));
+    }
+
+    const updatedLead: Lead = await response.json();
+    return updatedLead;
+  } catch (error) {
+    console.error("Error al actualizar el cliente:", error);
+    throw error;
+  }
+};
