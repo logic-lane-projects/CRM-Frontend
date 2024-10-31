@@ -22,7 +22,6 @@ export interface Client {
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-// Consultar clientes activos
 export const getActiveClient = async (): Promise<{
   result: boolean;
   error: string;
@@ -35,8 +34,8 @@ export const getActiveClient = async (): Promise<{
     if (!response.ok) {
       throw new Error("Error al obtener los clientes activos");
     }
-    const jsonResponse = await response.json(); // Parsear la respuesta como JSON
-    return jsonResponse; // Devolver el objeto completo con result, error y data
+    const jsonResponse = await response.json(); 
+    return jsonResponse;
   } catch (error) {
     console.error("Error al obtener los clientes activos:", error);
     throw error;
@@ -46,7 +45,6 @@ export const getActiveClient = async (): Promise<{
 export const getClientById = async (
   id: string
 ): Promise<{ result: boolean; error: string; data: Client }> => {
-  // data es un objeto Client
   try {
     const response = await fetch(`${API_URL}client/active/${id}`, {
       method: "GET",
@@ -57,7 +55,7 @@ export const getClientById = async (
     }
 
     const jsonResponse = await response.json();
-    return jsonResponse; // Asegurarse de que `data` es un objeto `Client`
+    return jsonResponse; 
   } catch (error) {
     console.error("Error al obtener la información del cliente", error);
     throw error;
