@@ -124,7 +124,6 @@ export default function Leads() {
       ? filteredLeads.length
       : parseInt(itemsPerPage, 10);
 
-  // Calcular el rango de elementos que se mostrarán en la página actual
   const paginatedLeads = filteredLeads.slice(
     (currentPage - 1) * numItemsPerPage,
     currentPage * numItemsPerPage
@@ -132,7 +131,6 @@ export default function Leads() {
 
   const totalPages = Math.ceil(filteredLeads.length / numItemsPerPage);
 
-  // Uso del estado de recursos para el IndexTable
   const { selectedResources, allResourcesSelected, handleSelectionChange } =
     useIndexResourceState(leadsForIndexTable);
 
@@ -156,18 +154,6 @@ export default function Leads() {
     setIsDeleteModalOpen(false);
     setSelectedLead(null);
   };
-
-  // const handleEditAction = () => {
-  //   if (selectedResources.length === 1) {
-  //     const leadToEdit = leads.find(
-  //       (lead) => lead._id === selectedResources[0]
-  //     ); // Buscar el lead a editar
-  //     setLeadDataToEdit(leadToEdit || null); // Guardar la información del lead en el estado
-  //     setIsOpen(true); // Abrir el modal
-  //   } else {
-  //     console.warn("Por favor selecciona solo un lead para editar");
-  //   }
-  // };
 
   const promotedBulkActions = [
     {
@@ -213,13 +199,8 @@ export default function Leads() {
         }
       },
     },
-    // {
-    //   content: "Editar",
-    //   onAction: handleEditAction,
-    // },
   ];
 
-  // Función para manejar el cambio de página
   const handlePagination = (direction: "previous" | "next") => {
     setCurrentPage((prevPage) => {
       if (direction === "next" && prevPage < totalPages) {
@@ -231,7 +212,6 @@ export default function Leads() {
     });
   };
 
-  // Funcion que te ayuda a detectar que usuarios se estan mostrando
   const rowMarkup = paginatedLeads.map(
     ({ id, names, email, phone_number, city, type_lead, status }, index) => (
       <IndexTable.Row
@@ -285,14 +265,12 @@ export default function Leads() {
         </div>
         <Card>
           <div className="flex flex-col gap-4">
-            {/* Botones de filtro */}
             <div className="flex gap-2">
               <Button onClick={fetchLeads}>Leads</Button>
               <Button onClick={fetchPreClient}>Prospecto</Button>
               <Button onClick={fetchComprador}>Comprador</Button>
               <Button onClick={fetchClients}>Clientes</Button>
             </div>
-            {/* Campo de búsqueda */}
             <TextField
               label=""
               value={searchValue}
@@ -384,7 +362,6 @@ export default function Leads() {
           />
         )}{" "}
       </div>
-      {/* Modal de confirmación de eliminación */}
       {isDeleteModalOpen && (
         <Modal
           open={isDeleteModalOpen}

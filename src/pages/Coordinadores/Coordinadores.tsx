@@ -7,15 +7,15 @@ import {
   Button,
   Card,
   Select,
+  Badge
 } from "@shopify/polaris";
 import { getAllCoordinators } from "../../services/coordinadores";
 import { Toast } from "../../components/Toast/toast";
 import ModalRegistroCoordinadores from "../../components/Modales/ModalRegistroCoordinadores";
 import { useNavigate } from "react-router-dom";
 
-// Nuevo tipo para los datos sin mapear
 interface RawCoordinatorData {
- _id: string;
+  _id: string;
   cellphone: string;
   city: string;
   created_at: string;
@@ -83,7 +83,6 @@ export default function Coordinadores() {
     fetchCoordinators();
   }, []);
 
-  // Filtro de búsqueda
   const filteredCoordinators = coordinators?.filter(
     (coordinator: RawCoordinatorData) =>
       coordinator.name.toLowerCase().includes(searchValue.toLowerCase()) ||
@@ -111,7 +110,7 @@ export default function Coordinadores() {
   const { selectedResources, allResourcesSelected, handleSelectionChange } =
     useIndexResourceState(resourceCoordinators);
 
-    const promotedBulkActions = [
+  const promotedBulkActions = [
     {
       content: "Ver Coordinador",
       onAction: () => navigate(`/coordinador/${selectedResources}`),
@@ -132,9 +131,9 @@ export default function Coordinadores() {
       return prevPage;
     });
   };
-
+  console.log(paginatedCoordinators);
   const rowMarkup = paginatedCoordinators.map(
-    ({ _id, name, email, city }: RawCoordinatorData, index: number) => (
+    ({ _id, name, email, city, status }: RawCoordinatorData, index: number) => (
       <IndexTable.Row
         id={_id ?? "unknown-id"}
         key={_id ?? index}
@@ -144,6 +143,11 @@ export default function Coordinadores() {
         <IndexTable.Cell>{name ?? "Nombre desconocido"}</IndexTable.Cell>
         <IndexTable.Cell>{email ?? "Correo desconocido"}</IndexTable.Cell>
         <IndexTable.Cell>{city ?? "Ciudad desconocida"}</IndexTable.Cell>
+        <IndexTable.Cell>
+          <Badge tone={status ? "success" : "critical"}>
+            {status ? "Activo" : "Inactivo"}
+          </Badge>
+        </IndexTable.Cell>
       </IndexTable.Row>
     )
   );
@@ -190,6 +194,7 @@ export default function Coordinadores() {
               { title: "Nombre" },
               { title: "Correo" },
               { title: "Ciudad" },
+              { title: "Status" },
             ]}
             promotedBulkActions={promotedBulkActions}
             emptyState="No se encontraron resultados"
