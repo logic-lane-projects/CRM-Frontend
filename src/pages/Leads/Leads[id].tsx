@@ -105,7 +105,21 @@ export default function LeadInfo() {
             <Spinner size="small" />
           </div>
         ) : (
-          <Button variant="primary" onClick={handlePreClient}>
+          <Button
+            variant="primary"
+            onClick={() => {
+              if (leadData?.assigned_to) {
+                handlePreClient();
+              } else {
+                Toast.fire({
+                  icon: "error",
+                  title:
+                    "El Lead no tiene un asesor asignado, por favor asignale uno",
+                  timer: 3000,
+                });
+              }
+            }}
+          >
             Pasar a Prospecto
           </Button>
         )}
@@ -219,7 +233,7 @@ export default function LeadInfo() {
                 status: leadData?.status ?? null,
                 created_at: leadData?.created_at ?? "",
                 updated_at: leadData?.updated_at ?? "",
-                 is_client: leadData?.is_client ?? undefined, 
+                is_client: leadData?.is_client ?? undefined,
               }}
             />
           </div>
