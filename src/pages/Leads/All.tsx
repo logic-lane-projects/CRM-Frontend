@@ -19,6 +19,7 @@ import { All as Lead } from "../../services/buyer";
 import { getActiveClient } from "../../services/clientes";
 import { getActivePreClients } from "../../services/preClient";
 import { getActiveBuyers } from "../../services/buyer";
+import ModalAsignacionVendedor from "../../components/Modales/ModalAsignacionVenderor";
 
 export default function Leads() {
   const navigate = useNavigate();
@@ -33,11 +34,12 @@ export default function Leads() {
   const [selectedData, setSelectedData] = useState<Lead[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selected, setSelected] = useState("");
+  const [isOpenAsignacion, setIsOpenAsignacion] = useState(false);
 
   const fetchLeads = async () => {
     setIsLoading(true);
     setSelected("lead");
-    console.log(leads)
+    console.log("Leads----->", leads);
     try {
       const response = await getAllLeads();
       if (!Array.isArray(response)) {
@@ -110,6 +112,7 @@ export default function Leads() {
     city: lead.city,
     type_lead: lead.type_lead,
     status: lead.status,
+    assigned_to: lead.assigned_to,
   }));
 
   // Filtro de búsqueda
@@ -213,7 +216,10 @@ export default function Leads() {
   };
 
   const rowMarkup = paginatedLeads.map(
-    ({ id, names, email, phone_number, city, type_lead, status }, index) => (
+    (
+      { id, names, email, phone_number, city, type_lead, status, assigned_to },
+      index
+    ) => (
       <IndexTable.Row
         id={id ?? ""}
         key={id ?? index}
@@ -231,6 +237,26 @@ export default function Leads() {
           <Badge tone={status ? "success" : "critical"}>
             {status ? "Activo" : "Inactivo"}
           </Badge>
+        </IndexTable.Cell>
+        <IndexTable.Cell>
+          {assigned_to ? (
+            <Button
+              onClick={() => {
+                console.log("Ver asignación de lead:", id);
+              }}
+            >
+              Ver
+            </Button>
+          ) : (
+            <Button
+              variant="primary"
+              onClick={() => {
+                setIsOpenAsignacion(true);
+              }}
+            >
+              Asignar
+            </Button>
+          )}
         </IndexTable.Cell>
       </IndexTable.Row>
     )
@@ -323,6 +349,7 @@ export default function Leads() {
                     { title: "Ciudad" },
                     { title: "Estado" },
                     { title: "Status" },
+                    { title: "Asignacion" },
                   ]}
                   promotedBulkActions={promotedBulkActions}
                   emptyState="No se encontraron resultados"
@@ -362,6 +389,13 @@ export default function Leads() {
           />
         )}{" "}
       </div>
+      {isOpenAsignacion && (
+        <ModalAsignacionVendedor
+          leadIds={selectedResources}
+          setIsOpen={setIsOpenAsignacion}
+          isOpen={isOpenAsignacion}
+        />
+      )}
       {isDeleteModalOpen && (
         <Modal
           open={isDeleteModalOpen}
