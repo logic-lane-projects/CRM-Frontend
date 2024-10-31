@@ -7,27 +7,69 @@ import {
   Button,
   Card,
   Select,
+  Badge
 } from "@shopify/polaris";
-import { getUsers, User } from "../../services/users";
+import { getAllCoordinators } from "../../services/coordinadores";
 import { Toast } from "../../components/Toast/toast";
-import ModalRegistroOficinas from "../../components/Modales/ModalOficinas";
+import ModalRegistroCoordinadores from "../../components/Modales/ModalRegistroCoordinadores";
+import { useNavigate } from "react-router-dom";
+
+interface RawCoordinatorData {
+  _id: string;
+  cellphone: string;
+  city: string;
+  created_at: string;
+  email: string;
+  maternal_surname: string;
+  name: string;
+  oficina: string | null;
+  paternal_surname: string;
+  role: string;
+  state: string;
+  status: boolean;
+  updated_at: string;
+}
 
 export default function Coordinadores() {
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState("10");
-  const [vendedores, setVendedores] = useState<User[]>([]);
+  const [coordinators, setCoordinators] = useState<RawCoordinatorData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchCoordinators = async () => {
       try {
-        const usersData: User[] = await getUsers();
-        setVendedores(usersData);
+        const coordinatorsData = await getAllCoordinators();
+
+        if (Array.isArray(coordinatorsData.data)) {
+          const formattedData: RawCoordinatorData[] = coordinatorsData.data.map(
+            (item: RawCoordinatorData) => ({
+              _id: item._id,
+              name: item.name,
+              paternal_surname: item.paternal_surname,
+              maternal_surname: item.maternal_surname,
+              email: item.email,
+              cellphone: item.cellphone,
+              city: item.city,
+              state: item.state,
+              office: item.oficina,
+              role: item.role,
+              status: item.status,
+              created_at: item.created_at,
+              updated_at: item.updated_at,
+            })
+          );
+
+          setCoordinators(formattedData);
+        } else {
+          setError("Error: los datos recibidos no son válidos.");
+        }
       } catch (error) {
-        setError("Error al cargar los usuarios");
+        setError("Error al cargar los coordinadores");
         const errorMessage = typeof error === "string" ? error : String(error);
         Toast.fire({
           icon: "error",
@@ -38,53 +80,47 @@ export default function Coordinadores() {
       }
     };
 
-    fetchUsers();
+    fetchCoordinators();
   }, []);
 
-  // Filtro de búsqueda
-  const filteredVendedores = vendedores.filter(
-    (vendedor: User) =>
-      vendedor.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-      vendedor.email.toLowerCase().includes(searchValue.toLowerCase()) ||
-      vendedor.city.toLowerCase().includes(searchValue.toLowerCase())
+  const filteredCoordinators = coordinators?.filter(
+    (coordinator: RawCoordinatorData) =>
+      coordinator.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+      coordinator.email.toLowerCase().includes(searchValue.toLowerCase()) ||
+      coordinator.city.toLowerCase().includes(searchValue.toLowerCase())
   );
 
-  // Convertimos el valor de itemsPerPage en un número o tomamos el total de oficinas si es "todos"
   const numItemsPerPage =
     itemsPerPage === "todos"
-      ? filteredVendedores.length
+      ? filteredCoordinators.length
       : parseInt(itemsPerPage, 10);
 
-  // Calcular el rango de elementos que se mostrarán en la página actual
-  const paginatedVendedores = filteredVendedores.slice(
+  const paginatedCoordinators = filteredCoordinators?.slice(
     (currentPage - 1) * numItemsPerPage,
     currentPage * numItemsPerPage
   );
 
-  const totalPages = Math.ceil(filteredVendedores.length / numItemsPerPage);
+  const totalPages = Math.ceil(filteredCoordinators.length / numItemsPerPage);
 
-  // Convierte los usuarios a un formato aceptado por useIndexResourceState
-  const resourceVendedores = vendedores.map((vendedor) => ({
-    ...vendedor,
-    id: vendedor.id ?? "unknown-id",
+  const resourceCoordinators = coordinators?.map((coordinator) => ({
+    ...coordinator,
+    id: coordinator._id ?? "unknown-id",
   }));
 
-  // Uso del estado de recursos para el IndexTable
   const { selectedResources, allResourcesSelected, handleSelectionChange } =
-    useIndexResourceState(resourceVendedores);
+    useIndexResourceState(resourceCoordinators);
 
   const promotedBulkActions = [
     {
-      content: "Ver Oficina",
-      onAction: () => console.log("Ver Oficina"),
+      content: "Ver Coordinador",
+      onAction: () => navigate(`/coordinador/${selectedResources}`),
     },
     {
       content: "Eliminar",
-      onAction: () => console.log("Eliminar Vendedor"),
+      onAction: () => alert("Eliminar Coordinador"),
     },
   ];
 
-  // Función para manejar el cambio de página
   const handlePagination = (direction: "previous" | "next") => {
     setCurrentPage((prevPage) => {
       if (direction === "next" && prevPage < totalPages) {
@@ -95,21 +131,23 @@ export default function Coordinadores() {
       return prevPage;
     });
   };
-
-  const rowMarkup = paginatedVendedores.map(
-    ({ id, name, email, city }: User, index: number) => (
+  console.log(paginatedCoordinators);
+  const rowMarkup = paginatedCoordinators.map(
+    ({ _id, name, email, city, status }: RawCoordinatorData, index: number) => (
       <IndexTable.Row
-        id={id ?? "unknown-id"} // Si id es undefined, usa "unknown-id"
-        key={id ?? index} // Usa index como respaldo si id es undefined
+        id={_id ?? "unknown-id"}
+        key={_id ?? index}
         position={index}
-        selected={selectedResources.includes(id ?? "")} // Si id es undefined, usa una cadena vacía
+        selected={selectedResources.includes(_id ?? "")}
       >
-        <IndexTable.Cell>{name ?? "Nombre desconocido"}</IndexTable.Cell>{" "}
-        {/* Proporciona un valor predeterminado si name es undefined */}
-        <IndexTable.Cell>{email ?? "Correo desconocido"}</IndexTable.Cell>{" "}
-        {/* Proporciona un valor predeterminado si email es undefined */}
-        <IndexTable.Cell>{city ?? "Ciudad desconocida"}</IndexTable.Cell>{" "}
-        {/* Proporciona un valor predeterminado si city es undefined */}
+        <IndexTable.Cell>{name ?? "Nombre desconocido"}</IndexTable.Cell>
+        <IndexTable.Cell>{email ?? "Correo desconocido"}</IndexTable.Cell>
+        <IndexTable.Cell>{city ?? "Ciudad desconocida"}</IndexTable.Cell>
+        <IndexTable.Cell>
+          <Badge tone={status ? "success" : "critical"}>
+            {status ? "Activo" : "Inactivo"}
+          </Badge>
+        </IndexTable.Cell>
       </IndexTable.Row>
     )
   );
@@ -125,16 +163,13 @@ export default function Coordinadores() {
   return (
     <div className="w-full flex flex-col gap-4">
       <div className="flex w-full justify-between items-center">
-        <span className="font-semibold text-[20px]">
-          Coordinadores - esperando endpoint
-        </span>
+        <span className="font-semibold text-[20px]">Coordinadores</span>
         <Button onClick={() => setIsOpen(true)} variant="primary">
           Registrar Coordinador
         </Button>
       </div>
       <Card>
         <div className="flex flex-col gap-4">
-          {/* Campo de búsqueda */}
           <TextField
             label=""
             value={searchValue}
@@ -149,18 +184,17 @@ export default function Coordinadores() {
           />
 
           <IndexTable
-            resourceName={{ singular: "oficina", plural: "oficinas" }}
-            itemCount={filteredVendedores.length}
+            resourceName={{ singular: "coordinador", plural: "coordinadores" }}
+            itemCount={filteredCoordinators.length}
             selectedItemsCount={
               allResourcesSelected ? "All" : selectedResources.length
             }
             onSelectionChange={handleSelectionChange}
             headings={[
-              { title: "Ciudas" },
-              { title: "Estado" },
-              { title: "Oficina" },
-              { title: "Jefe" },
-              { title: "Número  de empleados" },
+              { title: "Nombre" },
+              { title: "Correo" },
+              { title: "Ciudad" },
+              { title: "Status" },
             ]}
             promotedBulkActions={promotedBulkActions}
             emptyState="No se encontraron resultados"
@@ -168,7 +202,6 @@ export default function Coordinadores() {
             {rowMarkup}
           </IndexTable>
           <div className="flex flex-row-reverse items-center w-full justify-between">
-            {/* Paginación */}
             <Pagination
               hasPrevious={currentPage > 1}
               onPrevious={() => handlePagination("previous")}
@@ -176,7 +209,6 @@ export default function Coordinadores() {
               onNext={() => handlePagination("next")}
             />
 
-            {/* Select para número de vendedores por página */}
             <Select
               label=""
               options={[
@@ -193,9 +225,8 @@ export default function Coordinadores() {
           </div>
         </div>
       </Card>
-      {/* Modal para registrar oficinas */}
       {isOpen && (
-        <ModalRegistroOficinas isOpen={isOpen} setIsOpen={setIsOpen} />
+        <ModalRegistroCoordinadores isOpen={isOpen} setIsOpen={setIsOpen} />
       )}
     </div>
   );

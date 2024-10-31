@@ -46,7 +46,6 @@ export const getUserById = async (id: string): Promise<User> => {
   }
 };
 
-
 // Actualizar usuario
 export const updateUser = async (id: string, userData: User): Promise<User> => {
   try {
@@ -62,14 +61,13 @@ export const updateUser = async (id: string, userData: User): Promise<User> => {
       throw new Error(`Error al actualizar el usuario con ID ${id}`);
     }
 
-    const updatedUser: User = await response.json(); 
+    const updatedUser: User = await response.json();
     return updatedUser;
   } catch (error) {
     console.error(`Error al actualizar el usuario con ID ${id}:`, error);
     throw error;
   }
 };
-
 
 // Eliminar un usuario
 export const deleteUser = async (id: string): Promise<void> => {
@@ -118,6 +116,34 @@ export const createUser = async (userData: User): Promise<User> => {
     return newUser;
   } catch (error) {
     console.error("Error al crear un nuevo usuario:", error);
+    throw error;
+  }
+};
+
+export const assignSeller = async (
+  userId: string,
+  sellerId: string,
+  leadIds: string[]
+) => {
+  try {
+    const response = await fetch(`${API_URL}/change/assigned_to/${userId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id_vendedor: sellerId,
+        leads: leadIds,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Error assigning lead to seller");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error in assignSeller:", error);
     throw error;
   }
 };

@@ -17,7 +17,7 @@ export default function InfoVendedores() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isSaving, setIsSaving] = useState(false); // Para el estado de guardado
+  const [isSaving, setIsSaving] = useState(false); 
 
   // Manejando el estado de cada campo
   const [name, setName] = useState<string>("");
@@ -26,7 +26,7 @@ export default function InfoVendedores() {
   const [email, setEmail] = useState<string>("");
   const [cellphone, setCellphone] = useState<string>("");
   const [city, setCity] = useState<string>("");
-  const [role, setRole] = useState<string>(UserRole.Vendedor); // Estado inicial para el rol
+  const [role, setRole] = useState<string>(UserRole.Vendedor); 
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -35,14 +35,13 @@ export default function InfoVendedores() {
         if (id) {
           const fetchedUser = await getUserById(id);
           setUser(fetchedUser);
-          // Actualizando los valores en los campos controlados
           setName(fetchedUser.name);
           setPaternalSurname(fetchedUser.paternal_surname);
           setMaternalSurname(fetchedUser.maternal_surname);
           setEmail(fetchedUser.email);
           setCellphone(fetchedUser.cellphone);
           setCity(fetchedUser.city);
-          setRole(fetchedUser.role); // Actualizar el estado del rol
+          setRole(fetchedUser.role); 
         } else {
           setError("ID no proporcionado.");
         }
@@ -61,7 +60,6 @@ export default function InfoVendedores() {
     fetchUser();
   }, [id]);
 
-  // Función para actualizar el usuario
   const handleSave = async () => {
     if (id && user) {
       setIsSaving(true);
@@ -94,7 +92,6 @@ export default function InfoVendedores() {
     }
   };
 
-  // Función para eliminar el usuario
   const handleDelete = async () => {
     if (id) {
       try {
@@ -104,7 +101,7 @@ export default function InfoVendedores() {
           title: "Usuario eliminado con éxito",
         });
         setIsModalOpen(false);
-        navigate("/vendedores"); // Redirige a la página de usuarios después de eliminar
+        navigate("/vendedores");
       } catch (error) {
         const errorMessage = typeof error === "string" ? error : String(error);
         Toast.fire({
@@ -127,7 +124,6 @@ export default function InfoVendedores() {
     return <p>{error}</p>;
   }
 
-  // Opciones para el Select de roles
   const roleOptions = [
     { label: "Vendedor", value: UserRole.Vendedor },
     { label: "Administrador", value: UserRole.Administrador },
@@ -200,9 +196,9 @@ export default function InfoVendedores() {
             <p className="font-bold">Rol:</p>
             <Select
               label=""
-              options={roleOptions} // Opciones del select basadas en el enum
+              options={roleOptions}
               value={role}
-              onChange={(value) => setRole(value)} // Actualizar el rol seleccionado
+              onChange={(value) => setRole(value)} 
             />
           </div>
           <div className="p-3 flex justify-end">
