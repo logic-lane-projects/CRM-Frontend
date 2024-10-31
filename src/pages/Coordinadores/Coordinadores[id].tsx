@@ -1,21 +1,22 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   updateCoordinator,
   findCoordinatorById,
+  deleteCoordinator,
 } from "../../services/coordinadores";
 import { Toast } from "../../components/Toast/toast";
 import { Button, Card, TextField, Modal } from "@shopify/polaris";
 
 export default function InfoCoordinador() {
   const { id } = useParams<{ id: string }>();
-  //   const navigate = useNavigate();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  // Estados para los campos del formulario
   const [name, setName] = useState<string>("");
   const [paternalSurname, setPaternalSurname] = useState<string>("");
   const [maternalSurname, setMaternalSurname] = useState<string>("");
@@ -24,7 +25,7 @@ export default function InfoCoordinador() {
   const [city, setCity] = useState<string>("");
   const [state, setState] = useState<string>("");
   const [oficina, setOficina] = useState<string>("");
-  const [role, setRole] = useState<string>("COORIDINADOR");
+  const [role, setRole] = useState<string>("COORDINADOR");
 
   useEffect(() => {
     const fetchCoordinator = async () => {
@@ -95,6 +96,33 @@ export default function InfoCoordinador() {
         });
       } finally {
         setIsSaving(false);
+      }
+    }
+  };
+
+  const handleDelete = async () => {
+    if (id) {
+      setIsDeleting(true);
+      try {
+        const response = await deleteCoordinator(id, id);
+
+        if (response && response.result) {
+          Toast.fire({
+            icon: "success",
+            title: "Coordinador eliminado con éxito",
+          });
+          setIsModalOpen(false);
+          navigate("/coordinadores");
+        } else {
+          throw new Error("Error al eliminar el coordinador.");
+        }
+      } catch (error) {
+        Toast.fire({
+          icon: "error",
+          title: error instanceof Error ? error.message : String(error),
+        });
+      } finally {
+        setIsDeleting(false);
       }
     }
   };
@@ -200,9 +228,10 @@ export default function InfoCoordinador() {
         onClose={() => setIsModalOpen(false)}
         title="Confirmar eliminación"
         primaryAction={{
-          content: "Aceptar",
-          onAction: () => {}, 
+          content: isDeleting ? "Eliminando..." : "Aceptar",
+          onAction: handleDelete,
           destructive: true,
+          loading: isDeleting,
         }}
         secondaryActions={[
           {
