@@ -35,6 +35,7 @@ export default function Leads() {
   const [isLoading, setIsLoading] = useState(false);
   const [selected, setSelected] = useState("");
   const [isOpenAsignacion, setIsOpenAsignacion] = useState(false);
+  const [assignedTo, setAssignedTo] = useState("");
 
   const fetchLeads = async () => {
     setIsLoading(true);
@@ -43,7 +44,6 @@ export default function Leads() {
     try {
       const response = await getAllLeads();
       if (!Array.isArray(response)) {
-        console.error("Error: La respuesta no es un array.");
         return;
       }
       setLeads(response);
@@ -242,7 +242,8 @@ export default function Leads() {
           {assigned_to ? (
             <Button
               onClick={() => {
-                console.log("Ver asignación de lead:", id);
+                setIsOpenAsignacion(true);
+                setAssignedTo(assigned_to);
               }}
             >
               Ver
@@ -394,6 +395,7 @@ export default function Leads() {
           leadIds={selectedResources}
           setIsOpen={setIsOpenAsignacion}
           isOpen={isOpenAsignacion}
+          assignedTo={assignedTo}
         />
       )}
       {isDeleteModalOpen && (
