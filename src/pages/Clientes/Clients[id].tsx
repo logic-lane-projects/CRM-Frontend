@@ -7,7 +7,8 @@ import {
   PhoneIcon,
   ListBulletedFilledIcon,
   NoteIcon,
-  FileIcon
+  FileIcon,
+  ClockIcon
 } from "@shopify/polaris-icons";
 import { Client, getClientById } from "../../services/clientes";
 import Actividad from "../Leads/Actividad";
@@ -19,6 +20,7 @@ import InfoLead from "../Leads/LeadInfo";
 import Whatsapp from "../Leads/Whatsapp";
 import { Toast } from "../../components/Toast/toast";
 import Archivos from "../Leads/Archivos";
+import Historial from "../Leads/Historial";
 
 export default function LeadInfo() {
   const { id } = useParams<{ id: string }>();
@@ -182,6 +184,19 @@ export default function LeadInfo() {
                 <span>Archivos</span>
               </div>
             </div>
+            <div
+              className={`cursor-pointer overflow-hidden ${
+                selectedTabFromUrl === "Historial"
+                  ? "border-b-2 border-b-black"
+                  : "hover-border-b-2 hover-border-b-black"
+              }`}
+              onClick={() => handleTabClick("Historial")}
+            >
+              <div className="flex gap-1">
+                <Icon source={ClockIcon} />
+                <span>Historial</span>
+              </div>
+            </div>
           </div>
           <div className="border-[1px] border-gray-300 p-2">
             {selectedTabFromUrl === "Actividad" && <Actividad />}
@@ -191,6 +206,7 @@ export default function LeadInfo() {
             {selectedTabFromUrl === "Notas" && <Notas />}
             {selectedTabFromUrl === "Whatsapp" && <Whatsapp />}
             {selectedTabFromUrl === "Archivos" && <Archivos id={id} regimen={clientData.type_person}/>}
+            {selectedTabFromUrl === "Historial" && <Historial />}
           </div>
         </div>
         <div className="flex flex-col gap-3 w-full col-span-1">
