@@ -88,12 +88,24 @@ export const getCitiesWithCoordinators = async () => {
   }
 };
 
+// funcion para obtener todos los coordinadores
 export const getAllCoordinators = async () => {
   try {
     const response = await fetch(`${API_URL}coordinador/all`, {
       method: "GET",
     });
     return await response.json();
+  } catch (error) {
+    return error;
+  }
+};
+
+export const asignCordinatorToSeller = async () => {
+  try {
+    const response = await fetch(`${API_URL}coordinador/assign`, {
+      method: "POST",
+    });
+    return await response;
   } catch (error) {
     return error;
   }
