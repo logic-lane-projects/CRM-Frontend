@@ -9,7 +9,7 @@ import {
   Button,
 } from "@shopify/polaris";
 import { getUsers, getUserById } from "../../services/users";
-import { assignSeller } from "../../services/users";
+// import { assignSeller } from "../../services/users";
 import { useAuthToken } from "../../hooks/useAuthToken";
 import type { User } from "../../services/users";
 import { Toast } from "../Toast/toast";
@@ -17,14 +17,12 @@ import { Toast } from "../Toast/toast";
 interface ModalAsignacionVendedorProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  leadIds: string[];
   assignedTo: string | null;
 }
 
-export default function ModalAsignacionVendedor({
+export default function ModalAsignacionCoordinador({
   isOpen,
   setIsOpen,
-  leadIds,
   assignedTo,
 }: ModalAsignacionVendedorProps) {
   const { userInfo } = useAuthToken();
@@ -81,7 +79,7 @@ export default function ModalAsignacionVendedor({
     if (!selectedSellerId) {
       Toast.fire({
         icon: "warning",
-        title: "Selecciona un vendedor antes de asignar.",
+        title: "Selecciona un coordinador antes de asignar.",
       });
       return;
     }
@@ -97,14 +95,14 @@ export default function ModalAsignacionVendedor({
     setIsLoading(true);
     Toast.fire({
       icon: "info",
-      title: "Asignando vendedor...",
+      title: "Asignando coordinador...",
     });
 
     try {
-      await assignSeller(userInfo.id, selectedSellerId, leadIds);
+      //   await assignSeller(userInfo.id, selectedSellerId, assignedTo);
       Toast.fire({
         icon: "success",
-        title: "Vendedor asignado exitosamente.",
+        title: "Coordinador asignado exitosamente.",
       });
       setIsOpen(false);
       setIsChangingSeller(false);
@@ -114,7 +112,7 @@ export default function ModalAsignacionVendedor({
     } catch (error) {
       Toast.fire({
         icon: "error",
-        title: error || "Error al asignar el vendedor.",
+        title: error || "Error al asignar el coordinador.",
       });
     } finally {
       setIsLoading(false);
@@ -132,8 +130,8 @@ export default function ModalAsignacionVendedor({
           }}
           title={
             assignedTo && !isChangingSeller
-              ? "Vendedor asignado"
-              : "Asignar Vendedor"
+              ? "Coordinador asignado"
+              : "Asignar Coordinador"
           }
           primaryAction={{
             content: isLoading ? "Cargando..." : "Asignar",
@@ -158,7 +156,7 @@ export default function ModalAsignacionVendedor({
             <TextContainer>
               {assignedSellerInfo && !isChangingSeller ? (
                 <>
-                  <p className="mb-2">Vendedor Asignado:</p>
+                  <p className="mb-2">Coordinador Asignado:</p>
                   <p>
                     <strong>Nombre:</strong> {assignedSellerInfo.name}
                   </p>
@@ -172,12 +170,12 @@ export default function ModalAsignacionVendedor({
                     onClick={() => setIsChangingSeller(true)}
                     disabled={isLoading}
                   >
-                    Cambiar Vendedor
+                    Cambiar Coordinador
                   </Button>
                 </>
               ) : (
                 <>
-                  <p className="mb-2">Busca un vendedor para asignarlo:</p>
+                  <p className="mb-2">Busca un Coordinador para asignarlo:</p>
                   <TextField
                     label=""
                     value={searchTerm}

@@ -81,7 +81,7 @@ import {
     
       try {
         const newUser = await createUser({
-          id:"",
+          id: "",
           name: formValues.ciudad,
           paternal_surname: formValues.apellidop,
           maternal_surname: formValues.apellidom,
@@ -89,6 +89,7 @@ import {
           cellphone: formValues.telefono,
           city: formValues.ciudad,
           role: formValues.rol,
+          coordinador_asignado: null
         });
         
         console.log("Usuario creado en la base de datos:", newUser);

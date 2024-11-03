@@ -8,6 +8,7 @@ export interface User {
   name: string;
   paternal_surname: string;
   role: string;
+  coordinador_asignado: string | null;
 }
 
 const API_URL = import.meta.env.VITE_API_URL;

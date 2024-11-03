@@ -11,9 +11,10 @@ import {
 import { getUsers, User } from "../../services/users";
 import { Toast } from "../../components/Toast/toast";
 import { useNavigate } from "react-router-dom";
+import ModalAsignacionCoordinador from "../../components/Modales/ModalAsignacionCoordinador";
 
 export default function Vendedores() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -21,13 +22,16 @@ export default function Vendedores() {
   const [vendedores, setVendedores] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedResource, setSelectedResource] = useState<string | null>(null);//Seleccionar solo un usuario
+  const [selectedResource, setSelectedResource] = useState<string | null>(null);
+  const [isOpenCoordinador, setIsOpenCoordinador] = useState(false);
+  const [selectedCoordinator, setSelectedCoordinator] = useState<string | null>(
+    null
+  );
 
-  // Cargar los vendedores desde la API al montar el componente
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const usersData: User[] = await getUsers(); 
+        const usersData: User[] = await getUsers();
         setVendedores(usersData);
       } catch (error) {
         setError("Error al cargar los usuarios");
@@ -44,7 +48,11 @@ export default function Vendedores() {
     fetchUsers();
   }, []);
 
-  // Filtro de búsqueda
+  const handleOpenCoordinatorModal = (coordinator: string | null) => {
+    setSelectedCoordinator(coordinator);
+    setIsOpenCoordinador(true);
+  };
+
   const filteredVendedores = vendedores.filter(
     (vendedor: User) =>
       vendedor.name.toLowerCase().includes(searchValue.toLowerCase()) ||
@@ -52,13 +60,11 @@ export default function Vendedores() {
       vendedor.city.toLowerCase().includes(searchValue.toLowerCase())
   );
 
-  // Convertimos el valor de itemsPerPage en un número o tomamos el total de vendedores si es "todos"
   const numItemsPerPage =
     itemsPerPage === "todos"
       ? filteredVendedores.length
       : parseInt(itemsPerPage, 10);
 
-  // Calcular el rango de elementos que se mostrarán en la página actual
   const paginatedVendedores = filteredVendedores.slice(
     (currentPage - 1) * numItemsPerPage,
     currentPage * numItemsPerPage
@@ -71,11 +77,10 @@ export default function Vendedores() {
       content: "Ver Vendedor",
       onAction: () => {
         navigate(`/vendedor/${selectedResource}`);
-      },    
+      },
     },
   ];
 
-  // Función para manejar el cambio de página
   const handlePagination = (direction: "previous" | "next") => {
     setCurrentPage((prevPage) => {
       if (direction === "next" && prevPage < totalPages) {
@@ -87,28 +92,43 @@ export default function Vendedores() {
     });
   };
 
+  console.log("vendedores paginados", paginatedVendedores);
   const rowMarkup = paginatedVendedores.map(
-    ({ id, name, email, city }: User, index: number) => (
+    ({ id, name, email, city, coordinador_asignado }: User, index: number) => (
       <IndexTable.Row
-        id={id ?? "unknown-id"} // Si id es undefined, usa "unknown-id"
-        key={id ?? index} // Usa index como respaldo si id es undefined
+        id={id ?? "unknown-id"}
+        key={id ?? index}
         position={index}
         selected={selectedResource === id}
         onClick={() => {
-          setSelectedResource(selectedResource === id ? null:id ?? null);}}
+          setSelectedResource(selectedResource === id ? null : id ?? null);
+        }}
       >
-        <IndexTable.Cell>{name ?? "Nombre desconocido"}</IndexTable.Cell>{" "}
-        {/* Proporciona un valor predeterminado si name es undefined */}
-        <IndexTable.Cell>{email ?? "Correo desconocido"}</IndexTable.Cell>{" "}
-        {/* Proporciona un valor predeterminado si email es undefined */}
-        <IndexTable.Cell>{city ?? "Ciudad desconocida"}</IndexTable.Cell>{" "}
-        {/* Proporciona un valor predeterminado si city es undefined */}
+        <IndexTable.Cell>{name ?? "Nombre desconocido"}</IndexTable.Cell>
+        <IndexTable.Cell>{email ?? "Correo desconocido"}</IndexTable.Cell>
+        <IndexTable.Cell>{city ?? "Ciudad desconocida"}</IndexTable.Cell>
+        <IndexTable.Cell>
+          {coordinador_asignado ? (
+            <Button
+              onClick={() => handleOpenCoordinatorModal(coordinador_asignado)}
+            >
+              Ver
+            </Button>
+          ) : (
+            <Button
+              variant="primary"
+              onClick={() => handleOpenCoordinatorModal(null)}
+            >
+              Asignar
+            </Button>
+          )}
+        </IndexTable.Cell>
       </IndexTable.Row>
     )
   );
-  
+
   if (loading) {
-    return <p>Cargando vendedores...</p>; 
+    return <p>Cargando vendedores...</p>;
   }
 
   if (error) {
@@ -125,7 +145,6 @@ export default function Vendedores() {
       </div>
       <Card>
         <div className="flex flex-col gap-4">
-          {/* Campo de búsqueda */}
           <TextField
             label=""
             value={searchValue}
@@ -142,9 +161,7 @@ export default function Vendedores() {
           <IndexTable
             resourceName={{ singular: "vendedor", plural: "vendedores" }}
             itemCount={filteredVendedores.length}
-            selectedItemsCount={
-              selectedResource ? 1 : 0
-            }
+            selectedItemsCount={selectedResource ? 1 : 0}
             onSelectionChange={() => {}}
             headings={[
               { title: "Nombre" },
@@ -157,7 +174,6 @@ export default function Vendedores() {
             {rowMarkup}
           </IndexTable>
           <div className="flex flex-row-reverse items-center w-full justify-between">
-            {/* Paginación */}
             <Pagination
               hasPrevious={currentPage > 1}
               onPrevious={() => handlePagination("previous")}
@@ -165,7 +181,6 @@ export default function Vendedores() {
               onNext={() => handlePagination("next")}
             />
 
-            {/* Select para número de vendedores por página */}
             <Select
               label=""
               options={[
@@ -182,9 +197,15 @@ export default function Vendedores() {
           </div>
         </div>
       </Card>
-      {/* Modal para registrar vendedores */}
       {isOpen && (
         <ModalRegistroVendedores isOpen={isOpen} setIsOpen={setIsOpen} />
+      )}
+      {isOpenCoordinador && (
+        <ModalAsignacionCoordinador
+          isOpen={isOpenCoordinador}
+          setIsOpen={setIsOpenCoordinador}
+          assignedTo={selectedCoordinator}
+        />
       )}
     </div>
   );
