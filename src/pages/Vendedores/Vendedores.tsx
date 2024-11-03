@@ -115,12 +115,14 @@ export default function Vendedores() {
               Ver
             </Button>
           ) : (
+            <div className="hidden">
             <Button
               variant="primary"
               onClick={() => handleOpenCoordinatorModal(null)}
-            >
+              >
               Asignar
             </Button>
+              </div>
           )}
         </IndexTable.Cell>
       </IndexTable.Row>
