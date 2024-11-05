@@ -7,6 +7,7 @@ import {
   PhoneIcon,
   ListBulletedFilledIcon,
   NoteIcon,
+  ClockIcon,
 } from "@shopify/polaris-icons";
 import { getLeadById, changeLeadToProspect } from "../../services/leads";
 import Actividad from "./Actividad";
@@ -16,6 +17,7 @@ import Tareas from "./Tareas";
 import Notas from "./Notas";
 import InfoLead from "./LeadInfo";
 import Whatsapp from "./Whatsapp";
+import Historial from "./Historial";
 import { Toast } from "../../components/Toast/toast";
 import type { Lead } from "../../services/leads";
 import { useNavigate } from "react-router-dom";
@@ -210,6 +212,19 @@ export default function LeadInfo() {
                 <span>Notas</span>
               </div>
             </div>
+            <div
+              className={`cursor-pointer overflow-hidden ${
+                selectedTab === "Historial"
+                  ? "border-b-2 border-b-black"
+                  : "hover-border-b-2 hover-border-b-black"
+              }`}
+              onClick={() => handleTabClick("Historial")}
+            >
+              <div className="flex gap-1">
+                <Icon source={ClockIcon} />
+                <span>Historial</span>
+              </div>
+            </div>
           </div>
           <div className="border-[1px] border-gray-300 p-2">
             {selectedTab === "Actividad" && <Actividad />}
@@ -218,6 +233,7 @@ export default function LeadInfo() {
             {selectedTab === "Tareas" && <Tareas />}
             {selectedTab === "Notas" && <Notas />}
             {selectedTab === "Whatsapp" && <Whatsapp />}
+            {selectedTab === "Historial" && <Historial />}
           </div>
         </div>
         <div className="flex flex-col gap-3 w-full col-span-1">
