@@ -88,6 +88,7 @@ export const getCitiesWithCoordinators = async () => {
   }
 };
 
+// funcion para obtener todos los coordinadores
 export const getAllCoordinators = async () => {
   try {
     const response = await fetch(`${API_URL}coordinador/all`, {
@@ -96,5 +97,31 @@ export const getAllCoordinators = async () => {
     return await response.json();
   } catch (error) {
     return error;
+  }
+};
+
+export const asignCordinatorToSeller = async (
+  coordinatorId: string,
+  sellerIds: string[],
+  userId: string
+) => {
+  try {
+    const response = await fetch(
+      `${API_URL}vendedores/asignar_coordinador/${userId}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id_coordinador: coordinatorId,
+          vendedores: sellerIds,
+        }),
+      }
+    );
+    return await response.json();
+  } catch (error) {
+    console.error("Error assigning coordinator:", error);
+    throw error;
   }
 };

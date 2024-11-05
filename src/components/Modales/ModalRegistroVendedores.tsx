@@ -97,7 +97,7 @@ export default function ModalRegistroVendedores({
   
     try {
       const newUser = await createUser({
-        id:"",
+        id: "",
         name: formValues.nombre,
         paternal_surname: formValues.apellidop,
         maternal_surname: formValues.apellidom,
@@ -105,6 +105,7 @@ export default function ModalRegistroVendedores({
         cellphone: formValues.telefono,
         city: formValues.ciudad,
         role: formValues.rol,
+        coordinador_asignado: null
       });
       
       console.log("Usuario creado en la base de datos:", newUser);

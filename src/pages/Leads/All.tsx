@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, SetStateAction } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import ModalRegistroLeads from "../../components/Modales/ModalRegistroLeads";
 import {
   IndexTable,
@@ -13,7 +14,6 @@ import {
   Badge,
 } from "@shopify/polaris";
 import { Toast } from "../../components/Toast/toast";
-import { useNavigate } from "react-router-dom";
 import { getAllLeads, deleteLead } from "../../services/leads";
 import { All as Lead } from "../../services/buyer";
 import { getActiveClient } from "../../services/clientes";
@@ -23,11 +23,13 @@ import ModalAsignacionVendedor from "../../components/Modales/ModalAsignacionVen
 
 export default function Leads() {
   const navigate = useNavigate();
+  const location = useLocation();
+
   const [isOpen, setIsOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState("10");
-  const [leads, setLeads] = useState<Lead[]>([]);
+  const [, setLeads] = useState<Lead[]>([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<string | null>(null);
   const [leadDataToEdit, setLeadDataToEdit] = useState<Lead | null>(null);
@@ -35,19 +37,22 @@ export default function Leads() {
   const [isLoading, setIsLoading] = useState(false);
   const [selected, setSelected] = useState("");
   const [isOpenAsignacion, setIsOpenAsignacion] = useState(false);
+  const [assignedTo, setAssignedTo] = useState("");
+
+  const handleTableSelection = (table: SetStateAction<string>) => {
+    setSelected(table);
+    navigate(`?selected=${table}`);
+  };
 
   const fetchLeads = async () => {
     setIsLoading(true);
     setSelected("lead");
-    console.log("Leads----->", leads);
     try {
       const response = await getAllLeads();
-      if (!Array.isArray(response)) {
-        console.error("Error: La respuesta no es un array.");
-        return;
+      if (Array.isArray(response)) {
+        setLeads(response);
+        setSelectedData(response);
       }
-      setLeads(response);
-      setSelectedData(response);
       setIsLoading(false);
     } catch (error) {
       setIsLoading(false);
@@ -62,8 +67,8 @@ export default function Leads() {
       const clients = await getActiveClient();
       if (clients.result) {
         setSelectedData(clients.data);
-        setIsLoading(false);
       }
+      setIsLoading(false);
     } catch (error) {
       setIsLoading(false);
       console.error("Error al obtener clientes activos", error);
@@ -77,11 +82,11 @@ export default function Leads() {
       const clients = await getActivePreClients();
       if (clients.result) {
         setSelectedData(clients.data);
-        setIsLoading(false);
       }
+      setIsLoading(false);
     } catch (error) {
       setIsLoading(false);
-      console.error("Error al obtener clientes activos", error);
+      console.error("Error al obtener prospectos activos", error);
     }
   };
 
@@ -92,17 +97,42 @@ export default function Leads() {
       const clients = await getActiveBuyers();
       if (clients.result) {
         setSelectedData(clients.data);
-        setIsLoading(false);
       }
+      setIsLoading(false);
     } catch (error) {
       setIsLoading(false);
-      console.error("Error al obtener clientes activos", error);
+      console.error("Error al obtener compradores activos", error);
     }
   };
 
   useEffect(() => {
-    fetchLeads();
-  }, [isOpen]);
+    const params = new URLSearchParams(location.search);
+    const selectedTable = params.get("selected");
+
+    if (selectedTable) {
+      setSelected(selectedTable);
+      switch (selectedTable) {
+        case "lead":
+          fetchLeads();
+          break;
+        case "client":
+          fetchClients();
+          break;
+        case "prospecto":
+          fetchPreClient();
+          break;
+        case "comprador":
+          fetchComprador();
+          break;
+        default:
+          break;
+      }
+    } else {
+      // Si no hay ninguna tabla seleccionada, cargar "Leads" por defecto
+      setSelected("lead");
+      fetchLeads();
+    }
+  }, [location.search]);
 
   const leadsForIndexTable = selectedData.map((lead) => ({
     id: lead._id,
@@ -242,7 +272,8 @@ export default function Leads() {
           {assigned_to ? (
             <Button
               onClick={() => {
-                console.log("Ver asignación de lead:", id);
+                setIsOpenAsignacion(true);
+                setAssignedTo(assigned_to);
               }}
             >
               Ver
@@ -292,10 +323,18 @@ export default function Leads() {
         <Card>
           <div className="flex flex-col gap-4">
             <div className="flex gap-2">
-              <Button onClick={fetchLeads}>Leads</Button>
-              <Button onClick={fetchPreClient}>Prospecto</Button>
-              <Button onClick={fetchComprador}>Comprador</Button>
-              <Button onClick={fetchClients}>Clientes</Button>
+              <Button onClick={() => handleTableSelection("lead")}>
+                Leads
+              </Button>
+              <Button onClick={() => handleTableSelection("prospecto")}>
+                Prospecto
+              </Button>
+              <Button onClick={() => handleTableSelection("comprador")}>
+                Comprador
+              </Button>
+              <Button onClick={() => handleTableSelection("client")}>
+                Clientes
+              </Button>
             </div>
             <TextField
               label=""
@@ -394,6 +433,7 @@ export default function Leads() {
           leadIds={selectedResources}
           setIsOpen={setIsOpenAsignacion}
           isOpen={isOpenAsignacion}
+          assignedTo={assignedTo}
         />
       )}
       {isDeleteModalOpen && (
