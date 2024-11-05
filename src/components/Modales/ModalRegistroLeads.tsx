@@ -134,6 +134,9 @@ export default function ModalRegistroLeads({
       } else {
         await createLead(leadData, userInfo.id);
         Toast.fire({ icon: "success", title: "Lead registrado con éxito" });
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
       }
 
       setIsOpen(false);
@@ -142,6 +145,7 @@ export default function ModalRegistroLeads({
       Toast.fire({
         icon: "error",
         title: errorMessage,
+        timer: 2000,
       });
     } finally {
       setIsLoading(false);

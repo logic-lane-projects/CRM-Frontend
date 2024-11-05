@@ -100,13 +100,28 @@ export const getAllCoordinators = async () => {
   }
 };
 
-export const asignCordinatorToSeller = async () => {
+export const asignCordinatorToSeller = async (
+  coordinatorId: string,
+  sellerIds: string[],
+  userId: string
+) => {
   try {
-    const response = await fetch(`${API_URL}coordinador/assign`, {
-      method: "POST",
-    });
-    return await response;
+    const response = await fetch(
+      `${API_URL}vendedores/asignar_coordinador/${userId}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id_coordinador: coordinatorId,
+          vendedores: sellerIds,
+        }),
+      }
+    );
+    return await response.json();
   } catch (error) {
-    return error;
+    console.error("Error assigning coordinator:", error);
+    throw error;
   }
 };

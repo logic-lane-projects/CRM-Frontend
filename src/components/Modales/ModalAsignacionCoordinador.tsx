@@ -8,75 +8,86 @@ import {
   ResourceItem,
   Button,
 } from "@shopify/polaris";
-import { getUsers, getUserById } from "../../services/users";
-// import { assignSeller } from "../../services/users";
+import {
+  getAllCoordinators,
+  findCoordinatorById,
+  asignCordinatorToSeller,
+} from "../../services/coordinadores";
 import { useAuthToken } from "../../hooks/useAuthToken";
-import type { User } from "../../services/users";
+import type { Coordinator } from "./ModalRegistroCoordinadores";
 import { Toast } from "../Toast/toast";
 
 interface ModalAsignacionVendedorProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   assignedTo: string | null;
+  userId: string | undefined;
+  vendedorId: string;
 }
 
 export default function ModalAsignacionCoordinador({
   isOpen,
   setIsOpen,
   assignedTo,
+  userId,
+  vendedorId,
 }: ModalAsignacionVendedorProps) {
   const { userInfo } = useAuthToken();
   const [searchTerm, setSearchTerm] = useState("");
-  const [sellers, setSellers] = useState<User[]>([]);
-  const [filteredSellers, setFilteredSellers] = useState<User[]>([]);
-  const [selectedSellerId, setSelectedSellerId] = useState<string | null>(null);
-  const [assignedSellerInfo, setAssignedSellerInfo] = useState<User | null>(
-    null
-  );
-  const [isChangingSeller, setIsChangingSeller] = useState(false);
+  const [coordinators, setCoordinators] = useState<Coordinator[]>([]);
+  const [filteredCoordinators, setFilteredCoordinators] = useState<
+    Coordinator[]
+  >([]);
+  const [selectedCoordinatorId, setSelectedCoordinatorId] = useState<
+    string | null
+  >(null);
+  const [assignedCoordinatorInfo, setAssignedCoordinatorInfo] =
+    useState<Coordinator | null>(null);
+  const [isChangingCoordinator, setIsChangingCoordinator] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const fetchAssignedSeller = async () => {
+    const fetchAssignedCoordinator = async () => {
       if (assignedTo) {
         try {
-          const seller = await getUserById(assignedTo);
-          setAssignedSellerInfo(seller);
+          const coordinator = await findCoordinatorById(assignedTo);
+          console.log("info coordinador", coordinator);
+          setAssignedCoordinatorInfo(coordinator);
         } catch (error) {
-          console.error("Error fetching assigned seller info:", error);
+          console.error("Error fetching assigned coordinator info:", error);
         }
       } else {
-        setAssignedSellerInfo(null);
+        setAssignedCoordinatorInfo(null);
       }
     };
 
-    fetchAssignedSeller();
+    fetchAssignedCoordinator();
   }, [assignedTo]);
 
   useEffect(() => {
-    if (!assignedTo || isChangingSeller) {
-      const fetchUsers = async () => {
+    if (!assignedTo || isChangingCoordinator) {
+      const fetchCoordinators = async () => {
         try {
-          const users = await getUsers();
-          setSellers(users);
+          const coordinators = await getAllCoordinators();
+          setCoordinators(coordinators.data);
         } catch (error) {
-          console.error("Error fetching sellers:", error);
+          console.error("Error fetching coordinators:", error);
         }
       };
-      fetchUsers();
+      fetchCoordinators();
     }
-  }, [assignedTo, isChangingSeller]);
+  }, [assignedTo, isChangingCoordinator]);
 
   useEffect(() => {
-    setFilteredSellers(
-      sellers.filter((seller) =>
-        seller.name.toLowerCase().includes(searchTerm.toLowerCase())
+    setFilteredCoordinators(
+      coordinators.filter((coordinator) =>
+        coordinator.name.toLowerCase().includes(searchTerm.toLowerCase())
       )
     );
-  }, [searchTerm, sellers]);
+  }, [searchTerm, coordinators]);
 
   const handleAssign = async () => {
-    if (!selectedSellerId) {
+    if (!selectedCoordinatorId) {
       Toast.fire({
         icon: "warning",
         title: "Selecciona un coordinador antes de asignar.",
@@ -99,13 +110,21 @@ export default function ModalAsignacionCoordinador({
     });
 
     try {
-      //   await assignSeller(userInfo.id, selectedSellerId, assignedTo);
+      if (userId) {
+        await asignCordinatorToSeller(
+          selectedCoordinatorId,
+          [vendedorId],
+          userId
+        );
+      }
+
       Toast.fire({
         icon: "success",
         title: "Coordinador asignado exitosamente.",
+        timer: 2000,
       });
       setIsOpen(false);
-      setIsChangingSeller(false);
+      setIsChangingCoordinator(false);
       setTimeout(() => {
         window.location.reload();
       }, 500);
@@ -126,17 +145,17 @@ export default function ModalAsignacionCoordinador({
           open={isOpen}
           onClose={() => {
             setIsOpen(false);
-            setIsChangingSeller(false);
+            setIsChangingCoordinator(false);
           }}
           title={
-            assignedTo && !isChangingSeller
+            assignedTo && !isChangingCoordinator
               ? "Coordinador asignado"
               : "Asignar Coordinador"
           }
           primaryAction={{
             content: isLoading ? "Cargando..." : "Asignar",
             onAction:
-              assignedTo && !isChangingSeller
+              assignedTo && !isChangingCoordinator
                 ? () => setIsOpen(false)
                 : handleAssign,
             disabled: isLoading,
@@ -146,7 +165,7 @@ export default function ModalAsignacionCoordinador({
               content: "Cancelar",
               onAction: () => {
                 setIsOpen(false);
-                setIsChangingSeller(false);
+                setIsChangingCoordinator(false);
               },
               disabled: isLoading,
             },
@@ -154,20 +173,21 @@ export default function ModalAsignacionCoordinador({
         >
           <Modal.Section>
             <TextContainer>
-              {assignedSellerInfo && !isChangingSeller ? (
+              {assignedCoordinatorInfo && !isChangingCoordinator ? (
                 <>
                   <p className="mb-2">Coordinador Asignado:</p>
                   <p>
-                    <strong>Nombre:</strong> {assignedSellerInfo.name}
+                    <strong>Nombre:</strong> {assignedCoordinatorInfo.name}
                   </p>
                   <p>
-                    <strong>Email:</strong> {assignedSellerInfo.email}
+                    <strong>Email:</strong> {assignedCoordinatorInfo.email}
                   </p>
                   <p>
-                    <strong>Teléfono:</strong> {assignedSellerInfo.cellphone}
+                    <strong>Teléfono:</strong>{" "}
+                    {assignedCoordinatorInfo.cellphone}
                   </p>
                   <Button
-                    onClick={() => setIsChangingSeller(true)}
+                    onClick={() => setIsChangingCoordinator(true)}
                     disabled={isLoading}
                   >
                     Cambiar Coordinador
@@ -186,19 +206,26 @@ export default function ModalAsignacionCoordinador({
                   />
                   {searchTerm && (
                     <ResourceList
-                      resourceName={{ singular: "seller", plural: "sellers" }}
-                      items={filteredSellers}
-                      renderItem={(seller) => {
-                        const { id, name } = seller;
+                      resourceName={{
+                        singular: "coordinator",
+                        plural: "coordinators",
+                      }}
+                      items={filteredCoordinators}
+                      renderItem={(coordinator) => {
+                        const { _id, name } = coordinator;
                         return (
                           <ResourceItem
-                            id={id || ""}
-                            onClick={() => setSelectedSellerId(id || null)}
+                            id={_id || ""}
+                            onClick={() =>
+                              setSelectedCoordinatorId(_id || null)
+                            }
                           >
                             <p
                               style={{
                                 fontWeight:
-                                  selectedSellerId === id ? "bold" : "normal",
+                                  selectedCoordinatorId === _id
+                                    ? "bold"
+                                    : "normal",
                               }}
                             >
                               {name}
