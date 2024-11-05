@@ -97,7 +97,7 @@ export default function ProspectInfo() {
 
     try {
       await changeProspectToClient(id);
-      navigate("/leads");
+      navigate("/leads?selected=comprador");
       Toast.fire({ icon: "success", title: "Prospecto pasado a Cliente" });
     } catch (error) {
       const errorMessage = typeof error === "string" ? error : String(error);

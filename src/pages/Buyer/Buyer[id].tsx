@@ -100,7 +100,7 @@ export default function BuyerInfo() {
         console.log("no hay id del usuario");
       }
       Toast.fire({ icon: "success", title: "Prospecto pasado a Cliente" });
-      navigate("/leads");
+      navigate("/leads?selected=client");
     } catch (error) {
       const errorMessage = typeof error === "string" ? error : String(error);
       Toast.fire({

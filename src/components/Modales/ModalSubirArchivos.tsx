@@ -129,7 +129,7 @@ export default function ModalSubirArchivos({
         title: "Archivo subido correctamente",
       });
       if (pathname.includes("prospecto")) {
-        navigate("/leads");
+        navigate("/leads?selected=comprador");
       }
       if (!pathname.includes("prospecto")) {
         setTimeout(() => {

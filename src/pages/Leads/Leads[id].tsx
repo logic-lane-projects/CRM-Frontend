@@ -77,7 +77,7 @@ export default function LeadInfo() {
       if (userInfo && userInfo.id) {
         await changeLeadToProspect(id, userInfo.id);
         Toast.fire({ icon: "success", title: "Lead pasado a prospecto" });
-        navigate("/leads");
+        navigate("/leads?selected=prospecto");
       } else {
         throw new Error("Información del usuario no disponible");
       }
