@@ -8,6 +8,7 @@ import {
   ListBulletedFilledIcon,
   NoteIcon,
   FileIcon,
+  ClockIcon,
 } from "@shopify/polaris-icons";
 import {
   getPreClientById,
@@ -22,6 +23,7 @@ import Notas from "../Leads/Notas";
 import InfoLead from "../Leads/LeadInfo";
 import Whatsapp from "../Leads/Whatsapp";
 import Archivos from "../Leads/Archivos";
+import Historial from "../Leads/Historial";
 import { Toast } from "../../components/Toast/toast";
 import { useNavigate } from "react-router-dom";
 
@@ -231,6 +233,19 @@ export default function ProspectInfo() {
                 <span>Archivo Pago</span>
               </div>
             </div>
+            <div
+              className={`cursor-pointer overflow-hidden ${
+                selectedTab === "Historial"
+                  ? "border-b-2 border-b-black"
+                  : "hover-border-b-2 hover-border-b-black"
+              }`}
+              onClick={() => handleTabClick("Historial")}
+            >
+              <div className="flex gap-1">
+                <Icon source={ClockIcon} />
+                <span>Historial</span>
+              </div>
+            </div>
           </div>
           <div className="border-[1px] border-gray-300 p-2">
             {selectedTab === "Actividad" && <Actividad />}
@@ -242,6 +257,7 @@ export default function ProspectInfo() {
             {selectedTab === "Archivos" && (
               <Archivos id={id} isPayment={isPayment} setFinishLoading={setFinishLoading} regimen={""}/>
             )}
+            {selectedTab === "Historial" && <Historial />}
           </div>
         </div>
         <div className="flex flex-col gap-3 w-full col-span-1">
