@@ -3,9 +3,9 @@ import { useState, useEffect } from "react";
 import { Button, Card, Icon, Spinner } from "@shopify/polaris";
 import {
   NotificationIcon,
-  EmailIcon,
+  // EmailIcon,
   PhoneIcon,
-  ListBulletedFilledIcon,
+  // ListBulletedFilledIcon,
   NoteIcon,
   ClockIcon,
 } from "@shopify/polaris-icons";
@@ -143,7 +143,7 @@ export default function LeadInfo() {
                 <span>Actividad</span>
               </div>
             </div>
-            <div
+            {/* <div
               className={`cursor-pointer overflow-hidden ${
                 selectedTab === "Correos"
                   ? "border-b-2 border-b-black"
@@ -155,7 +155,7 @@ export default function LeadInfo() {
                 <Icon source={EmailIcon} />
                 <span>Correos</span>
               </div>
-            </div>
+            </div> */}
             <div
               className={`cursor-pointer overflow-hidden ${
                 selectedTab === "Llamadas"
@@ -186,7 +186,7 @@ export default function LeadInfo() {
                 <span>Whatsapp</span>
               </div>
             </div>
-            <div
+            {/* <div
               className={`cursor-pointer overflow-hidden ${
                 selectedTab === "Tareas"
                   ? "border-b-2 border-b-black"
@@ -198,7 +198,7 @@ export default function LeadInfo() {
                 <Icon source={ListBulletedFilledIcon} />
                 <span>Tareas</span>
               </div>
-            </div>
+            </div> */}
             <div
               className={`cursor-pointer overflow-hidden ${
                 selectedTab === "Notas"
