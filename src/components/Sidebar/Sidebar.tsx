@@ -41,12 +41,12 @@ export default function Sidebar({ isOpen }: SidebarProps) {
                 icon: PersonIcon,
                 selected: currentPath === "/vendedores",
               },
-              {
-                url: "/oficinas",
-                label: "Oficinas",
-                icon: WorkIcon,
-                selected: currentPath === "/oficinas",
-              },
+              // {
+              //   url: "/oficinas",
+              //   label: "Oficinas",
+              //   icon: WorkIcon,
+              //   selected: currentPath === "/oficinas",
+              // },
               {
                 url: "/coordinadores",
                 label: "Coordinadores",

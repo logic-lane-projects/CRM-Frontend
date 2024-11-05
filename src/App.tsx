@@ -22,6 +22,7 @@ import CompradorInfo from "./pages/Buyer/Buyer[id]";
 import Oficinas from "./pages/Oficinas/Oficinas";
 import Coordinadores from "./pages/Coordinadores/Coordinadores";
 import InfoCoordinador from "./pages/Coordinadores/Coordinadores[id]";
+import Footer from "./components/Footer/Footer";
 
 const App: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
@@ -54,6 +55,7 @@ const App: React.FC = () => {
           <div className="w-full p-4">{children}</div>
         </div>
       </div>
+      <Footer />
     </>
   );
 
