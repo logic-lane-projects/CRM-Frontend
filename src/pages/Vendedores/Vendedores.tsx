@@ -7,13 +7,16 @@ import {
   Button,
   Card,
   Select,
+  Badge,
 } from "@shopify/polaris";
 import { getUsers, User } from "../../services/users";
 import { Toast } from "../../components/Toast/toast";
 import { useNavigate } from "react-router-dom";
 import ModalAsignacionCoordinador from "../../components/Modales/ModalAsignacionCoordinador";
+import { useAuthToken } from "../../hooks/useAuthToken";
 
 export default function Vendedores() {
+  const { userInfo } = useAuthToken();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
@@ -22,7 +25,7 @@ export default function Vendedores() {
   const [vendedores, setVendedores] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedResource, setSelectedResource] = useState<string | null>(null);
+  const [selectedResource, setSelectedResource] = useState<string>("");
   const [isOpenCoordinador, setIsOpenCoordinador] = useState(false);
   const [selectedCoordinator, setSelectedCoordinator] = useState<string | null>(
     null
@@ -48,8 +51,12 @@ export default function Vendedores() {
     fetchUsers();
   }, []);
 
-  const handleOpenCoordinatorModal = (coordinator: string | null) => {
+  const handleOpenCoordinatorModal = (
+    coordinator: string | null,
+    vendedorId: string
+  ) => {
     setSelectedCoordinator(coordinator);
+    setSelectedResource(vendedorId);
     setIsOpenCoordinador(true);
   };
 
@@ -92,37 +99,55 @@ export default function Vendedores() {
     });
   };
 
-  console.log("vendedores paginados", paginatedVendedores);
   const rowMarkup = paginatedVendedores.map(
-    ({ id, name, email, city, coordinador_asignado }: User, index: number) => (
+    (
+      { id, name, email, city, coordinador_asignado, role }: User,
+      index: number
+    ) => (
       <IndexTable.Row
         id={id ?? "unknown-id"}
         key={id ?? index}
         position={index}
         selected={selectedResource === id}
         onClick={() => {
-          setSelectedResource(selectedResource === id ? null : id ?? null);
+          setSelectedResource(
+            selectedResource === id ? "" : id ?? "unknown-id"
+          );
         }}
       >
         <IndexTable.Cell>{name ?? "Nombre desconocido"}</IndexTable.Cell>
         <IndexTable.Cell>{email ?? "Correo desconocido"}</IndexTable.Cell>
         <IndexTable.Cell>{city ?? "Ciudad desconocida"}</IndexTable.Cell>
         <IndexTable.Cell>
+          <Badge>{role ?? "Sin rol"}</Badge>
+        </IndexTable.Cell>
+        <IndexTable.Cell>
           {coordinador_asignado ? (
             <Button
-              onClick={() => handleOpenCoordinatorModal(coordinador_asignado)}
+              onClick={() =>
+                handleOpenCoordinatorModal(
+                  coordinador_asignado,
+                  id ?? "unknown-id"
+                )
+              }
             >
               Ver
             </Button>
           ) : (
-            <div className="hidden">
-            <Button
-              variant="primary"
-              onClick={() => handleOpenCoordinatorModal(null)}
+            <div
+              className={`${
+                role.toLocaleLowerCase().includes("admin") ? "hidden" : ""
+              }`}
+            >
+              <Button
+                variant="primary"
+                onClick={() =>
+                  handleOpenCoordinatorModal(null, id ?? "unknown-id")
+                }
               >
-              Asignar
-            </Button>
-              </div>
+                Asignar
+              </Button>
+            </div>
           )}
         </IndexTable.Cell>
       </IndexTable.Row>
@@ -169,6 +194,8 @@ export default function Vendedores() {
               { title: "Nombre" },
               { title: "Correo Electrónico" },
               { title: "Ciudad" },
+              { title: "Rol" },
+              { title: "Coordiador" },
             ]}
             promotedBulkActions={promotedBulkActions}
             emptyState="No se encontraron resultados"
@@ -202,11 +229,14 @@ export default function Vendedores() {
       {isOpen && (
         <ModalRegistroVendedores isOpen={isOpen} setIsOpen={setIsOpen} />
       )}
+
       {isOpenCoordinador && (
         <ModalAsignacionCoordinador
           isOpen={isOpenCoordinador}
           setIsOpen={setIsOpenCoordinador}
           assignedTo={selectedCoordinator}
+          userId={userInfo?.id}
+          vendedorId={selectedResource}
         />
       )}
     </div>

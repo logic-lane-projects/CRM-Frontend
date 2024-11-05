@@ -7,8 +7,10 @@ import {
 } from "../../services/coordinadores";
 import { Toast } from "../../components/Toast/toast";
 import { Button, Card, TextField, Modal } from "@shopify/polaris";
+import { useAuthToken } from "../../hooks/useAuthToken";
 
 export default function InfoCoordinador() {
+  const { userInfo } = useAuthToken();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(true);
@@ -66,10 +68,10 @@ export default function InfoCoordinador() {
   }, [id]);
 
   const handleSave = async () => {
-    if (id) {
+    if (id && userInfo) {
       setIsSaving(true);
       try {
-        const updatedCoordinator = await updateCoordinator(id, id, {
+        const updatedCoordinator = await updateCoordinator(id, userInfo.id, {
           name,
           paternal_surname: paternalSurname,
           maternal_surname: maternalSurname,
@@ -79,6 +81,7 @@ export default function InfoCoordinador() {
           state,
           oficina,
           role,
+          _id: id,
         });
 
         if (updatedCoordinator && updatedCoordinator.result) {
