@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import {useEffect, useState, useCallback} from "react";
+import {useEffect, useState} from "react";
 import { Toast } from "../../components/Toast/toast";
 import { getHistorialById } from "../../services/historial";
 import {
