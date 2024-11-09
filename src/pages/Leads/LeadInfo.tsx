@@ -36,6 +36,7 @@ export default function InfoLead({ lead }: InfoLeadProps) {
   const [isRegimenOpen, setIsRegimenOpen] = useState(false);
   const location = useLocation();
   const pathname = location.pathname;
+  const [isLoading, setIsLoading] = useState(false);
 
   // Estados para los campos editables
   const [names, setNames] = useState(lead.names);
@@ -66,6 +67,7 @@ export default function InfoLead({ lead }: InfoLeadProps) {
 
   // Función para manejar la actualización del cliente
   const handleUpdateClient = async () => {
+    setIsLoading(true);
     const updatedLeadData: InfoLeads = {
       names,
       paternal_surname: paternalSurname,
@@ -78,16 +80,19 @@ export default function InfoLead({ lead }: InfoLeadProps) {
       age: parseInt(age),
       type_lead: typeLead,
       gender,
-      status: typeof lead.status === 'boolean' ? lead.status : null,      
+      status: typeof lead.status === "boolean" ? lead.status : null,
       is_client: true,
     };
 
     try {
       if (userInfo && userInfo.id) {
         await updateClient(lead._id || "", userInfo.id, updatedLeadData);
+        setIsLoading(false);
       }
       Toast.fire({ icon: "success", title: "Cliente actualizado" });
     } catch (error) {
+      setIsLoading(true);
+
       Toast.fire({
         icon: "error",
         title: error || "Error al actualizar el cliente",
@@ -210,8 +215,12 @@ export default function InfoLead({ lead }: InfoLeadProps) {
           </div>
         )}
         <div className="mt-3">
-          <Button onClick={handleUpdateClient} variant="primary">
-            Actualizar
+          <Button
+            disabled={isLoading}
+            onClick={handleUpdateClient}
+            variant="primary"
+          >
+            {isLoading ? "Actualizando..." : "Actualizar"}
           </Button>
         </div>
       </div>

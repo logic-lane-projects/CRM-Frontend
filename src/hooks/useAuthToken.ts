@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { getUserInfo } from "../services/auth";
 
 interface UserInfo {
+  city: string | null;
   id: string;
   role: string;
 }

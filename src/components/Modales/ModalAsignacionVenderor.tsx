@@ -191,20 +191,23 @@ export default function ModalAsignacionVendedor({
                       resourceName={{ singular: "seller", plural: "sellers" }}
                       items={filteredSellers}
                       renderItem={(seller) => {
-                        const { id, name } = seller;
+                        const { id, name, paternal_surname, email } = seller;
                         return (
                           <ResourceItem
                             id={id || ""}
                             onClick={() => setSelectedSellerId(id || null)}
                           >
-                            <p
+                            <div
                               style={{
                                 fontWeight:
                                   selectedSellerId === id ? "bold" : "normal",
                               }}
                             >
-                              {name}
-                            </p>
+                              <p>
+                                {name} {paternal_surname}
+                              </p>
+                              <p>{email}</p>
+                            </div>
                           </ResourceItem>
                         );
                       }}

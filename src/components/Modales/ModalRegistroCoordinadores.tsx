@@ -7,7 +7,7 @@ import { createCoordinator } from "../../services/coordinadores";
 import { useAuthToken } from "../../hooks/useAuthToken";
 
 export interface Coordinator {
-  _id: string;
+  _id?: string;
   name: string;
   paternal_surname: string;
   maternal_surname: string;
@@ -120,7 +120,6 @@ export default function ModalRegistroCoordinadores({
 
     try {
       const newCoordinator: Coordinator = {
-        _id: "",
         name: formValues.nombre,
         paternal_surname: formValues.apellidop,
         maternal_surname: formValues.apellidom,

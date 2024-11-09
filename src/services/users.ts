@@ -148,3 +148,26 @@ export const assignSeller = async (
     throw error;
   }
 };
+
+
+
+export const getLeadsBySellerAndRole = async (sellerId:string, role:string) => {
+  try {
+    const response = await fetch(
+      `${API_URL}client/buscar_leads_por_vendedor_y_tipo_client/all/${sellerId}/${role}`,
+      {
+        method: "GET",
+      }
+    );    
+    
+    if (!response.ok) {
+      throw new Error("Error fetching leads assigned to seller");
+    }
+
+    return await response.json();    
+  } catch (error) {
+    console.error("Error in getLeadsBySellerAndRole:", error);
+    throw error;
+  }
+};
+

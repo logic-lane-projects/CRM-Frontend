@@ -23,29 +23,27 @@ const Login: React.FC = () => {
   const API_URL = import.meta.env.VITE_API_URL;
 
   const verifyToken = async (tokens: string): Promise<boolean> => {
-
-    const raw = JSON.stringify({token: tokens});
-    console.log(raw);  
+    const raw = JSON.stringify({ token: tokens });
 
     const requestOptions: RequestInit = {
       method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: raw,
       redirect: "follow" as RequestRedirect,
     };
 
-    try{      
+    try {
       const response = await fetch(`${API_URL}verifyToken`, requestOptions);
       if (!response.ok) {
-        throw new Error('Error en la solicitud');        
+        throw new Error("Error en la solicitud");
       }
       const data = await response.json();
-      console.log('Respuesta del servidor:', data);
+      console.log("Respuesta del servidor:", data);
       return true;
-    } catch (error){
-      console.error('Error:', error);
+    } catch (error) {
+      console.error("Error:", error);
       return false;
     }
   };
@@ -91,7 +89,7 @@ const Login: React.FC = () => {
 
       const isUser = await verifyToken(token);
 
-      if (isUser === true){
+      if (isUser === true) {
         localStorage.setItem("accessTokenCRM", token);
         if (user.email) {
           localStorage.setItem("email", user.email);
@@ -100,11 +98,10 @@ const Login: React.FC = () => {
         }
         setIsLoading(false);
         navigate("/inicio");
-      }else {
+      } else {
         console.warn("El usuario no tiene un token");
         throw new Error("El usuario no tiene un token");
       }
-      
     } catch (error) {
       console.error("Error en el inicio de sesión:", error);
       setEmailError("Credenciales incorrectas o el usuario no existe.");

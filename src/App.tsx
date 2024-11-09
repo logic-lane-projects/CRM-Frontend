@@ -1,4 +1,3 @@
-// App.tsx
 import React, { useState, useEffect } from "react";
 import {
   BrowserRouter as Router,
@@ -6,6 +5,7 @@ import {
   Routes,
   useNavigate,
 } from "react-router-dom";
+import { useAuthToken } from "./hooks/useAuthToken";
 import Home from "./pages/Home/Home";
 import Login from "./pages/Login/Login";
 import NotFound from "./pages/NotFound/NotFound";
@@ -13,7 +13,6 @@ import Sidebar from "./components/Sidebar/Sidebar";
 import { TopBar1 } from "./components/Topbar/Topbar";
 import Vendedores from "./pages/Vendedores/Vendedores";
 import Leads from "./pages/Leads/All";
-// import Clientes from "./pages/Clientes/Clientes";
 import LeadInfo from "./pages/Leads/Leads[id]";
 import InfoVendedores from "./pages/Vendedores/Vendedores[id]";
 import ClientInfo from "./pages/Clientes/Clients[id]";
@@ -22,9 +21,12 @@ import CompradorInfo from "./pages/Buyer/Buyer[id]";
 import Oficinas from "./pages/Oficinas/Oficinas";
 import Coordinadores from "./pages/Coordinadores/Coordinadores";
 import InfoCoordinador from "./pages/Coordinadores/Coordinadores[id]";
+import Footer from "./components/Footer/Footer";
+import SinAsignacion from "./pages/SinAsignacion/SinAsignacion";
 
 const App: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
+  const { userInfo } = useAuthToken();
 
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);
@@ -54,11 +56,13 @@ const App: React.FC = () => {
           <div className="w-full p-4">{children}</div>
         </div>
       </div>
+      <Footer />
     </>
   );
 
-  const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({
+  const PrivateRoute: React.FC<{ children: React.ReactNode; roles?: string[] }> = ({
     children,
+    roles,
   }) => {
     const navigate = useNavigate();
 
@@ -67,8 +71,11 @@ const App: React.FC = () => {
 
       if (!email) {
         navigate("/");
+      } else if (roles && userInfo && !roles.includes(userInfo.role)) {
+        navigate("/");
       }
-    }, [navigate]);
+    }, [navigate, roles]);
+
 
     return <>{children}</>;
   };
@@ -90,7 +97,7 @@ const App: React.FC = () => {
         <Route
           path="/vendedores"
           element={
-            <PrivateRoute>
+            <PrivateRoute roles={["administrador"]}>
               <AppLayout>
                 <Vendedores />
               </AppLayout>
@@ -100,7 +107,7 @@ const App: React.FC = () => {
         <Route
           path="/vendedor/:id"
           element={
-            <PrivateRoute>
+            <PrivateRoute roles={["administrador"]}>
               <AppLayout>
                 <InfoVendedores />
               </AppLayout>
@@ -157,16 +164,6 @@ const App: React.FC = () => {
             </PrivateRoute>
           }
         />
-        {/* <Route
-          path="/clientes"
-          element={
-            <PrivateRoute>
-              <AppLayout>
-                <Clientes />
-              </AppLayout>
-            </PrivateRoute>
-          }
-        /> */}
         <Route
           path="/oficinas"
           element={
@@ -180,7 +177,7 @@ const App: React.FC = () => {
         <Route
           path="/coordinadores"
           element={
-            <PrivateRoute>
+            <PrivateRoute roles={["administrador", "coordinador"]}>
               <AppLayout>
                 <Coordinadores />
               </AppLayout>
@@ -190,9 +187,19 @@ const App: React.FC = () => {
         <Route
           path="/coordinador/:id"
           element={
-            <PrivateRoute>
+            <PrivateRoute roles={["administrador", "coordinador"]}>
               <AppLayout>
                 <InfoCoordinador />
+              </AppLayout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/sin-asignacion"
+          element={
+            <PrivateRoute roles={["administrador", "coordinador"]}>
+              <AppLayout>
+                <SinAsignacion />
               </AppLayout>
             </PrivateRoute>
           }

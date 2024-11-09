@@ -3,9 +3,9 @@ import { useState, useEffect } from "react";
 import { Button, Card, Icon, Spinner } from "@shopify/polaris";
 import {
   NotificationIcon,
-  EmailIcon,
+  // EmailIcon,
   PhoneIcon,
-  ListBulletedFilledIcon,
+  // ListBulletedFilledIcon,
   NoteIcon,
   FileIcon,
   ClockIcon,
@@ -100,7 +100,7 @@ export default function BuyerInfo() {
         console.log("no hay id del usuario");
       }
       Toast.fire({ icon: "success", title: "Prospecto pasado a Cliente" });
-      navigate("/leads");
+      navigate("/leads?selected=client");
     } catch (error) {
       const errorMessage = typeof error === "string" ? error : String(error);
       Toast.fire({
@@ -157,7 +157,7 @@ export default function BuyerInfo() {
                 <span>Actividad</span>
               </div>
             </div>
-            <div
+            {/* <div
               className={`cursor-pointer overflow-hidden ${
                 selectedTab === "Correos"
                   ? "border-b-2 border-b-black"
@@ -169,7 +169,7 @@ export default function BuyerInfo() {
                 <Icon source={EmailIcon} />
                 <span>Correos</span>
               </div>
-            </div>
+            </div> */}
             <div
               className={`cursor-pointer overflow-hidden ${
                 selectedTab === "Llamadas"
@@ -200,7 +200,7 @@ export default function BuyerInfo() {
                 <span>Whatsapp</span>
               </div>
             </div>
-            <div
+            {/* <div
               className={`cursor-pointer overflow-hidden ${
                 selectedTab === "Tareas"
                   ? "border-b-2 border-b-black"
@@ -212,7 +212,7 @@ export default function BuyerInfo() {
                 <Icon source={ListBulletedFilledIcon} />
                 <span>Tareas</span>
               </div>
-            </div>
+            </div> */}
             <div
               className={`cursor-pointer overflow-hidden ${
                 selectedTab === "Notas"

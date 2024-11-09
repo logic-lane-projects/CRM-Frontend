@@ -3,7 +3,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import ModalRegistroLeads from "../../components/Modales/ModalRegistroLeads";
 import {
   IndexTable,
-  useIndexResourceState,
   TextField,
   Pagination,
   Button,
@@ -20,11 +19,13 @@ import { getActiveClient } from "../../services/clientes";
 import { getActivePreClients } from "../../services/preClient";
 import { getActiveBuyers } from "../../services/buyer";
 import ModalAsignacionVendedor from "../../components/Modales/ModalAsignacionVenderor";
+import { useAuthToken } from "../../hooks/useAuthToken";
+
 
 export default function Leads() {
   const navigate = useNavigate();
   const location = useLocation();
-
+  const { userInfo } = useAuthToken();
   const [isOpen, setIsOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -38,6 +39,8 @@ export default function Leads() {
   const [selected, setSelected] = useState("");
   const [isOpenAsignacion, setIsOpenAsignacion] = useState(false);
   const [assignedTo, setAssignedTo] = useState("");
+  const [selectedResources, setSelectedResources] = useState<string[]>([]);
+  
 
   const handleTableSelection = (table: SetStateAction<string>) => {
     setSelected(table);
@@ -163,9 +166,20 @@ export default function Leads() {
   );
 
   const totalPages = Math.ceil(filteredLeads.length / numItemsPerPage);
-
-  const { selectedResources, allResourcesSelected, handleSelectionChange } =
-    useIndexResourceState(leadsForIndexTable);
+  
+  //Funcion para la seleccion de un solo item
+  const handleSelectionChangeSingle = (selection: string | undefined) => {
+    if (selection !== undefined) {
+      if (selectedResources.includes(selection)) {
+        setSelectedResources(selectedResources.filter((id) => id !== selection));
+      } else {
+        setSelectedResources([selection]);
+      }
+    } else {
+      setSelectedResources([]);
+    }
+  };
+  
 
   const handleDeleteAction = async () => {
     if (!selectedLead) return;
@@ -194,24 +208,24 @@ export default function Leads() {
         selected === "lead"
           ? "Ver Lead"
           : selected === "client"
-          ? "Ver Cliente"
-          : selected === "prospecto"
-          ? "Ver Prospecto"
-          : selected === "comprador"
-          ? "Ver Comprador"
-          : "",
+            ? "Ver Cliente"
+            : selected === "prospecto"
+              ? "Ver Prospecto"
+              : selected === "comprador"
+                ? "Ver Comprador"
+                : "",
       onAction: () => {
         if (selectedResources.length === 1) {
           const path =
             selected === "lead"
               ? "leads"
               : selected === "client"
-              ? "cliente"
-              : selected === "prospecto"
-              ? "prospecto"
-              : selected === "comprador"
-              ? "comprador"
-              : "";
+                ? "cliente"
+                : selected === "prospecto"
+                  ? "prospecto"
+                  : selected === "comprador"
+                    ? "comprador"
+                    : "";
 
           if (path) {
             navigate(`/${path}/${selectedResources[0]}`);
@@ -255,6 +269,7 @@ export default function Leads() {
         key={id ?? index}
         position={index}
         selected={selectedResources.includes(id ?? "")}
+        onClick={() => handleSelectionChangeSingle(id)}
       >
         <IndexTable.Cell>{names ?? "Desconocido"}</IndexTable.Cell>
         <IndexTable.Cell>{email ?? "No disponible"}</IndexTable.Cell>
@@ -268,27 +283,29 @@ export default function Leads() {
             {status ? "Activo" : "Inactivo"}
           </Badge>
         </IndexTable.Cell>
-        <IndexTable.Cell>
-          {assigned_to ? (
-            <Button
-              onClick={() => {
-                setIsOpenAsignacion(true);
-                setAssignedTo(assigned_to);
-              }}
-            >
-              Ver
-            </Button>
-          ) : (
-            <Button
-              variant="primary"
-              onClick={() => {
-                setIsOpenAsignacion(true);
-              }}
-            >
-              Asignar
-            </Button>
-          )}
-        </IndexTable.Cell>
+        {userInfo && userInfo.role !== "vendedor" && (
+          <IndexTable.Cell>
+            {assigned_to ? (
+              <Button
+                onClick={() => {
+                  setIsOpenAsignacion(true);
+                  setAssignedTo(assigned_to);
+                }}
+              >
+                Ver
+              </Button>
+            ) : (
+              <Button
+                variant="primary"
+                onClick={() => {
+                  setIsOpenAsignacion(true);
+                }}
+              >
+                Asignar
+              </Button>
+            )}
+          </IndexTable.Cell>
+        )}
       </IndexTable.Row>
     )
   );
@@ -301,12 +318,12 @@ export default function Leads() {
             {selected === "lead"
               ? "Leads"
               : selected === "client"
-              ? "Clientes"
-              : selected === "prospecto"
-              ? "Prospecto"
-              : selected === "comprador"
-              ? "Comprador"
-              : ""}
+                ? "Clientes"
+                : selected === "prospecto"
+                  ? "Prospecto"
+                  : selected === "comprador"
+                    ? "Comprador"
+                    : ""}
           </span>
           {selected === "lead" && (
             <Button
@@ -359,28 +376,28 @@ export default function Leads() {
                       selected === "lead"
                         ? "lead"
                         : selected === "prospecto"
-                        ? "Prospecto"
-                        : selected === "comprador"
-                        ? "Comprador"
-                        : selected === "cliente"
-                        ? "Cliente"
-                        : "",
+                          ? "Prospecto"
+                          : selected === "comprador"
+                            ? "Comprador"
+                            : selected === "cliente"
+                              ? "Cliente"
+                              : "",
                     plural:
                       selected === "lead"
                         ? "lead"
                         : selected === "prospecto"
-                        ? "Prospecto"
-                        : selected === "comprador"
-                        ? "Comprador"
-                        : selected === "cliente"
-                        ? "Cliente"
-                        : "",
+                          ? "Prospecto"
+                          : selected === "comprador"
+                            ? "Comprador"
+                            : selected === "cliente"
+                              ? "Cliente"
+                              : "",
                   }}
                   itemCount={filteredLeads.length}
                   selectedItemsCount={
-                    allResourcesSelected ? "All" : selectedResources.length
+                    selectedResources.length
                   }
-                  onSelectionChange={handleSelectionChange}
+                  onSelectionChange={handleSelectionChangeSingle}
                   headings={[
                     { title: "Nombre" },
                     { title: "Correo Electrónico" },
