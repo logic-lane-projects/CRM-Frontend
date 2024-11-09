@@ -10,12 +10,11 @@ import {
 } from "@shopify/polaris";
 import { getAllLeadsNoSeller, Lead } from "../../services/leads";
 import { Toast } from "../../components/Toast/toast";
-import ModalRegistroOficinas from "../../components/Modales/ModalOficinas";
+import ModalAsignacionVendedor from "../../components/Modales/ModalAsignacionVenderor";
 import { useAuthToken } from "../../hooks/useAuthToken";
 
 export default function SinAsignacion() {
     const { userInfo } = useAuthToken();
-    console.log(userInfo)
     const [isOpen, setIsOpen] = useState(false);
     const [searchValue, setSearchValue] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
@@ -23,12 +22,17 @@ export default function SinAsignacion() {
     const [leads, setLeads] = useState<Lead[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [cityFilter, setCityFilter] = useState("cd");
 
-    const fetchLeads = async () => {
+    useEffect(() => {
+        if (userInfo && userInfo?.city) {
+            fetchLeads(userInfo.city);
+        }
+    }, [userInfo]);
+
+    const fetchLeads = async (city: string) => {
         setLoading(true);
         try {
-            const leadsData: Lead[] = await getAllLeadsNoSeller(cityFilter);
+            const leadsData: Lead[] = await getAllLeadsNoSeller(city);
             setLeads(leadsData);
         } catch (error) {
             setError("Error al cargar los leads");
@@ -42,9 +46,6 @@ export default function SinAsignacion() {
         }
     };
 
-    useEffect(() => {
-        fetchLeads();
-    }, []);
 
     const filteredLeads = leads.filter(
         (lead: Lead) =>
@@ -106,6 +107,9 @@ export default function SinAsignacion() {
                 <IndexTable.Cell>{email ?? "Correo desconocido"}</IndexTable.Cell>
                 <IndexTable.Cell>{phone_number ?? "Teléfono desconocido"}</IndexTable.Cell>
                 <IndexTable.Cell>{city ?? "Ciudad desconocida"}</IndexTable.Cell>
+                <IndexTable.Cell>
+                    <Button onClick={() => setIsOpen(true)}>Asignar Vendedor</Button>
+                </IndexTable.Cell>
             </IndexTable.Row>
         )
     );
@@ -131,13 +135,6 @@ export default function SinAsignacion() {
             <Card>
                 <div className="flex flex-col gap-4">
                     <div className="flex gap-2">
-                        {/* <TextField
-                            label="Ciudad"
-                            value={cityFilter}
-                            onChange={(value) => setCityFilter(value)}
-                            placeholder="Ingresa la ciudad"
-                        /> */}
-                        <Button onClick={() => fetchLeads()}>Buscar</Button>
                     </div>
                     <TextField
                         label=""
@@ -163,6 +160,7 @@ export default function SinAsignacion() {
                             { title: "Correo Electrónico" },
                             { title: "Teléfono" },
                             { title: "Ciudad" },
+                            { title: "Acciones" },
                         ]}
                         promotedBulkActions={promotedBulkActions}
                         emptyState="No se encontraron resultados"
@@ -193,7 +191,12 @@ export default function SinAsignacion() {
                 </div>
             </Card>
             {isOpen && (
-                <ModalRegistroOficinas isOpen={isOpen} setIsOpen={setIsOpen} />
+                <ModalAsignacionVendedor
+                    leadIds={selectedResources}
+                    setIsOpen={setIsOpen}
+                    isOpen={isOpen}
+                    assignedTo={null}
+                />
             )}
         </div>
     );

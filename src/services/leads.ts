@@ -270,7 +270,7 @@ export const getAllLeadsNoSeller = async (city: string): Promise<Lead[]> => {
       throw new Error(`Error fetching leads: ${response.statusText}`);
     }
     const data = await response.json();
-    return data;
+    return data.data;
   } catch (error) {
     console.error("Error al obtener leads sin vendedor:", error);
     throw error;
