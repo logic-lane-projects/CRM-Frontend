@@ -3,7 +3,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import ModalRegistroLeads from "../../components/Modales/ModalRegistroLeads";
 import {
   IndexTable,
-  useIndexResourceState,
   TextField,
   Pagination,
   Button,
@@ -22,6 +21,7 @@ import { getActiveBuyers } from "../../services/buyer";
 import ModalAsignacionVendedor from "../../components/Modales/ModalAsignacionVenderor";
 import { useAuthToken } from "../../hooks/useAuthToken";
 
+
 export default function Leads() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -39,6 +39,8 @@ export default function Leads() {
   const [selected, setSelected] = useState("");
   const [isOpenAsignacion, setIsOpenAsignacion] = useState(false);
   const [assignedTo, setAssignedTo] = useState("");
+  const [selectedResources, setSelectedResources] = useState<string[]>([]);
+  
 
   const handleTableSelection = (table: SetStateAction<string>) => {
     setSelected(table);
@@ -164,9 +166,20 @@ export default function Leads() {
   );
 
   const totalPages = Math.ceil(filteredLeads.length / numItemsPerPage);
-
-  const { selectedResources, allResourcesSelected, handleSelectionChange } =
-    useIndexResourceState(leadsForIndexTable);
+  
+  //Funcion para la seleccion de un solo item
+  const handleSelectionChangeSingle = (selection: string | undefined) => {
+    if (selection !== undefined) {
+      if (selectedResources.includes(selection)) {
+        setSelectedResources(selectedResources.filter((id) => id !== selection));
+      } else {
+        setSelectedResources([selection]);
+      }
+    } else {
+      setSelectedResources([]);
+    }
+  };
+  
 
   const handleDeleteAction = async () => {
     if (!selectedLead) return;
@@ -256,6 +269,7 @@ export default function Leads() {
         key={id ?? index}
         position={index}
         selected={selectedResources.includes(id ?? "")}
+        onClick={() => handleSelectionChangeSingle(id)}
       >
         <IndexTable.Cell>{names ?? "Desconocido"}</IndexTable.Cell>
         <IndexTable.Cell>{email ?? "No disponible"}</IndexTable.Cell>
@@ -381,9 +395,9 @@ export default function Leads() {
                   }}
                   itemCount={filteredLeads.length}
                   selectedItemsCount={
-                    allResourcesSelected ? "All" : selectedResources.length
+                    selectedResources.length
                   }
-                  onSelectionChange={handleSelectionChange}
+                  onSelectionChange={handleSelectionChangeSingle}
                   headings={[
                     { title: "Nombre" },
                     { title: "Correo Electrónico" },

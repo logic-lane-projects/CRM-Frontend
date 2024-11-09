@@ -107,7 +107,7 @@ export default function ModalSubirArchivos({
         userInfo &&
         userInfo.id
       ) {
-        renamedFile = new File([fileToUpload], fileName || "archivo_pago", {
+        renamedFile = new File([fileToUpload], fileName || "archivo_pago.pdf", {
           type: fileToUpload.type,
         });
         const formData = new FormData();
@@ -115,7 +115,7 @@ export default function ModalSubirArchivos({
         await uploadPaymentFileById(id!, formData, userInfo.id);
         setIsLoading(false);
       } else if (!regimen && !isPayment && userInfo && userInfo.id) {
-        renamedFile = new File([fileToUpload], "archivo_pago", {
+        renamedFile = new File([fileToUpload], "archivo_pago.pdf", {
           type: fileToUpload.type,
         });
         const formData = new FormData();
