@@ -43,6 +43,8 @@ export default function Sidebar({ isOpen }: SidebarProps) {
     });
   }
 
+
+
   if (userInfo && userInfo.role === "asignador") {
     navigationItems.push({
       url: "/asignaciones",
@@ -50,7 +52,35 @@ export default function Sidebar({ isOpen }: SidebarProps) {
       icon: WorkIcon,
       selected: currentPath === "/asignaciones",
     });
+
   }
+
+  if (
+    (userInfo && userInfo.role === "administrador") ||
+    (userInfo && userInfo.role === "coordinador")
+  ) {
+    navigationItems.push({
+      url: "/oficinas",
+      label: "Oficinas",
+      icon: WorkIcon,
+      selected: currentPath === "/oficinas",
+    });
+
+  }
+
+  if (
+    (userInfo && userInfo.role === "administrador") ||
+    (userInfo && userInfo.role === "coordinador")
+  ) {
+    navigationItems.push({
+      url: "/sin-asignacion",
+      label: "Sin Asignacion",
+      icon: WorkIcon,
+      selected: currentPath === "/sin-asignacion",
+    });
+
+  }
+
 
   return (
     <div className={`${isOpen ? "block" : "hidden"} md:block h-full`}>

@@ -5,7 +5,7 @@ import {
   Routes,
   useNavigate,
 } from "react-router-dom";
-import { useAuthToken } from "./hooks/useAuthToken"; // Import your custom hook
+import { useAuthToken } from "./hooks/useAuthToken";
 import Home from "./pages/Home/Home";
 import Login from "./pages/Login/Login";
 import NotFound from "./pages/NotFound/NotFound";
@@ -22,6 +22,7 @@ import Oficinas from "./pages/Oficinas/Oficinas";
 import Coordinadores from "./pages/Coordinadores/Coordinadores";
 import InfoCoordinador from "./pages/Coordinadores/Coordinadores[id]";
 import Footer from "./components/Footer/Footer";
+import SinAsignacion from "./pages/SinAsignacion/SinAsignacion";
 
 const App: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
@@ -67,14 +68,14 @@ const App: React.FC = () => {
 
     useEffect(() => {
       const email = localStorage.getItem("email");
-    
+
       if (!email) {
         navigate("/");
       } else if (roles && userInfo && !roles.includes(userInfo.role)) {
-        navigate("/"); 
+        navigate("/");
       }
     }, [navigate, roles]);
-    
+
 
     return <>{children}</>;
   };
@@ -189,6 +190,16 @@ const App: React.FC = () => {
             <PrivateRoute roles={["administrador", "coordinador"]}>
               <AppLayout>
                 <InfoCoordinador />
+              </AppLayout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/sin-asignacion"
+          element={
+            <PrivateRoute roles={["administrador", "coordinador"]}>
+              <AppLayout>
+                <SinAsignacion />
               </AppLayout>
             </PrivateRoute>
           }
