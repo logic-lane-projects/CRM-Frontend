@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import {
   IndexTable,
-  useIndexResourceState,
   TextField,
   Pagination,
   Button,
@@ -39,6 +38,7 @@ export default function Coordinadores() {
   const [coordinators, setCoordinators] = useState<RawCoordinatorData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedCoordinator, setSelectedCoordinator] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchCoordinators = async () => {
@@ -102,18 +102,19 @@ export default function Coordinadores() {
 
   const totalPages = Math.ceil(filteredCoordinators.length / numItemsPerPage);
 
-  const resourceCoordinators = coordinators?.map((coordinator) => ({
-    ...coordinator,
-    id: coordinator._id ?? "unknown-id",
-  }));
-
-  const { selectedResources, allResourcesSelected, handleSelectionChange } =
-    useIndexResourceState(resourceCoordinators);
+  const handleSelectionChangeSingle = (selection: string | undefined) => {    
+    const selectedId = selection ?? null;
+    if (selection === selectedCoordinator) {
+      setSelectedCoordinator(null);
+    } else {
+      setSelectedCoordinator(selectedId);
+    }
+  };
 
   const promotedBulkActions = [
     {
       content: "Ver Coordinador",
-      onAction: () => navigate(`/coordinador/${selectedResources}`),
+      onAction: () => navigate(`/coordinador/${selectedCoordinator}`),
     },
     {
       content: "Eliminar",
@@ -138,7 +139,8 @@ export default function Coordinadores() {
         id={_id ?? "unknown-id"}
         key={_id ?? index}
         position={index}
-        selected={selectedResources.includes(_id ?? "")}
+        selected={selectedCoordinator === _id}
+        onClick={() => handleSelectionChangeSingle(_id)}
       >
         <IndexTable.Cell>{name ?? "Nombre desconocido"}</IndexTable.Cell>
         <IndexTable.Cell>{email ?? "Correo desconocido"}</IndexTable.Cell>
@@ -187,9 +189,9 @@ export default function Coordinadores() {
             resourceName={{ singular: "coordinador", plural: "coordinadores" }}
             itemCount={filteredCoordinators.length}
             selectedItemsCount={
-              allResourcesSelected ? "All" : selectedResources.length
+              selectedCoordinator?.length
             }
-            onSelectionChange={handleSelectionChange}
+            onSelectionChange={handleSelectionChangeSingle}
             headings={[
               { title: "Nombre" },
               { title: "Correo" },
