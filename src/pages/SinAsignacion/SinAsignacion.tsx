@@ -14,7 +14,7 @@ import ModalRegistroOficinas from "../../components/Modales/ModalOficinas";
 import { useAuthToken } from "../../hooks/useAuthToken";
 
 export default function SinAsignacion() {
-    const {userInfo} = useAuthToken();
+    const { userInfo } = useAuthToken();
     console.log(userInfo)
     const [isOpen, setIsOpen] = useState(false);
     const [searchValue, setSearchValue] = useState("");
@@ -49,7 +49,7 @@ export default function SinAsignacion() {
     const filteredLeads = leads.filter(
         (lead: Lead) =>
             lead.names.toLowerCase().includes(searchValue.toLowerCase()) ||
-            lead.email.toLowerCase().includes(searchValue.toLowerCase()) 
+            lead.email.toLowerCase().includes(searchValue.toLowerCase())
     );
 
     const numItemsPerPage =
