@@ -125,7 +125,7 @@ export default function SinAsignacion() {
 
     return (
         <div className="w-full flex flex-col gap-4">
-            <span className="font-bold text-[20px]">Leads sin asignación</span>
+            <span className="font-semibold text-[20px]">Leads sin asignación</span>
             <Card>
                 <div className="flex flex-col gap-4">
                     <TextField

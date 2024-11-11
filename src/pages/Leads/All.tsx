@@ -40,7 +40,7 @@ export default function Leads() {
   const [isOpenAsignacion, setIsOpenAsignacion] = useState(false);
   const [assignedTo, setAssignedTo] = useState("");
   const [selectedResources, setSelectedResources] = useState<string[]>([]);
-  
+
 
   const handleTableSelection = (table: SetStateAction<string>) => {
     setSelected(table);
@@ -166,7 +166,7 @@ export default function Leads() {
   );
 
   const totalPages = Math.ceil(filteredLeads.length / numItemsPerPage);
-  
+
   //Funcion para la seleccion de un solo item
   const handleSelectionChangeSingle = (selection: string | undefined) => {
     if (selection !== undefined) {
@@ -179,7 +179,7 @@ export default function Leads() {
       setSelectedResources([]);
     }
   };
-  
+
 
   const handleDeleteAction = async () => {
     if (!selectedLead) return;
@@ -340,16 +340,28 @@ export default function Leads() {
         <Card>
           <div className="flex flex-col gap-4">
             <div className="flex gap-2">
-              <Button onClick={() => handleTableSelection("lead")}>
+              <Button
+                onClick={() => handleTableSelection("lead")}
+                variant={selected === "lead" ? "primary" : "secondary"}
+              >
                 Leads
               </Button>
-              <Button onClick={() => handleTableSelection("prospecto")}>
-                Prospecto
+              <Button
+                onClick={() => handleTableSelection("prospecto")}
+                variant={selected === "prospecto" ? "primary" : "secondary"}
+              >
+                Prospectos
               </Button>
-              <Button onClick={() => handleTableSelection("comprador")}>
-                Comprador
+              <Button
+                onClick={() => handleTableSelection("comprador")}
+                variant={selected === "comprador" ? "primary" : "secondary"}
+              >
+                Compradores
               </Button>
-              <Button onClick={() => handleTableSelection("client")}>
+              <Button
+                onClick={() => handleTableSelection("client")}
+                variant={selected === "client" ? "primary" : "secondary"}
+              >
                 Clientes
               </Button>
             </div>
