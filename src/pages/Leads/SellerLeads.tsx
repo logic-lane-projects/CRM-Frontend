@@ -35,7 +35,7 @@ export default function SellerLeads() {
   const [leadDataToEdit, setLeadDataToEdit] = useState<Lead | null>(null);
   const [selectedData, setSelectedData] = useState<Lead[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [selected, setSelected] = useState<string>("LEAD");
+  const [selected, setSelected] = useState<string>("");
   const [isOpenAsignacion, setIsOpenAsignacion] = useState(false);
   const [assignedTo, setAssignedTo] = useState("");
   const [selectedResources, setSelectedResources] = useState<string[]>([]);
@@ -67,19 +67,15 @@ export default function SellerLeads() {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const selectedTable = params.get("selected");
-  
-    // Si el parámetro 'selected' está presente en la URL, lo establecemos
-    // en el estado y hacemos la llamada a fetchData.
+
     if (selectedTable) {
       setSelected(selectedTable);
-      fetchData(selectedTable); // Fetch data with the selected table type
+      fetchData(selectedTable);
     } else {
-      // Si no hay parámetro 'selected', usamos el valor predeterminado "LEAD"
-      setSelected("LEAD");
-      fetchData("LEAD"); // Fetch data for default type "LEAD"
+      setSelected("");
+      fetchData("");
     }
-  }, [location.search]); // El efecto se ejecuta cuando cambia `location.search`
-  
+  }, [location.search]);
 
   const handleTableSelection = (table: string) => {
     setSelected(table);
@@ -278,7 +274,7 @@ export default function SellerLeads() {
                     ? "Compradores"
                     : ""}
           </span>
-          {/* {selected === "LEAD" && (
+          {selected === "LEAD" && (
             <Button
               onClick={() => {
                 setIsOpen(true);
@@ -288,24 +284,38 @@ export default function SellerLeads() {
             >
               Crear
             </Button>
-          )} */}
+          )}
         </div>
         <Card>
           <div className="flex flex-col gap-4">
             <div className="flex gap-2">
-              <Button onClick={() => handleTableSelection("LEAD")}>
+              <Button
+                onClick={() => handleTableSelection("LEAD")}
+                variant={selected === "LEAD" ? "primary" : "secondary"}
+              >
                 Leads
               </Button>
-              <Button onClick={() => handleTableSelection("PROSPECTO_CLIENTE")}>
+              <Button
+                onClick={() => handleTableSelection("PROSPECTO_CLIENTE")}
+                variant={selected === "PROSPECTO_CLIENTE" ? "primary" : "secondary"}
+              >
                 Prospectos
               </Button>
-              <Button onClick={() => handleTableSelection("COMPRADOR")}>
+              <Button
+                onClick={() => handleTableSelection("COMPRADOR")}
+                variant={selected === "COMPRADOR" ? "primary" : "secondary"}
+              >
                 Compradores
               </Button>
-              <Button onClick={() => handleTableSelection("CLIENTE")}>
+              <Button
+                onClick={() => handleTableSelection("CLIENTE")}
+                variant={selected === "CLIENTE" ? "primary" : "secondary"}
+              >
                 Clientes
               </Button>
             </div>
+
+
             <TextField
               label=""
               value={searchValue}

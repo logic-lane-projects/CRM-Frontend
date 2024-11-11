@@ -46,12 +46,13 @@ export default function SinAsignacion() {
         }
     };
 
-
-    const filteredLeads = leads.filter(
-        (lead: Lead) =>
-            lead.names.toLowerCase().includes(searchValue.toLowerCase()) ||
-            lead.email.toLowerCase().includes(searchValue.toLowerCase())
-    );
+    const filteredLeads = Array.isArray(leads)
+        ? leads.filter(
+            (lead: Lead) =>
+                lead.names.toLowerCase().includes(searchValue.toLowerCase()) ||
+                lead.email.toLowerCase().includes(searchValue.toLowerCase())
+        )
+        : [];
 
     const numItemsPerPage =
         itemsPerPage === "todos"
@@ -65,7 +66,7 @@ export default function SinAsignacion() {
 
     const totalPages = Math.ceil(filteredLeads.length / numItemsPerPage);
 
-    const resourceLeads = leads.map((lead) => ({
+    const resourceLeads = filteredLeads.map((lead) => ({
         ...lead,
         id: lead._id ?? "unknown-id",
     }));
@@ -78,10 +79,10 @@ export default function SinAsignacion() {
             content: "Ver Lead",
             onAction: () => console.log("Ver Lead"),
         },
-        {
-            content: "Eliminar",
-            onAction: () => console.log("Eliminar Lead"),
-        },
+        // {
+        //     content: "Eliminar",
+        //     onAction: () => console.log("Eliminar Lead"),
+        // },
     ];
 
     const handlePagination = (direction: "previous" | "next") => {
@@ -124,18 +125,9 @@ export default function SinAsignacion() {
 
     return (
         <div className="w-full flex flex-col gap-4">
-            <div className="flex w-full justify-between items-center">
-                <span className="font-semibold text-[20px]">
-                    Leads sin asignación
-                </span>
-                <Button onClick={() => setIsOpen(true)} variant="primary">
-                    Registrar Oficina
-                </Button>
-            </div>
+            <span className="font-bold text-[20px]">Leads sin asignación</span>
             <Card>
                 <div className="flex flex-col gap-4">
-                    <div className="flex gap-2">
-                    </div>
                     <TextField
                         label=""
                         value={searchValue}
