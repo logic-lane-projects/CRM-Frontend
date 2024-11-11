@@ -4,12 +4,14 @@ import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
 import { auth } from "./../../../firebase";
+import { useAuthToken } from "../../hooks/useAuthToken";
 
 interface TopBarProps {
   toggleSidebar: () => void;
 }
 
 export function TopBar1({ toggleSidebar }: TopBarProps) {
+  const { userInfo } = useAuthToken();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const email = localStorage.getItem("email");
   const navigate = useNavigate();
