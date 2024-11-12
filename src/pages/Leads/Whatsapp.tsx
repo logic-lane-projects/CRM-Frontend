@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 
-export default function Whatsapp() {
+export default function Whatsapp({phone}: {phone: string}) {
   type Message = {
     text: string;
     sender: "user" | "whatsapp";
   };
 
-  const PHONE_NUMBER = "15951129872";
+  const PHONE_NUMBER = phone ?? "15951129872";
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
 
