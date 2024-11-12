@@ -1,4 +1,4 @@
-import { TopBar, ActionList, Frame } from "@shopify/polaris";
+import { TopBar, ActionList, Frame, Text} from "@shopify/polaris";
 import { ArrowLeftIcon } from "@shopify/polaris-icons";
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
@@ -74,6 +74,14 @@ export function TopBar1({ toggleSidebar }: TopBarProps) {
       onToggle={toggleIsUserMenuOpen}
     />
   );
+  const cityMarkup = userInfo?.city ? (
+    <div style={{ display: 'flex', alignItems: 'center', padding: '18px' }}>
+        <Text variant="bodyLg" as="p" tone="text-inverse"  fontWeight="bold">
+          Ciudad: {userInfo.city}
+        </Text>
+    </div>
+    
+  ) : null;
 
   const searchResultsMarkup = (
     <ActionList
@@ -85,6 +93,7 @@ export function TopBar1({ toggleSidebar }: TopBarProps) {
     <TopBar
       showNavigationToggle
       userMenu={userMenuMarkup}
+      secondaryMenu={cityMarkup}
       searchResults={searchResultsMarkup}
       onNavigationToggle={handleNavigationToggle}
     />
