@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Device } from '@twilio/voice-sdk';
 
 function Llamadas() {
-
+  const APP_URL = import.meta.env.VITE_API_URL
   const [phoneNumber, setPhoneNumber] = useState("")
 
   const callingToken = useRef(null);
@@ -11,7 +11,7 @@ function Llamadas() {
     // Fetch authentication token from the server
     const fetchToken = async () => {
       try {
-        const response = await fetch('http://localhost:9292/twilio_token', {
+        const response = await fetch(`${APP_URL}twilio_token`, {
           method: 'POST',
         });
 

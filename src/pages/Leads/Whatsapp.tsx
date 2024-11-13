@@ -6,23 +6,32 @@ export default function Whatsapp({phone}: {phone: string}) {
     text: string;
     sender: "user" | "whatsapp";
   };
-
+const APP_URL = import.meta.env.VITE_API_URL;
   const PHONE_NUMBER = phone ?? "15951129872";
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
 
   useEffect(() => {
-    // Polling para obtener mensajes nuevos
     const interval = setInterval(() => {
-      fetch("http://localhost:9292/messages")
+      fetch(`${APP_URL}messages`)
         .then(response => response.json())
         .then(data => {
-          setMessages(data.messages);
+          // Verifica que data.messages sea un array
+          if (Array.isArray(data.messages)) {
+            setMessages(data.messages);
+          } else {
+            setMessages([]); // Asegura que messages sea un array
+          }
+        })
+        .catch(error => {
+          console.error("Error al obtener mensajes:", error);
+          setMessages([]); // Asegura que messages sea un array en caso de error
         });
     }, 3000); // Cada 3 segundos
-
+  
     return () => clearInterval(interval); // Limpiar el interval cuando el componente se desmonta
   }, []);
+  
 
   const handleSendMessage = () => {
     if (input.trim() !== "") {
@@ -38,7 +47,7 @@ export default function Whatsapp({phone}: {phone: string}) {
   };
 
   const sendMessage = (message: string) => {
-    fetch(`http://localhost:9292/send_message`, {
+    fetch(`${APP_URL}send_message`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -56,7 +65,7 @@ export default function Whatsapp({phone}: {phone: string}) {
       <div className="font-semibold text-[15px] mb-2">Whatsapp Chat</div>
       
       <div className="flex-1 overflow-y-auto mb-2 bg-gray-100 p-2 rounded">
-        {messages.map((msg, index) => (
+        {messages?.map((msg, index) => (
           <div
             key={index}
             className={`p-2 my-1 rounded ${
