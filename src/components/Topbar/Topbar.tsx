@@ -1,15 +1,17 @@
-import { TopBar, ActionList, Frame } from "@shopify/polaris";
+import { TopBar, ActionList, Frame, Text} from "@shopify/polaris";
 import { ArrowLeftIcon } from "@shopify/polaris-icons";
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
 import { auth } from "./../../../firebase";
+import { useAuthToken } from "../../hooks/useAuthToken";
 
 interface TopBarProps {
   toggleSidebar: () => void;
 }
 
 export function TopBar1({ toggleSidebar }: TopBarProps) {
+  const { userInfo } = useAuthToken();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const email = localStorage.getItem("email");
   const navigate = useNavigate();
@@ -72,6 +74,14 @@ export function TopBar1({ toggleSidebar }: TopBarProps) {
       onToggle={toggleIsUserMenuOpen}
     />
   );
+  const cityMarkup = userInfo?.city ? (
+    <div className="flex items-center justify-center w-full h-full mr-10">
+        <Text variant="bodyLg" as="p" tone="text-inverse"  fontWeight="bold">
+          Ciudad: {userInfo.city}
+        </Text>
+    </div>
+    
+  ) : null;
 
   const searchResultsMarkup = (
     <ActionList
@@ -83,6 +93,7 @@ export function TopBar1({ toggleSidebar }: TopBarProps) {
     <TopBar
       showNavigationToggle
       userMenu={userMenuMarkup}
+      secondaryMenu={cityMarkup}
       searchResults={searchResultsMarkup}
       onNavigationToggle={handleNavigationToggle}
     />

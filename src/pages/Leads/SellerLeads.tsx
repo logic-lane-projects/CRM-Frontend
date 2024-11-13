@@ -1,4 +1,4 @@
-import { useState, useEffect, SetStateAction } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import ModalRegistroLeads from "../../components/Modales/ModalRegistroLeads";
 import {
@@ -13,16 +13,15 @@ import {
   Badge,
 } from "@shopify/polaris";
 import { Toast } from "../../components/Toast/toast";
-import { getAllLeads, deleteLead } from "../../services/leads";
+import {
+  getAllLeadsBySellerIdAndType,
+  deleteLead,
+} from "../../services/leads";
 import { All as Lead } from "../../services/buyer";
-import { getActiveClient } from "../../services/clientes";
-import { getActivePreClients } from "../../services/preClient";
-import { getActiveBuyers } from "../../services/buyer";
 import ModalAsignacionVendedor from "../../components/Modales/ModalAsignacionVenderor";
 import { useAuthToken } from "../../hooks/useAuthToken";
 
-
-export default function Leads() {
+export default function SellerLeads() {
   const navigate = useNavigate();
   const location = useLocation();
   const { userInfo } = useAuthToken();
@@ -36,75 +35,32 @@ export default function Leads() {
   const [leadDataToEdit, setLeadDataToEdit] = useState<Lead | null>(null);
   const [selectedData, setSelectedData] = useState<Lead[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [selected, setSelected] = useState("");
+  const [selected, setSelected] = useState<string>("");
   const [isOpenAsignacion, setIsOpenAsignacion] = useState(false);
   const [assignedTo, setAssignedTo] = useState("");
   const [selectedResources, setSelectedResources] = useState<string[]>([]);
-
-
-  const handleTableSelection = (table: SetStateAction<string>) => {
-    setSelected(table);
-    navigate(`?selected=${table}`);
-  };
-
-  const fetchLeads = async () => {
-    setIsLoading(true);
-    setSelected("lead");
-    try {
-      const response = await getAllLeads();
-      if (Array.isArray(response)) {
-        setLeads(response);
-        setSelectedData(response);
+  const fetchData = async (clientType: string) => {
+    if (userInfo && userInfo.id) {
+      setIsLoading(true);
+      setSelectedData([]);
+      setSelected(clientType);
+      try {
+        const response = await getAllLeadsBySellerIdAndType(
+          userInfo.id,
+          clientType
+        );
+        if (Array.isArray(response)) {
+          setLeads(response);
+          setSelectedData(response);
+        } else {
+          setSelectedData([]);
+        }
+      } catch (error) {
+        console.error(`Error al obtener ${clientType}:`, error);
+        setSelectedData([]);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
-    } catch (error) {
-      setIsLoading(false);
-      console.error("Error al obtener los leads:", error);
-    }
-  };
-
-  const fetchClients = async () => {
-    setSelected("client");
-    setIsLoading(true);
-    try {
-      const clients = await getActiveClient();
-      if (clients.result) {
-        setSelectedData(clients.data);
-      }
-      setIsLoading(false);
-    } catch (error) {
-      setIsLoading(false);
-      console.error("Error al obtener clientes activos", error);
-    }
-  };
-
-  const fetchPreClient = async () => {
-    setSelected("prospecto");
-    setIsLoading(true);
-    try {
-      const clients = await getActivePreClients();
-      if (clients.result) {
-        setSelectedData(clients.data);
-      }
-      setIsLoading(false);
-    } catch (error) {
-      setIsLoading(false);
-      console.error("Error al obtener prospectos activos", error);
-    }
-  };
-
-  const fetchComprador = async () => {
-    setSelected("comprador");
-    setIsLoading(true);
-    try {
-      const clients = await getActiveBuyers();
-      if (clients.result) {
-        setSelectedData(clients.data);
-      }
-      setIsLoading(false);
-    } catch (error) {
-      setIsLoading(false);
-      console.error("Error al obtener compradores activos", error);
     }
   };
 
@@ -114,28 +70,20 @@ export default function Leads() {
 
     if (selectedTable) {
       setSelected(selectedTable);
-      switch (selectedTable) {
-        case "lead":
-          fetchLeads();
-          break;
-        case "client":
-          fetchClients();
-          break;
-        case "prospecto":
-          fetchPreClient();
-          break;
-        case "comprador":
-          fetchComprador();
-          break;
-        default:
-          break;
-      }
+      fetchData(selectedTable);
     } else {
-      // Si no hay ninguna tabla seleccionada, cargar "Leads" por defecto
-      setSelected("lead");
-      fetchLeads();
+      setSelected("");
+      fetchData("");
     }
   }, [location.search]);
+
+  const handleTableSelection = (table: string) => {
+    setSelected(table);
+    navigate(`?selected=${table}`);
+    fetchData(table);
+  };
+
+
 
   const leadsForIndexTable = selectedData.map((lead) => ({
     id: lead._id,
@@ -148,7 +96,6 @@ export default function Leads() {
     assigned_to: lead.assigned_to,
   }));
 
-  // Filtro de búsqueda
   const filteredLeads = leadsForIndexTable.filter(
     (lead) =>
       lead.names?.toLowerCase().includes(searchValue.toLowerCase()) ||
@@ -167,7 +114,6 @@ export default function Leads() {
 
   const totalPages = Math.ceil(filteredLeads.length / numItemsPerPage);
 
-  //Funcion para la seleccion de un solo item
   const handleSelectionChangeSingle = (selection: string | undefined) => {
     if (selection !== undefined) {
       if (selectedResources.includes(selection)) {
@@ -180,7 +126,6 @@ export default function Leads() {
     }
   };
 
-
   const handleDeleteAction = async () => {
     if (!selectedLead) return;
 
@@ -188,9 +133,7 @@ export default function Leads() {
       await deleteLead(selectedLead);
       Toast.fire({ icon: "success", title: "Lead eliminado correctamente" });
 
-      // Refetch de los leads después de eliminar
-      const response = await getAllLeads();
-      setLeads(response);
+      await fetchData(selected);
     } catch (error) {
       console.error("Error al eliminar el lead:", error);
       Toast.fire({
@@ -205,25 +148,25 @@ export default function Leads() {
   const promotedBulkActions = [
     {
       content:
-        selected === "lead"
+        selected === "LEAD"
           ? "Ver Lead"
-          : selected === "client"
+          : selected === "CLIENTE"
             ? "Ver Cliente"
-            : selected === "prospecto"
+            : selected === "PROSPECTO_CLIENTE"
               ? "Ver Prospecto"
-              : selected === "comprador"
+              : selected === "COMPRADOR"
                 ? "Ver Comprador"
                 : "",
       onAction: () => {
         if (selectedResources.length === 1) {
           const path =
-            selected === "lead"
+            selected === "LEAD"
               ? "leads"
-              : selected === "client"
+              : selected === "CLIENTE"
                 ? "cliente"
-                : selected === "prospecto"
+                : selected === "PROSPECTO_CLIENTE"
                   ? "prospecto"
-                  : selected === "comprador"
+                  : selected === "COMPRADOR"
                     ? "comprador"
                     : "";
 
@@ -231,21 +174,27 @@ export default function Leads() {
             navigate(`/${path}/${selectedResources[0]}`);
           }
         } else {
-          console.warn("Por favor selecciona solo un lead");
+          console.warn("Por favor selecciona solo un elemento");
         }
       },
     },
-    {
-      content: "Eliminar",
-      onAction: () => {
-        if (selectedResources.length === 1) {
-          setSelectedLead(selectedResources[0]);
-          setIsDeleteModalOpen(true);
-        } else {
-          console.warn("Por favor selecciona solo un lead para eliminar");
-        }
-      },
-    },
+    ...(userInfo && userInfo.role !== "vendedor"
+      ? [
+        {
+          content: "Eliminar",
+          onAction: () => {
+            if (selectedResources.length === 1) {
+              setSelectedLead(selectedResources[0]);
+              setIsDeleteModalOpen(true);
+            } else {
+              console.warn(
+                "Por favor selecciona solo un elemento para eliminar"
+              );
+            }
+          },
+        },
+      ]
+      : []),
   ];
 
   const handlePagination = (direction: "previous" | "next") => {
@@ -315,17 +264,17 @@ export default function Leads() {
       <div className="w-full flex flex-col gap-4">
         <div className="flex w-full justify-between items-center">
           <span className="font-semibold text-[20px]">
-            {selected === "lead"
+            {selected === "LEAD"
               ? "Leads"
-              : selected === "client"
+              : selected === "CLIENTE"
                 ? "Clientes"
-                : selected === "prospecto"
-                  ? "Prospecto"
-                  : selected === "comprador"
-                    ? "Comprador"
+                : selected === "PROSPECTO_CLIENTE"
+                  ? "Prospectos"
+                  : selected === "COMPRADOR"
+                    ? "Compradores"
                     : ""}
           </span>
-          {selected === "lead" && (
+          {selected === "LEAD" && (
             <Button
               onClick={() => {
                 setIsOpen(true);
@@ -341,30 +290,32 @@ export default function Leads() {
           <div className="flex flex-col gap-4">
             <div className="flex gap-2">
               <Button
-                onClick={() => handleTableSelection("lead")}
-                variant={selected === "lead" ? "primary" : "secondary"}
+                onClick={() => handleTableSelection("LEAD")}
+                variant={selected === "LEAD" ? "primary" : "secondary"}
               >
                 Leads
               </Button>
               <Button
-                onClick={() => handleTableSelection("prospecto")}
-                variant={selected === "prospecto" ? "primary" : "secondary"}
+                onClick={() => handleTableSelection("PROSPECTO_CLIENTE")}
+                variant={selected === "PROSPECTO_CLIENTE" ? "primary" : "secondary"}
               >
                 Prospectos
               </Button>
               <Button
-                onClick={() => handleTableSelection("comprador")}
-                variant={selected === "comprador" ? "primary" : "secondary"}
+                onClick={() => handleTableSelection("COMPRADOR")}
+                variant={selected === "COMPRADOR" ? "primary" : "secondary"}
               >
                 Compradores
               </Button>
               <Button
-                onClick={() => handleTableSelection("client")}
-                variant={selected === "client" ? "primary" : "secondary"}
+                onClick={() => handleTableSelection("CLIENTE")}
+                variant={selected === "CLIENTE" ? "primary" : "secondary"}
               >
                 Clientes
               </Button>
             </div>
+
+
             <TextField
               label=""
               value={searchValue}
@@ -379,36 +330,34 @@ export default function Leads() {
             />
 
             {isLoading ? (
-              <p>Cargando leads...</p>
+              <p>Cargando datos...</p>
             ) : (
               <>
                 <IndexTable
                   resourceName={{
                     singular:
-                      selected === "lead"
-                        ? "lead"
-                        : selected === "prospecto"
+                      selected === "LEAD"
+                        ? "Lead"
+                        : selected === "PROSPECTO_CLIENTE"
                           ? "Prospecto"
-                          : selected === "comprador"
+                          : selected === "COMPRADOR"
                             ? "Comprador"
-                            : selected === "cliente"
+                            : selected === "CLIENTE"
                               ? "Cliente"
                               : "",
                     plural:
-                      selected === "lead"
-                        ? "lead"
-                        : selected === "prospecto"
-                          ? "Prospecto"
-                          : selected === "comprador"
-                            ? "Comprador"
-                            : selected === "cliente"
-                              ? "Cliente"
+                      selected === "LEAD"
+                        ? "Leads"
+                        : selected === "PROSPECTO_CLIENTE"
+                          ? "Prospectos"
+                          : selected === "COMPRADOR"
+                            ? "Compradores"
+                            : selected === "CLIENTE"
+                              ? "Clientes"
                               : "",
                   }}
                   itemCount={filteredLeads.length}
-                  selectedItemsCount={
-                    selectedResources.length
-                  }
+                  selectedItemsCount={selectedResources.length}
                   onSelectionChange={handleSelectionChangeSingle}
                   headings={[
                     { title: "Nombre" },
@@ -417,7 +366,9 @@ export default function Leads() {
                     { title: "Ciudad" },
                     { title: "Estado" },
                     { title: "Status" },
-                    { title: "Asignacion" },
+                    ...(userInfo && userInfo.role !== "vendedor"
+                      ? [{ title: "Asignación" }]
+                      : []),
                   ]}
                   promotedBulkActions={promotedBulkActions}
                   emptyState="No se encontraron resultados"
@@ -455,7 +406,7 @@ export default function Leads() {
             isOpen={isOpen}
             setIsOpen={setIsOpen}
           />
-        )}{" "}
+        )}
       </div>
       {isOpenAsignacion && (
         <ModalAsignacionVendedor

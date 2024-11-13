@@ -54,6 +54,7 @@ export default function ModalRegistroVendedores({
   const roleOptions = [
     { label: "Vendedor", value: UserRole.Vendedor },
     { label: "Administrador", value: UserRole.Administrador },
+    { label: "Asignador", value: UserRole.Asignador },
   ];
 
   const handleFieldChange = (field: keyof FormValues, value: string) => {
@@ -63,7 +64,7 @@ export default function ModalRegistroVendedores({
     if (field === "contrasena" || field === "confirmContrasena") {
       setPasswordsMatch(
         formValues.contrasena === value ||
-          formValues.confirmContrasena === value
+        formValues.confirmContrasena === value
       );
     }
   };
@@ -94,7 +95,7 @@ export default function ModalRegistroVendedores({
       return;
     }
     setErrors({});
-  
+
     try {
       const newUser = await createUser({
         id: "",
@@ -107,18 +108,20 @@ export default function ModalRegistroVendedores({
         role: formValues.rol,
         coordinador_asignado: null
       });
-      
+
       console.log("Usuario creado en la base de datos:", newUser);
-  
+
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         formValues.correo,
         formValues.contrasena
       );
       const user = userCredential.user;
-  
       console.log("Usuario registrado con éxito en Firebase:", user);
       Toast.fire({ icon: "success", title: "Usuario registrado" });
+      setTimeout(() => {
+        window.location.reload();
+      }, 500)
       setIsOpen(false);
     } catch (error) {
       console.error("Error al registrar el usuario:", error);
@@ -126,7 +129,7 @@ export default function ModalRegistroVendedores({
         ...prev,
         correo: "Hubo un problema al registrar el usuario",
       }));
-  
+
       const errorMessage = typeof error === "string" ? error : String(error);
       Toast.fire({
         icon: "error",
@@ -136,7 +139,7 @@ export default function ModalRegistroVendedores({
       setIsLoading(false);
     }
   };
-  
+
 
   return (
     <div>
