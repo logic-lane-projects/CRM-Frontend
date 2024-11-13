@@ -259,7 +259,9 @@ export default function BuyerInfo() {
             {selectedTab === "Llamadas" && <Llamadas />}
             {selectedTab === "Tareas" && <Tareas />}
             {selectedTab === "Notas" && <Notas />}
-            {selectedTab === "Whatsapp" && <Whatsapp />}
+            {selectedTab === "Whatsapp" && (
+              <Whatsapp phone={leadData.phone_number} />
+            )}{" "}
             {selectedTab === "Archivos" && (
               <Archivos
                 id={id}

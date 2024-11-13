@@ -34,6 +34,10 @@ export default function LeadInfo() {
   const [isLoadingChange, setIsLoadingChange] = useState(false);
 
   useEffect(() => {
+    console.log("leadData", leadData);
+  }, [leadData])
+
+  useEffect(() => {
     const fetchLeadData = async () => {
       try {
         if (id) {
@@ -91,6 +95,9 @@ export default function LeadInfo() {
       setIsLoadingChange(false);
     }
   };
+
+
+  
 
   return (
     <Card>
@@ -232,7 +239,7 @@ export default function LeadInfo() {
             {selectedTab === "Llamadas" && <Llamadas />}
             {selectedTab === "Tareas" && <Tareas />}
             {selectedTab === "Notas" && <Notas />}
-            {selectedTab === "Whatsapp" && <Whatsapp />}
+            {selectedTab === "Whatsapp" && <Whatsapp phone={leadData.phone_number} />}
             {selectedTab === "Historial" && <Historial />}
           </div>
         </div>

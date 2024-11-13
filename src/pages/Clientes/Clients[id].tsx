@@ -1,6 +1,6 @@
 import { useParams, useSearchParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { Button, Card, Icon } from "@shopify/polaris";
+import { Card, Icon } from "@shopify/polaris";
 import {
   NotificationIcon,
   // EmailIcon,
@@ -8,7 +8,7 @@ import {
   // ListBulletedFilledIcon,
   NoteIcon,
   FileIcon,
-  ClockIcon
+  ClockIcon,
 } from "@shopify/polaris-icons";
 import { Client, getClientById } from "../../services/clientes";
 import Actividad from "../Leads/Actividad";
@@ -83,7 +83,6 @@ export default function LeadInfo() {
             {`${clientData?.names} ${clientData?.maternal_surname} ${clientData?.paternal_surname}`}
           </span>
         </div>
-        <Button variant="primary">Hacer trato</Button>
       </div>
 
       <div className="grid grid-cols-3">
@@ -204,7 +203,7 @@ export default function LeadInfo() {
             {selectedTabFromUrl === "Llamadas" && <Llamadas />}
             {selectedTabFromUrl === "Tareas" && <Tareas />}
             {selectedTabFromUrl === "Notas" && <Notas />}
-            {selectedTabFromUrl === "Whatsapp" && <Whatsapp />}
+            {selectedTabFromUrl === "Whatsapp" && <Whatsapp phone={clientData.phone_number} />}
             {selectedTabFromUrl === "Archivos" && <Archivos id={id} regimen={clientData.type_person}/>}
             {selectedTabFromUrl === "Historial" && <Historial />}
           </div>
@@ -212,7 +211,7 @@ export default function LeadInfo() {
         <div className="flex flex-col gap-3 w-full col-span-1">
           <div className="flex gap-10 bg-white border-gray-300 border-[1px] p-2 pt-2.5">
             <span className="font-semibold flex justify-center w-full">
-              Acerca de este Cliente
+              Acerca de este Cliente.
             </span>
           </div>
           <div className="border-[1px] border-gray-300 p-2">
@@ -222,7 +221,7 @@ export default function LeadInfo() {
                 status: clientData?.status ?? null,
                 created_at: clientData?.created_at ?? "",
                 updated_at: clientData?.updated_at ?? "",
-                is_client: clientData?.is_client ?? undefined, 
+                is_client: clientData?.is_client ?? undefined,
               }}
             />
           </div>
