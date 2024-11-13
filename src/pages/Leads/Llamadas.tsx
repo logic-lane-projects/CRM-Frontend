@@ -5,7 +5,6 @@ function Llamadas() {
 
   const [phoneNumber, setPhoneNumber] = useState("")
 
-  const device = useRef(null);
   const callingToken = useRef(null);
 
   useEffect(() => {
@@ -32,9 +31,9 @@ function Llamadas() {
 
   const handleCall = async () => {
     try {
-       const device = new Device(callingToken.current)
+       const device = new Device(callingToken.current || "")
 
-       let params = {
+       const params = {
         To: "+522223785532",
         aCustomParameter: "the value of your custom parameter"
       };
@@ -43,7 +42,7 @@ function Llamadas() {
       
       console.log(call.customParameters);
     } catch (error) {
-      throw new Error(error)
+      console.log(error)
     }
   }
   

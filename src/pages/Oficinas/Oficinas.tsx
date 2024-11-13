@@ -8,26 +8,28 @@ import {
   Card,
   Select,
 } from "@shopify/polaris";
-import { getUsers, User } from "../../services/users";
+import { getAllOffices } from "../../services/oficinas";
 import { Toast } from "../../components/Toast/toast";
 import ModalRegistroOficinas from "../../components/Modales/ModalOficinas";
+import { OfficeData } from "../../services/oficinas";
 
 export default function Oficinas() {
   const [isOpen, setIsOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState("10");
-  const [vendedores, setVendedores] = useState<User[]>([]);
+  const [oficinas, setOficinas] = useState<OfficeData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [registrar, setRegistrar] = useState(false);
 
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchOffices = async () => {
       try {
-        const usersData: User[] = await getUsers();
-        setVendedores(usersData);
+        const response = await getAllOffices();
+        setOficinas(response.data ?? []);
       } catch (error) {
-        setError("Error al cargar los usuarios");
+        setError("Error al cargar las oficinas");
         const errorMessage = typeof error === "string" ? error : String(error);
         Toast.fire({
           icon: "error",
@@ -38,53 +40,33 @@ export default function Oficinas() {
       }
     };
 
-    fetchUsers();
+    fetchOffices();
   }, []);
 
-  // Filtro de búsqueda
-  const filteredVendedores = vendedores.filter(
-    (vendedor: User) =>
-      vendedor.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-      vendedor.email.toLowerCase().includes(searchValue.toLowerCase()) ||
-      vendedor.city.toLowerCase().includes(searchValue.toLowerCase())
+  // Filtrado de oficinas según el valor de búsqueda
+  const filteredOficinas = oficinas.filter(
+    (oficina) =>
+      oficina.oficina.toLowerCase().includes(searchValue.toLowerCase()) ||
+      oficina.ciudad.toLowerCase().includes(searchValue.toLowerCase()) ||
+      oficina.estado.toLowerCase().includes(searchValue.toLowerCase())
   );
 
-  // Convertimos el valor de itemsPerPage en un número o tomamos el total de oficinas si es "todos"
+  // Convertir itemsPerPage a número o utilizar el total si es "todos"
   const numItemsPerPage =
     itemsPerPage === "todos"
-      ? filteredVendedores.length
+      ? filteredOficinas.length
       : parseInt(itemsPerPage, 10);
 
-  // Calcular el rango de elementos que se mostrarán en la página actual
-  const paginatedVendedores = filteredVendedores.slice(
+  // Calcular oficinas a mostrar en la página actual
+  const paginatedOficinas = filteredOficinas.slice(
     (currentPage - 1) * numItemsPerPage,
     currentPage * numItemsPerPage
   );
 
-  const totalPages = Math.ceil(filteredVendedores.length / numItemsPerPage);
+  // Calcular el total de páginas
+  const totalPages = Math.ceil(filteredOficinas.length / numItemsPerPage);
 
-  // Convierte los usuarios a un formato aceptado por useIndexResourceState
-  const resourceVendedores = vendedores.map((vendedor) => ({
-    ...vendedor,
-    id: vendedor.id ?? "unknown-id",
-  }));
-
-  // Uso del estado de recursos para el IndexTable
-  const { selectedResources, allResourcesSelected, handleSelectionChange } =
-    useIndexResourceState(resourceVendedores);
-
-  const promotedBulkActions = [
-    {
-      content: "Ver Oficina",
-      onAction: () => console.log("Ver Oficina"),
-    },
-    {
-      content: "Eliminar",
-      onAction: () => console.log("Eliminar Vendedor"),
-    },
-  ];
-
-  // Función para manejar el cambio de página
+  // Función para cambiar la página
   const handlePagination = (direction: "previous" | "next") => {
     setCurrentPage((prevPage) => {
       if (direction === "next" && prevPage < totalPages) {
@@ -96,20 +78,42 @@ export default function Oficinas() {
     });
   };
 
-  const rowMarkup = paginatedVendedores.map(
-    ({ id, name, email, city }: User, index: number) => (
+  const resourceOficinas = oficinas.map((oficina) => ({
+    ...oficina,
+    id: oficina._id ?? "unknown-id",
+  }));
+
+  const { selectedResources, allResourcesSelected, handleSelectionChange } =
+    useIndexResourceState(resourceOficinas);
+
+  // Bulk actions para el IndexTable
+  const promotedBulkActions = [
+    {
+      content: "Ver Oficina",
+      onAction: () => {
+        setIsOpen(true);
+      },
+    },
+    {
+      content: "Eliminar",
+      onAction: () => {
+        console.log("Eliminar Oficina", selectedResources);
+      },
+    },
+  ];
+
+  const rowMarkup = paginatedOficinas.map(
+    ({ _id, oficina, ciudad, estado, status }, index) => (
       <IndexTable.Row
-        id={id ?? "unknown-id"} // Si id es undefined, usa "unknown-id"
-        key={id ?? index} // Usa index como respaldo si id es undefined
+        id={_id}
+        key={_id}
         position={index}
-        selected={selectedResources.includes(id ?? "")} // Si id es undefined, usa una cadena vacía
+        selected={selectedResources.includes(_id)}
       >
-        <IndexTable.Cell>{name ?? "Nombre desconocido"}</IndexTable.Cell>{" "}
-        {/* Proporciona un valor predeterminado si name es undefined */}
-        <IndexTable.Cell>{email ?? "Correo desconocido"}</IndexTable.Cell>{" "}
-        {/* Proporciona un valor predeterminado si email es undefined */}
-        <IndexTable.Cell>{city ?? "Ciudad desconocida"}</IndexTable.Cell>{" "}
-        {/* Proporciona un valor predeterminado si city es undefined */}
+        <IndexTable.Cell>{oficina}</IndexTable.Cell>
+        <IndexTable.Cell>{ciudad}</IndexTable.Cell>
+        <IndexTable.Cell>{estado}</IndexTable.Cell>
+        <IndexTable.Cell>{status ? "Activo" : "Inactivo"}</IndexTable.Cell>
       </IndexTable.Row>
     )
   );
@@ -125,16 +129,19 @@ export default function Oficinas() {
   return (
     <div className="w-full flex flex-col gap-4">
       <div className="flex w-full justify-between items-center">
-        <span className="font-semibold text-[20px]">
-          Oficinas - esperando endpoint
-        </span>
-        <Button onClick={() => setIsOpen(true)} variant="primary">
+        <span className="font-semibold text-[20px]">Oficinas</span>
+        <Button
+          onClick={() => {
+            setIsOpen(true);
+            setRegistrar(true);
+          }}
+          variant="primary"
+        >
           Registrar Oficina
         </Button>
       </div>
       <Card>
         <div className="flex flex-col gap-4">
-          {/* Campo de búsqueda */}
           <TextField
             label=""
             value={searchValue}
@@ -142,7 +149,7 @@ export default function Oficinas() {
               setSearchValue(value);
               setCurrentPage(1);
             }}
-            placeholder="Buscar por nombre, correo o ciudad"
+            placeholder="Buscar por nombre, ciudad o estado"
             clearButton
             onClearButtonClick={() => setSearchValue("")}
             autoComplete="off"
@@ -150,25 +157,23 @@ export default function Oficinas() {
 
           <IndexTable
             resourceName={{ singular: "oficina", plural: "oficinas" }}
-            itemCount={filteredVendedores.length}
+            itemCount={filteredOficinas.length}
             selectedItemsCount={
               allResourcesSelected ? "All" : selectedResources.length
             }
             onSelectionChange={handleSelectionChange}
             headings={[
-              { title: "Ciudas" },
-              { title: "Estado" },
               { title: "Oficina" },
-              { title: "Jefe" },
-              { title: "Número  de empleados" },
+              { title: "Ciudad" },
+              { title: "Estado" },
+              { title: "Estatus" },
             ]}
-            promotedBulkActions={promotedBulkActions}
+            promotedBulkActions={promotedBulkActions} // Agrega las acciones masivas aquí
             emptyState="No se encontraron resultados"
           >
             {rowMarkup}
           </IndexTable>
           <div className="flex flex-row-reverse items-center w-full justify-between">
-            {/* Paginación */}
             <Pagination
               hasPrevious={currentPage > 1}
               onPrevious={() => handlePagination("previous")}
@@ -176,7 +181,6 @@ export default function Oficinas() {
               onNext={() => handlePagination("next")}
             />
 
-            {/* Select para número de vendedores por página */}
             <Select
               label=""
               options={[
@@ -191,11 +195,20 @@ export default function Oficinas() {
               }}
             />
           </div>
+          <div className="flex justify-center mt-2">
+            <span>
+              Página {currentPage} de {totalPages}
+            </span>
+          </div>
         </div>
       </Card>
-      {/* Modal para registrar oficinas */}
       {isOpen && (
-        <ModalRegistroOficinas isOpen={isOpen} setIsOpen={setIsOpen} />
+        <ModalRegistroOficinas
+          isOpen={isOpen}
+          setIsOpen={setIsOpen}
+          idOficina={selectedResources[0] ?? null}
+          registrar={registrar}
+        />
       )}
     </div>
   );

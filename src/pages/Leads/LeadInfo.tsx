@@ -25,6 +25,7 @@ export interface InfoLeads {
   updated_at?: string;
   type_person?: string;
   is_client?: boolean;
+  assigned_to?:string | null;
 }
 
 interface InfoLeadProps {
@@ -82,6 +83,7 @@ export default function InfoLead({ lead }: InfoLeadProps) {
       gender,
       status: typeof lead.status === "boolean" ? lead.status : null,
       is_client: true,
+      assigned_to: lead.assigned_to
     };
 
     try {

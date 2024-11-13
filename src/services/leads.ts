@@ -277,3 +277,17 @@ export const getAllLeadsNoSeller = async (city: string): Promise<Lead[]> => {
   }
 };
 
+export const getAllLeadsBySellerIdAndType = async (id: string, clientType: string): Promise<Lead[]> => {
+  try {
+    const response = await fetch(`${API_URL}client/buscar_leads_por_vendedor_y_tipo_client/all/${id}/${clientType}`);
+    if (!response.ok) {
+      throw new Error(`Error fetching leads: ${response.statusText}`);
+    }
+    const data = await response.json();
+    return data.data;
+  } catch (error) {
+    console.error("Error al obtener leads por vendedor y tipo de cliente:", error);
+    throw error;
+  }
+};
+

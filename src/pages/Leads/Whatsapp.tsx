@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 
 export default function Whatsapp({phone}: {phone: string}) {
   type Message = {
+    role: string;
     text: string;
     sender: "user" | "whatsapp";
   };
@@ -25,7 +26,10 @@ export default function Whatsapp({phone}: {phone: string}) {
 
   const handleSendMessage = () => {
     if (input.trim() !== "") {
-      setMessages([...messages, { text: input, sender: "user" }]);
+      setMessages([...messages, {
+        text: input, sender: "user",
+        role: ""
+      }]);
       setInput("");
 
       // Enviar el mensaje al servidor

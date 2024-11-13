@@ -23,6 +23,7 @@ import Coordinadores from "./pages/Coordinadores/Coordinadores";
 import InfoCoordinador from "./pages/Coordinadores/Coordinadores[id]";
 import Footer from "./components/Footer/Footer";
 import SinAsignacion from "./pages/SinAsignacion/SinAsignacion";
+import SellerLeads from "./pages/Leads/SellerLeads";
 
 const App: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
@@ -119,8 +120,7 @@ const App: React.FC = () => {
           element={
             <PrivateRoute>
               <AppLayout>
-                <Leads />
-              </AppLayout>
+                {userInfo && userInfo.role === "vendedor" ? <SellerLeads /> : <Leads />}              </AppLayout>
             </PrivateRoute>
           }
         />
