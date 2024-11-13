@@ -262,3 +262,18 @@ export const updateClient = async (
     throw error;
   }
 };
+
+export const getAllLeadsNoSeller = async (city: string): Promise<Lead[]> => {
+  try {
+    const response = await fetch(`${API_URL}client/find_leads_without_vendedor_by_city/all/${city}`);
+    if (!response.ok) {
+      throw new Error(`Error fetching leads: ${response.statusText}`);
+    }
+    const data = await response.json();
+    return data.data;
+  } catch (error) {
+    console.error("Error al obtener leads sin vendedor:", error);
+    throw error;
+  }
+};
+
