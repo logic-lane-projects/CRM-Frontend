@@ -21,6 +21,7 @@ export default function Oficinas() {
   const [oficinas, setOficinas] = useState<OfficeData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [registrar, setRegistrar] = useState(false);
 
   useEffect(() => {
     const fetchOffices = async () => {
@@ -129,7 +130,13 @@ export default function Oficinas() {
     <div className="w-full flex flex-col gap-4">
       <div className="flex w-full justify-between items-center">
         <span className="font-semibold text-[20px]">Oficinas</span>
-        <Button onClick={() => setIsOpen(true)} variant="primary">
+        <Button
+          onClick={() => {
+            setIsOpen(true);
+            setRegistrar(true);
+          }}
+          variant="primary"
+        >
           Registrar Oficina
         </Button>
       </div>
@@ -200,6 +207,7 @@ export default function Oficinas() {
           isOpen={isOpen}
           setIsOpen={setIsOpen}
           idOficina={selectedResources[0] ?? null}
+          registrar={registrar}
         />
       )}
     </div>
