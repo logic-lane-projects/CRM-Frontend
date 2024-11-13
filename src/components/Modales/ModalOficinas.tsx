@@ -1,7 +1,11 @@
 import { Frame, Modal, TextContainer, TextField } from "@shopify/polaris";
 import { useState, useEffect } from "react";
 import { Toast } from "../Toast/toast";
-import { getOfficeById, updateOffice, createOffice } from "../../services/oficinas";
+import {
+  getOfficeById,
+  updateOffice,
+  createOffice,
+} from "../../services/oficinas";
 import { useAuthToken } from "../../hooks/useAuthToken";
 
 interface ModalRegistroOficinasProps {
@@ -98,7 +102,7 @@ export default function ModalRegistroOficinas({
 
     try {
       if (registrar) {
-        const response = await createOffice({
+        const response = await createOffice(userInfo.id, {
           oficina: formValues.oficina,
           ciudad: formValues.ciudad,
           estado: formValues.estado,
@@ -109,7 +113,11 @@ export default function ModalRegistroOficinas({
           throw new Error("No se pudo registrar la oficina");
         }
       } else {
-        const response = await updateOffice(idOficina!, userInfo.id, formValues);
+        const response = await updateOffice(
+          idOficina!,
+          userInfo.id,
+          formValues
+        );
         if (response.result) {
           Toast.fire({ icon: "success", title: "Oficina actualizada" });
         } else {
@@ -121,7 +129,10 @@ export default function ModalRegistroOficinas({
         window.location.reload();
       }, 500);
     } catch (error) {
-      console.error(`Error al ${registrar ? "registrar" : "actualizar"} la oficina:`, error);
+      console.error(
+        `Error al ${registrar ? "registrar" : "actualizar"} la oficina:`,
+        error
+      );
       Toast.fire({
         icon: "error",
         title: `Error al ${registrar ? "registrar" : "actualizar"} la oficina`,
@@ -139,7 +150,11 @@ export default function ModalRegistroOficinas({
           onClose={() => setIsOpen(false)}
           title={registrar ? "Registrar Oficina" : "Editar Oficina"}
           primaryAction={{
-            content: isLoading ? "Cargando..." : registrar ? "Registrar" : "Guardar",
+            content: isLoading
+              ? "Cargando..."
+              : registrar
+              ? "Registrar"
+              : "Guardar",
             onAction: handleSubmit,
             disabled: isSubmitDisabled || isLoading,
           }}

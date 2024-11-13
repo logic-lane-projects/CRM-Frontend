@@ -27,24 +27,28 @@ export const getAllOffices = async (): Promise<ApiResponse<OfficeData[]>> => {
 };
 
 // Crear una oficina
-export const createOffice = async (officeData: Omit<OfficeData, "_id" | "created_at" | "updated_at" | "status">): Promise<ApiResponse<OfficeData>> => {
-  try {
-    const response = await fetch(`${APP_URL}/oficinas/create`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        oficina: officeData.oficina,
-        ciudad: officeData.ciudad,
-        estado: officeData.estado,
-      }),
-    });
-    return response.json();
-  } catch (error) {
-    return { result: false, error: error as string, data: null };
-  }
-};
+export const createOffice = async (
+    userId: string, 
+    officeData: Omit<OfficeData, "_id" | "created_at" | "updated_at" | "status">
+  ): Promise<ApiResponse<OfficeData>> => {
+    try {
+      const response = await fetch(`${APP_URL}oficinas/create/${userId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          oficina: officeData.oficina,
+          ciudad: officeData.ciudad,
+          estado: officeData.estado,
+        }),
+      });
+      return response.json();
+    } catch (error) {
+      return { result: false, error: error as string, data: null };
+    }
+  };
+  
 
 // Buscar una oficina por ID
 export const getOfficeById = async (officeId: string): Promise<ApiResponse<OfficeData>> => {
