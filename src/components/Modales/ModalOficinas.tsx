@@ -1,13 +1,18 @@
 import { Frame, Modal, TextContainer, TextField } from "@shopify/polaris";
 import { useState, useEffect } from "react";
 import { Toast } from "../Toast/toast";
-import { getOfficeById, updateOffice } from "../../services/oficinas";
+import {
+  getOfficeById,
+  updateOffice,
+  createOffice,
+} from "../../services/oficinas";
 import { useAuthToken } from "../../hooks/useAuthToken";
 
 interface ModalRegistroOficinasProps {
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
   idOficina: string | null;
+  registrar: boolean;
 }
 
 const initialFormValues = {
@@ -20,6 +25,7 @@ export default function ModalRegistroOficinas({
   isOpen,
   setIsOpen,
   idOficina,
+  registrar,
 }: ModalRegistroOficinasProps) {
   const { userInfo } = useAuthToken();
   const [formValues, setFormValues] = useState(initialFormValues);
@@ -28,7 +34,7 @@ export default function ModalRegistroOficinas({
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (idOficina) {
+    if (!registrar && idOficina) {
       const fetchOfficeData = async () => {
         try {
           const response = await getOfficeById(idOficina);
@@ -50,8 +56,10 @@ export default function ModalRegistroOficinas({
         }
       };
       fetchOfficeData();
+    } else {
+      setFormValues(initialFormValues);
     }
-  }, [idOficina]);
+  }, [idOficina, registrar]);
 
   useEffect(() => {
     const allFieldsFilled = Object.values(formValues).every(
@@ -93,21 +101,41 @@ export default function ModalRegistroOficinas({
     setErrors({});
 
     try {
-      const response = await updateOffice(idOficina!, userInfo.id, formValues);
-      if (response.result) {
-        Toast.fire({ icon: "success", title: "Oficina actualizada" });
-        setIsOpen(false);
-        setTimeout(() => {
-          window.location.reload();
-        }, 500);
+      if (registrar) {
+        const response = await createOffice(userInfo.id, {
+          oficina: formValues.oficina,
+          ciudad: formValues.ciudad,
+          estado: formValues.estado,
+        });
+        if (response.result) {
+          Toast.fire({ icon: "success", title: "Oficina registrada" });
+        } else {
+          throw new Error("No se pudo registrar la oficina");
+        }
       } else {
-        throw new Error("No se pudo actualizar la oficina");
+        const response = await updateOffice(
+          idOficina!,
+          userInfo.id,
+          formValues
+        );
+        if (response.result) {
+          Toast.fire({ icon: "success", title: "Oficina actualizada" });
+        } else {
+          throw new Error("No se pudo actualizar la oficina");
+        }
       }
+      setIsOpen(false);
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
     } catch (error) {
-      console.error("Error al actualizar la oficina:", error);
+      console.error(
+        `Error al ${registrar ? "registrar" : "actualizar"} la oficina:`,
+        error
+      );
       Toast.fire({
         icon: "error",
-        title: "Error al actualizar la oficina",
+        title: `Error al ${registrar ? "registrar" : "actualizar"} la oficina`,
       });
     } finally {
       setIsLoading(false);
@@ -120,9 +148,13 @@ export default function ModalRegistroOficinas({
         <Modal
           open={isOpen}
           onClose={() => setIsOpen(false)}
-          title="Editar Oficina"
+          title={registrar ? "Registrar Oficina" : "Editar Oficina"}
           primaryAction={{
-            content: isLoading ? "Cargando..." : "Guardar",
+            content: isLoading
+              ? "Cargando..."
+              : registrar
+              ? "Registrar"
+              : "Guardar",
             onAction: handleSubmit,
             disabled: isSubmitDisabled || isLoading,
           }}
