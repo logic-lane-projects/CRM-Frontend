@@ -211,7 +211,7 @@ export default function LeadInfo() {
         <div className="flex flex-col gap-3 w-full col-span-1">
           <div className="flex gap-10 bg-white border-gray-300 border-[1px] p-2 pt-2.5">
             <span className="font-semibold flex justify-center w-full">
-              Acerca de este Cliente
+              Acerca de este Cliente.
             </span>
           </div>
           <div className="border-[1px] border-gray-300 p-2">
