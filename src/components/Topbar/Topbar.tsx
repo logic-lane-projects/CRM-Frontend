@@ -75,7 +75,7 @@ export function TopBar1({ toggleSidebar }: TopBarProps) {
     />
   );
   const cityMarkup = userInfo?.city ? (
-    <div style={{ display: 'flex', alignItems: 'center', padding: '18px' }}>
+    <div className="flex items-center justify-center w-full h-full mr-10">
         <Text variant="bodyLg" as="p" tone="text-inverse"  fontWeight="bold">
           Ciudad: {userInfo.city}
         </Text>
