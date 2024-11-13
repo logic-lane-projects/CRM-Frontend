@@ -1,6 +1,6 @@
 import { useParams, useSearchParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { Button, Card, Icon } from "@shopify/polaris";
+import { Card, Icon } from "@shopify/polaris";
 import {
   NotificationIcon,
   // EmailIcon,
@@ -8,7 +8,7 @@ import {
   // ListBulletedFilledIcon,
   NoteIcon,
   FileIcon,
-  ClockIcon
+  ClockIcon,
 } from "@shopify/polaris-icons";
 import { Client, getClientById } from "../../services/clientes";
 import Actividad from "../Leads/Actividad";
@@ -83,7 +83,6 @@ export default function LeadInfo() {
             {`${clientData?.names} ${clientData?.maternal_surname} ${clientData?.paternal_surname}`}
           </span>
         </div>
-        <Button variant="primary">Hacer trato</Button>
       </div>
 
       <div className="grid grid-cols-3">
@@ -205,7 +204,9 @@ export default function LeadInfo() {
             {selectedTabFromUrl === "Tareas" && <Tareas />}
             {selectedTabFromUrl === "Notas" && <Notas />}
             {selectedTabFromUrl === "Whatsapp" && <Whatsapp />}
-            {selectedTabFromUrl === "Archivos" && <Archivos id={id} regimen={clientData.type_person}/>}
+            {selectedTabFromUrl === "Archivos" && (
+              <Archivos id={id} regimen={clientData.type_person} />
+            )}
             {selectedTabFromUrl === "Historial" && <Historial />}
           </div>
         </div>
@@ -222,7 +223,7 @@ export default function LeadInfo() {
                 status: clientData?.status ?? null,
                 created_at: clientData?.created_at ?? "",
                 updated_at: clientData?.updated_at ?? "",
-                is_client: clientData?.is_client ?? undefined, 
+                is_client: clientData?.is_client ?? undefined,
               }}
             />
           </div>
