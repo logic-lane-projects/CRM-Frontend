@@ -2,9 +2,10 @@ const APP_URL = import.meta.env.VITE_API_URL as string;
 
 export interface OfficeData {
   _id: string;
-  oficina: string;
+  nombre: string;
   ciudad: string;
   estado: string;
+  numero_telefonico: string;
   status: boolean;
   created_at: string;
   updated_at: string;
@@ -28,27 +29,27 @@ export const getAllOffices = async (): Promise<ApiResponse<OfficeData[]>> => {
 
 // Crear una oficina
 export const createOffice = async (
-    userId: string, 
-    officeData: Omit<OfficeData, "_id" | "created_at" | "updated_at" | "status">
-  ): Promise<ApiResponse<OfficeData>> => {
-    try {
-      const response = await fetch(`${APP_URL}oficinas/create/${userId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          oficina: officeData.oficina,
-          ciudad: officeData.ciudad,
-          estado: officeData.estado,
-        }),
-      });
-      return response.json();
-    } catch (error) {
-      return { result: false, error: error as string, data: null };
-    }
-  };
-  
+  userId: string, 
+  officeData: Omit<OfficeData, "_id" | "created_at" | "updated_at" | "status">
+): Promise<ApiResponse<OfficeData>> => {
+  try {
+    const response = await fetch(`${APP_URL}/oficinas/create/${userId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        nombre: officeData.nombre,
+        ciudad: officeData.ciudad,
+        estado: officeData.estado,
+        numero_telefonico: officeData.numero_telefonico,
+      }),
+    });
+    return response.json();
+  } catch (error) {
+    return { result: false, error: error as string, data: null };
+  }
+};
 
 // Buscar una oficina por ID
 export const getOfficeById = async (officeId: string): Promise<ApiResponse<OfficeData>> => {
@@ -73,9 +74,10 @@ export const updateOffice = async (
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        oficina: officeData.oficina,
+        nombre: officeData.nombre,
         ciudad: officeData.ciudad,
         estado: officeData.estado,
+        numero_telefonico: officeData.numero_telefonico,
         status: officeData.status,
       }),
     });

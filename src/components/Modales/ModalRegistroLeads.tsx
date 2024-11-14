@@ -95,12 +95,30 @@ export default function ModalRegistroLeads({
     setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
+  const calculateAge = (birthDate: string) => {
+    const today = new Date();
+    const birth = new Date(birthDate);
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
   useEffect(() => {
     const allFieldsFilled = Object.values(formValues).every(
       (value) => value !== "" && value !== null
     );
     setIsSubmitDisabled(!allFieldsFilled);
   }, [formValues]);
+
+  useEffect(() => {
+    if (formValues.birthday_date) {
+      const age = calculateAge(formValues.birthday_date);
+      setFormValues((prev) => ({ ...prev, age }));
+    }
+  }, [formValues.birthday_date]);
 
   const handleSubmit = async () => {
     if (!userInfo) {
@@ -135,7 +153,7 @@ export default function ModalRegistroLeads({
         await createLead(leadData, userInfo.id);
         Toast.fire({ icon: "success", title: "Lead registrado con éxito" });
         setTimeout(() => {
-          window.location.reload();
+          // window.location.reload();
         }, 500);
       }
 
@@ -238,6 +256,7 @@ export default function ModalRegistroLeads({
                 onChange={(value) => handleFieldChange("age", Number(value))}
                 autoComplete="off"
                 error={errors.age}
+                disabled
               />
               <Select
                 label="Género"

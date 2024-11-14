@@ -43,30 +43,30 @@ export default function Oficinas() {
     fetchOffices();
   }, []);
 
-  // Filtrado de oficinas según el valor de búsqueda
-  const filteredOficinas = oficinas.filter(
-    (oficina) =>
-      oficina.oficina.toLowerCase().includes(searchValue.toLowerCase()) ||
-      oficina.ciudad.toLowerCase().includes(searchValue.toLowerCase()) ||
-      oficina.estado.toLowerCase().includes(searchValue.toLowerCase())
-  );
+  const filteredOficinas = oficinas.filter((oficina) => {
+    const nombreOficina = oficina.nombre?.toLowerCase() || "";
+    const ciudadOficina = oficina.ciudad?.toLowerCase() || "";
+    const estadoOficina = oficina.estado?.toLowerCase() || "";
 
-  // Convertir itemsPerPage a número o utilizar el total si es "todos"
+    return (
+      nombreOficina.includes(searchValue.toLowerCase()) ||
+      ciudadOficina.includes(searchValue.toLowerCase()) ||
+      estadoOficina.includes(searchValue.toLowerCase())
+    );
+  });
+
   const numItemsPerPage =
     itemsPerPage === "todos"
       ? filteredOficinas.length
       : parseInt(itemsPerPage, 10);
 
-  // Calcular oficinas a mostrar en la página actual
   const paginatedOficinas = filteredOficinas.slice(
     (currentPage - 1) * numItemsPerPage,
     currentPage * numItemsPerPage
   );
 
-  // Calcular el total de páginas
   const totalPages = Math.ceil(filteredOficinas.length / numItemsPerPage);
 
-  // Función para cambiar la página
   const handlePagination = (direction: "previous" | "next") => {
     setCurrentPage((prevPage) => {
       if (direction === "next" && prevPage < totalPages) {
@@ -86,12 +86,12 @@ export default function Oficinas() {
   const { selectedResources, allResourcesSelected, handleSelectionChange } =
     useIndexResourceState(resourceOficinas);
 
-  // Bulk actions para el IndexTable
   const promotedBulkActions = [
     {
       content: "Ver Oficina",
       onAction: () => {
         setIsOpen(true);
+        setRegistrar(false);
       },
     },
     {
@@ -103,14 +103,14 @@ export default function Oficinas() {
   ];
 
   const rowMarkup = paginatedOficinas.map(
-    ({ _id, oficina, ciudad, estado, status }, index) => (
+    ({ _id, nombre, ciudad, estado, status }, index) => (
       <IndexTable.Row
         id={_id}
         key={_id}
         position={index}
         selected={selectedResources.includes(_id)}
       >
-        <IndexTable.Cell>{oficina}</IndexTable.Cell>
+        <IndexTable.Cell>{nombre}</IndexTable.Cell>
         <IndexTable.Cell>{ciudad}</IndexTable.Cell>
         <IndexTable.Cell>{estado}</IndexTable.Cell>
         <IndexTable.Cell>{status ? "Activo" : "Inactivo"}</IndexTable.Cell>
@@ -168,7 +168,7 @@ export default function Oficinas() {
               { title: "Estado" },
               { title: "Estatus" },
             ]}
-            promotedBulkActions={promotedBulkActions} // Agrega las acciones masivas aquí
+            promotedBulkActions={promotedBulkActions}
             emptyState="No se encontraron resultados"
           >
             {rowMarkup}

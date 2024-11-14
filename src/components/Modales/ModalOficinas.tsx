@@ -18,7 +18,8 @@ interface ModalRegistroOficinasProps {
 const initialFormValues = {
   ciudad: "",
   estado: "",
-  oficina: "",
+  nombre: "",
+  numero_telefonico: "",
 };
 
 export default function ModalRegistroOficinas({
@@ -39,8 +40,8 @@ export default function ModalRegistroOficinas({
         try {
           const response = await getOfficeById(idOficina);
           if (response.result && response.data) {
-            const { ciudad, estado, oficina } = response.data;
-            setFormValues({ ciudad, estado, oficina });
+            const { ciudad, estado, nombre, numero_telefonico } = response.data;
+            setFormValues({ ciudad, estado, nombre, numero_telefonico });
           } else {
             Toast.fire({
               icon: "error",
@@ -103,9 +104,10 @@ export default function ModalRegistroOficinas({
     try {
       if (registrar) {
         const response = await createOffice(userInfo.id, {
-          oficina: formValues.oficina,
+          nombre: formValues.nombre,
           ciudad: formValues.ciudad,
           estado: formValues.estado,
+          numero_telefonico: formValues.numero_telefonico,
         });
         if (response.result) {
           Toast.fire({ icon: "success", title: "Oficina registrada" });
@@ -113,11 +115,7 @@ export default function ModalRegistroOficinas({
           throw new Error("No se pudo registrar la oficina");
         }
       } else {
-        const response = await updateOffice(
-          idOficina!,
-          userInfo.id,
-          formValues
-        );
+        const response = await updateOffice(idOficina!, userInfo.id, formValues);
         if (response.result) {
           Toast.fire({ icon: "success", title: "Oficina actualizada" });
         } else {
@@ -182,11 +180,18 @@ export default function ModalRegistroOficinas({
                 error={errors.estado}
               />
               <TextField
-                label="Oficina"
-                value={formValues.oficina}
-                onChange={(value) => handleFieldChange("oficina", value)}
+                label="Nombre"
+                value={formValues.nombre}
+                onChange={(value) => handleFieldChange("nombre", value)}
                 autoComplete="off"
-                error={errors.oficina}
+                error={errors.nombre}
+              />
+              <TextField
+                label="Número Telefónico"
+                value={formValues.numero_telefonico}
+                onChange={(value) => handleFieldChange("numero_telefonico", value)}
+                autoComplete="off"
+                error={errors.numero_telefonico}
               />
             </TextContainer>
           </Modal.Section>
