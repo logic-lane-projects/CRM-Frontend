@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import ModalRegistroVendedores from "../../components/Modales/ModalRegistroVendedores";
+import ModalRegistroUsuarios from "../../components/Modales/ModalRegistroUsuarios";
 import {
   IndexTable,
   TextField,
@@ -15,27 +15,25 @@ import { useNavigate } from "react-router-dom";
 import ModalAsignacionCoordinador from "../../components/Modales/ModalAsignacionCoordinador";
 import { useAuthToken } from "../../hooks/useAuthToken";
 
-export default function Vendedores() {
+export default function Usuarios() {
   const { userInfo } = useAuthToken();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState("10");
-  const [vendedores, setVendedores] = useState<User[]>([]);
+  const [usuarios, setUsuarios] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedResource, setSelectedResource] = useState<string>("");
   const [isOpenCoordinador, setIsOpenCoordinador] = useState(false);
-  const [selectedCoordinator, setSelectedCoordinator] = useState<string | null>(
-    null
-  );
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
+        // Traemos todos los usuarios
         const usersData: User[] = await getUsers();
-        setVendedores(usersData);
+        setUsuarios(usersData);
       } catch (error) {
         setError("Error al cargar los usuarios");
         const errorMessage = typeof error === "string" ? error : String(error);
@@ -51,39 +49,30 @@ export default function Vendedores() {
     fetchUsers();
   }, []);
 
-  const handleOpenCoordinatorModal = (
-    coordinator: string | null,
-    vendedorId: string
-  ) => {
-    setSelectedCoordinator(coordinator);
-    setSelectedResource(vendedorId);
-    setIsOpenCoordinador(true);
-  };
-
-  const filteredVendedores = vendedores.filter(
-    (vendedor: User) =>
-      vendedor.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-      vendedor.email.toLowerCase().includes(searchValue.toLowerCase()) ||
-      vendedor.city.toLowerCase().includes(searchValue.toLowerCase())
+  const filteredUsuarios = usuarios.filter(
+    (usuario: User) =>
+      usuario.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+      usuario.email.toLowerCase().includes(searchValue.toLowerCase()) ||
+      usuario.city.toLowerCase().includes(searchValue.toLowerCase())
   );
 
   const numItemsPerPage =
     itemsPerPage === "todos"
-      ? filteredVendedores.length
+      ? filteredUsuarios.length
       : parseInt(itemsPerPage, 10);
 
-  const paginatedVendedores = filteredVendedores.slice(
+  const paginatedUsuarios = filteredUsuarios.slice(
     (currentPage - 1) * numItemsPerPage,
     currentPage * numItemsPerPage
   );
 
-  const totalPages = Math.ceil(filteredVendedores.length / numItemsPerPage);
+  const totalPages = Math.ceil(filteredUsuarios.length / numItemsPerPage);
 
   const promotedBulkActions = [
     {
-      content: "Ver Vendedor",
+      content: "Ver Usuario",
       onAction: () => {
-        navigate(`/vendedor/${selectedResource}`);
+        navigate(`/usuario/${selectedResource}`);
       },
     },
   ];
@@ -99,9 +88,9 @@ export default function Vendedores() {
     });
   };
 
-  const rowMarkup = paginatedVendedores.map(
+  const rowMarkup = paginatedUsuarios.map(
     (
-      { id, name, email, city, coordinador_asignado, role }: User,
+      { id, name, email, city, role }: User,
       index: number
     ) => (
       <IndexTable.Row
@@ -121,41 +110,12 @@ export default function Vendedores() {
         <IndexTable.Cell>
           <Badge>{role ?? "Sin rol"}</Badge>
         </IndexTable.Cell>
-        <IndexTable.Cell>
-          {coordinador_asignado ? (
-            <Button
-              onClick={() =>
-                handleOpenCoordinatorModal(
-                  coordinador_asignado,
-                  id ?? "unknown-id"
-                )
-              }
-            >
-              Ver
-            </Button>
-          ) : (
-            <div
-              className={`${
-                role.toLocaleLowerCase().includes("admin") ? "hidden" : ""
-              }`}
-            >
-              <Button
-                variant="primary"
-                onClick={() =>
-                  handleOpenCoordinatorModal(null, id ?? "unknown-id")
-                }
-              >
-                Asignar
-              </Button>
-            </div>
-          )}
-        </IndexTable.Cell>
       </IndexTable.Row>
     )
   );
 
   if (loading) {
-    return <p>Cargando vendedores...</p>;
+    return <p>Cargando usuarios...</p>;
   }
 
   if (error) {
@@ -165,7 +125,7 @@ export default function Vendedores() {
   return (
     <div className="w-full flex flex-col gap-4">
       <div className="flex w-full justify-between items-center">
-        <span className="font-semibold text-[20px]">Vendedores</span>
+        <span className="font-semibold text-[20px]">Usuarios</span>
         <Button onClick={() => setIsOpen(true)} variant="primary">
           Registro
         </Button>
@@ -186,8 +146,8 @@ export default function Vendedores() {
           />
 
           <IndexTable
-            resourceName={{ singular: "vendedor", plural: "vendedores" }}
-            itemCount={filteredVendedores.length}
+            resourceName={{ singular: "usuasrio", plural: "usuarios" }}
+            itemCount={filteredUsuarios.length}
             selectedItemsCount={selectedResource ? 1 : 0}
             onSelectionChange={() => {}}
             headings={[
@@ -195,7 +155,6 @@ export default function Vendedores() {
               { title: "Correo Electrónico" },
               { title: "Ciudad" },
               { title: "Rol" },
-              { title: "Coordiador" },
             ]}
             promotedBulkActions={promotedBulkActions}
             emptyState="No se encontraron resultados"
@@ -227,14 +186,14 @@ export default function Vendedores() {
         </div>
       </Card>
       {isOpen && (
-        <ModalRegistroVendedores isOpen={isOpen} setIsOpen={setIsOpen} />
+        <ModalRegistroUsuarios isOpen={isOpen} setIsOpen={setIsOpen} />
       )}
 
       {isOpenCoordinador && (
         <ModalAsignacionCoordinador
           isOpen={isOpenCoordinador}
           setIsOpen={setIsOpenCoordinador}
-          assignedTo={selectedCoordinator}
+          assignedTo={""}
           userId={userInfo?.id}
           vendedorId={selectedResource}
         />

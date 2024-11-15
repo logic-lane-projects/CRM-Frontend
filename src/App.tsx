@@ -11,10 +11,8 @@ import Login from "./pages/Login/Login";
 import NotFound from "./pages/NotFound/NotFound";
 import Sidebar from "./components/Sidebar/Sidebar";
 import { TopBar1 } from "./components/Topbar/Topbar";
-import Vendedores from "./pages/Vendedores/Vendedores";
 import Leads from "./pages/Leads/All";
 import LeadInfo from "./pages/Leads/Leads[id]";
-import InfoVendedores from "./pages/Vendedores/Vendedores[id]";
 import ClientInfo from "./pages/Clientes/Clients[id]";
 import ProspectInfo from "./pages/Prospect/Prospect[id]";
 import CompradorInfo from "./pages/Buyer/Buyer[id]";
@@ -24,6 +22,8 @@ import InfoCoordinador from "./pages/Coordinadores/Coordinadores[id]";
 import Footer from "./components/Footer/Footer";
 import SinAsignacion from "./pages/SinAsignacion/SinAsignacion";
 import SellerLeads from "./pages/Leads/SellerLeads";
+import Usuarios from "./pages/Usuarios/Usuarios";
+import InfoUsuarios from "./pages/Usuarios/Usuarios[id]";
 
 const App: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
@@ -61,10 +61,10 @@ const App: React.FC = () => {
     </>
   );
 
-  const PrivateRoute: React.FC<{ children: React.ReactNode; roles?: string[] }> = ({
-    children,
-    roles,
-  }) => {
+  const PrivateRoute: React.FC<{
+    children: React.ReactNode;
+    roles?: string[];
+  }> = ({ children, roles }) => {
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -76,7 +76,6 @@ const App: React.FC = () => {
         navigate("/");
       }
     }, [navigate, roles]);
-
 
     return <>{children}</>;
   };
@@ -96,21 +95,21 @@ const App: React.FC = () => {
           }
         />
         <Route
-          path="/vendedores"
+          path="/usuarios"
           element={
             <PrivateRoute roles={["administrador"]}>
               <AppLayout>
-                <Vendedores />
+                <Usuarios />
               </AppLayout>
             </PrivateRoute>
           }
         />
         <Route
-          path="/vendedor/:id"
+          path="/usuario/:id"
           element={
             <PrivateRoute roles={["administrador"]}>
               <AppLayout>
-                <InfoVendedores />
+                <InfoUsuarios />
               </AppLayout>
             </PrivateRoute>
           }
@@ -120,7 +119,12 @@ const App: React.FC = () => {
           element={
             <PrivateRoute>
               <AppLayout>
-                {userInfo && userInfo.role === "vendedor" ? <SellerLeads /> : <Leads />}              </AppLayout>
+                {userInfo && userInfo.role === "vendedor" ? (
+                  <SellerLeads />
+                ) : (
+                  <Leads />
+                )}{" "}
+              </AppLayout>
             </PrivateRoute>
           }
         />

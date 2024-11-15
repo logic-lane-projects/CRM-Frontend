@@ -1,99 +1,119 @@
-import { Frame, Modal, TextContainer, TextField } from "@shopify/polaris";
-import { useState, useEffect } from "react";
-import { Toast } from "../Toast/toast";
 import {
-  getOfficeById,
-  updateOffice,
-  createOffice,
-} from "../../services/oficinas";
+  Frame,
+  Modal,
+  TextContainer,
+  TextField,
+  Select,
+  ResourceList,
+  ResourceItem,
+} from "@shopify/polaris";
+import { useState, useEffect } from "react";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../../firebase";
+import { Toast } from "../Toast/toast";
+import { UserRole } from "../../types/enums";
+import { createUser } from "../../services/user";
+import { getOfficesByCity, OfficeData } from "../../services/oficinas";
 import { useAuthToken } from "../../hooks/useAuthToken";
 
-interface ModalRegistroOficinasProps {
+interface ModalRegistroUsuariosProps {
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
-  idOficina: string | null;
-  registrar: boolean;
 }
 
-const initialFormValues = {
-  ciudad: "",
-  estado: "",
+interface FormValues {
+  nombre: string;
+  apellidop: string;
+  apellidom: string;
+  correo: string;
+  contrasena: string;
+  confirmContrasena: string;
+  telefono: string;
+  ciudad: string;
+  rol: UserRole;
+  oficinas_permitidas: string[];
+}
+
+const initialFormValues: FormValues = {
   nombre: "",
-  numero_telefonico: "",
+  apellidop: "",
+  apellidom: "",
+  correo: "",
+  contrasena: "",
+  confirmContrasena: "",
+  telefono: "",
+  ciudad: "",
+  oficinas_permitidas: [],
+  rol: UserRole.Vendedor,
 };
 
-export default function ModalRegistroOficinas({
+export default function ModalRegistroUsuarios({
   isOpen,
   setIsOpen,
-  idOficina,
-  registrar,
-}: ModalRegistroOficinasProps) {
+}: ModalRegistroUsuariosProps) {
   const { userInfo } = useAuthToken();
-  const [formValues, setFormValues] = useState(initialFormValues);
+  const [formValues, setFormValues] = useState<FormValues>(initialFormValues);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [passwordsMatch, setPasswordsMatch] = useState(true);
+  const [offices, setOffices] = useState<OfficeData[]>([]);
+  const [selectedOffices, setSelectedOffices] = useState<string[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
+  const roleOptions = [
+    { label: "Vendedor", value: UserRole.Vendedor },
+    { label: "Administrador", value: UserRole.Administrador },
+    { label: "Asignador", value: UserRole.Asignador },
+    { label: "Coordinador", value: UserRole.Coordinador },
+    { label: "Marketing", value: UserRole.Marketing },
+  ];
+console.log(userInfo)
   useEffect(() => {
-    if (!registrar && idOficina) {
-      const fetchOfficeData = async () => {
-        try {
-          const response = await getOfficeById(idOficina);
-          if (response.result && response.data) {
-            const { ciudad, estado, nombre, numero_telefonico } = response.data;
-            setFormValues({ ciudad, estado, nombre, numero_telefonico });
-          } else {
-            Toast.fire({
-              icon: "error",
-              title: "No se pudo cargar la información de la oficina",
-            });
-          }
-        } catch (error) {
-          console.error("Error al cargar la oficina:", error);
-          Toast.fire({
-            icon: "error",
-            title: "Error al cargar la oficina",
-          });
+    if (isOpen && typeof userInfo?.city === "string") {
+      const fetchOffices = async () => {
+        const response = await getOfficesByCity(userInfo?.city ?? ""); // Usar un valor predeterminado
+        if (response.result) {
+          setOffices(response.data || []);
+        } else {
+          Toast.fire({ icon: "error", title: response.error });
         }
       };
-      fetchOfficeData();
-    } else {
-      setFormValues(initialFormValues);
+
+      fetchOffices();
     }
-  }, [idOficina, registrar]);
+  }, [isOpen, userInfo?.city]);
 
-  useEffect(() => {
-    const allFieldsFilled = Object.values(formValues).every(
-      (value) => value.trim() !== ""
-    );
-    setIsSubmitDisabled(!allFieldsFilled);
-  }, [formValues]);
-
-  const handleFieldChange = (
-    field: keyof typeof initialFormValues,
-    value: string
-  ) => {
+  const handleFieldChange = (field: keyof FormValues, value: string) => {
     setFormValues((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, [field]: "" }));
+    if (field === "contrasena" || field === "confirmContrasena") {
+      setPasswordsMatch(
+        formValues.contrasena === value ||
+          formValues.confirmContrasena === value
+      );
+    }
+  };
+
+  const handleOfficeSelect = (officeId: string) => {
+    setSelectedOffices((prev) =>
+      prev.includes(officeId)
+        ? prev.filter((id) => id !== officeId)
+        : [...prev, officeId]
+    );
   };
 
   const handleSubmit = async () => {
-    if (!userInfo) {
-      Toast.fire({
-        icon: "error",
-        title: "Usuario no autenticado",
-      });
-      return;
-    }
     setIsLoading(true);
     const newErrors: { [key: string]: string } = {};
 
     Object.keys(formValues).forEach((key) => {
-      if (!formValues[key as keyof typeof initialFormValues]) {
+      if (!formValues[key as keyof FormValues]) {
         newErrors[key] = "Campo obligatorio";
       }
     });
-
+    if (formValues.contrasena !== formValues.confirmContrasena) {
+      newErrors.confirmContrasena = "Las contraseñas no coinciden";
+    }
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       setIsLoading(false);
@@ -102,38 +122,44 @@ export default function ModalRegistroOficinas({
     setErrors({});
 
     try {
-      if (registrar) {
-        const response = await createOffice(userInfo.id, {
-          nombre: formValues.nombre,
-          ciudad: formValues.ciudad,
-          estado: formValues.estado,
-          numero_telefonico: formValues.numero_telefonico,
-        });
-        if (response.result) {
-          Toast.fire({ icon: "success", title: "Oficina registrada" });
-        } else {
-          throw new Error("No se pudo registrar la oficina");
-        }
-      } else {
-        const response = await updateOffice(idOficina!, userInfo.id, formValues);
-        if (response.result) {
-          Toast.fire({ icon: "success", title: "Oficina actualizada" });
-        } else {
-          throw new Error("No se pudo actualizar la oficina");
-        }
+      const response = await createUser({
+        name: formValues.nombre,
+        paternal_surname: formValues.apellidop,
+        maternal_surname: formValues.apellidom,
+        email: formValues.correo,
+        cellphone: formValues.telefono,
+        city: formValues.ciudad,
+        role: formValues.rol,
+        oficinas_permitidas: selectedOffices,
+        permisos: [],
+        state: "",
+      });
+
+      if (!response.success) {
+        throw new Error(
+          response.message || "Error desconocido al crear el usuario"
+        );
       }
-      setIsOpen(false);
-      setTimeout(() => {
-        window.location.reload();
-      }, 500);
-    } catch (error) {
-      console.error(
-        `Error al ${registrar ? "registrar" : "actualizar"} la oficina:`,
-        error
+
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        formValues.correo,
+        formValues.contrasena
       );
+      const user = userCredential.user;
+      Toast.fire({
+        icon: "success",
+        title: `Usuario ${user.email} registrado`,
+        timer: 5000,
+      });
+      setIsOpen(false);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       Toast.fire({
         icon: "error",
-        title: `Error al ${registrar ? "registrar" : "actualizar"} la oficina`,
+        title: errorMessage,
+        timer: 5000,
       });
     } finally {
       setIsLoading(false);
@@ -146,39 +172,18 @@ export default function ModalRegistroOficinas({
         <Modal
           open={isOpen}
           onClose={() => setIsOpen(false)}
-          title={registrar ? "Registrar Oficina" : "Editar Oficina"}
+          title="Registro de usuarios"
           primaryAction={{
-            content: isLoading
-              ? "Cargando..."
-              : registrar
-              ? "Registrar"
-              : "Guardar",
+            content: isLoading ? "Cargando..." : "Registrar",
             onAction: handleSubmit,
-            disabled: isSubmitDisabled || isLoading,
+            disabled: isLoading,
           }}
           secondaryActions={[
-            {
-              content: "Cancelar",
-              onAction: () => setIsOpen(false),
-            },
+            { content: "Cancelar", onAction: () => setIsOpen(false) },
           ]}
         >
           <Modal.Section>
             <TextContainer>
-              <TextField
-                label="Ciudad"
-                value={formValues.ciudad}
-                onChange={(value) => handleFieldChange("ciudad", value)}
-                autoComplete="off"
-                error={errors.ciudad}
-              />
-              <TextField
-                label="Estado"
-                value={formValues.estado}
-                onChange={(value) => handleFieldChange("estado", value)}
-                autoComplete="off"
-                error={errors.estado}
-              />
               <TextField
                 label="Nombre"
                 value={formValues.nombre}
@@ -187,11 +192,99 @@ export default function ModalRegistroOficinas({
                 error={errors.nombre}
               />
               <TextField
-                label="Número Telefónico"
-                value={formValues.numero_telefonico}
-                onChange={(value) => handleFieldChange("numero_telefonico", value)}
+                label="Apellido Paterno"
+                value={formValues.apellidop}
+                onChange={(value) => handleFieldChange("apellidop", value)}
                 autoComplete="off"
-                error={errors.numero_telefonico}
+                error={errors.apellidop}
+              />
+              <TextField
+                label="Apellido Materno"
+                value={formValues.apellidom}
+                onChange={(value) => handleFieldChange("apellidom", value)}
+                autoComplete="off"
+                error={errors.apellidom}
+              />
+              <TextField
+                label="Correo electrónico"
+                value={formValues.correo}
+                onChange={(value) => handleFieldChange("correo", value)}
+                autoComplete="off"
+                error={errors.correo}
+              />
+              <TextField
+                label="Contraseña"
+                type="password"
+                value={formValues.contrasena}
+                onChange={(value) => handleFieldChange("contrasena", value)}
+                autoComplete="off"
+                error={errors.contrasena}
+              />
+              <TextField
+                label="Confirmar Contraseña"
+                type="password"
+                value={formValues.confirmContrasena}
+                onChange={(value) =>
+                  handleFieldChange("confirmContrasena", value)
+                }
+                autoComplete="off"
+                error={
+                  !passwordsMatch
+                    ? "Las contraseñas no coinciden"
+                    : errors.confirmContrasena
+                }
+              />
+              <TextField
+                label="Teléfono"
+                value={formValues.telefono}
+                onChange={(value) => handleFieldChange("telefono", value)}
+                autoComplete="off"
+                error={errors.telefono}
+              />
+              <TextField
+                label="Ciudad"
+                value={formValues.ciudad}
+                onChange={(value) => handleFieldChange("ciudad", value)}
+                autoComplete="off"
+                error={errors.ciudad}
+              />
+              <Select
+                label="Rol"
+                options={roleOptions}
+                onChange={(value) =>
+                  handleFieldChange("rol", value as UserRole)
+                }
+                value={formValues.rol}
+                error={errors.rol}
+              />
+              <TextField
+                label="Buscar Oficina"
+                value={searchTerm}
+                onChange={(value) => setSearchTerm(value)}
+                autoComplete="off"
+                placeholder="Buscar por nombre de oficina"
+              />
+              <ResourceList
+                resourceName={{ singular: "oficina", plural: "oficinas" }}
+                items={offices.filter((office) =>
+                  office.name.toLowerCase().includes(searchTerm.toLowerCase())
+                )}
+                renderItem={(office) => (
+                  <ResourceItem
+                    id={office._id}
+                    onClick={() => handleOfficeSelect(office._id)}
+                  >
+                    <div
+                      style={{
+                        backgroundColor: selectedOffices.includes(office._id)
+                          ? "#f0f0f0"
+                          : "transparent",
+                      }}
+                    >
+                      {office.name}
+                    </div>
+                  </ResourceItem>
+                )}
               />
             </TextContainer>
           </Modal.Section>

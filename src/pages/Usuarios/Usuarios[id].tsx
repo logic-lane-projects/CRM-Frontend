@@ -10,7 +10,7 @@ import { Toast } from "../../components/Toast/toast";
 import { Button, Card, TextField, Modal, Select } from "@shopify/polaris";
 import { UserRole } from "../../types/enums";
 
-export default function InfoVendedores() {
+export default function InfoUsuarios() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);

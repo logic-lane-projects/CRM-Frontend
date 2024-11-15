@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import ModalRegistroVendedores from "../../components/Modales/ModalRegistroVendedores";
+import ModalRegistroVendedores from "../../components/Modales/ModalRegistroUsuarios";
 import {
   IndexTable,
   useIndexResourceState,

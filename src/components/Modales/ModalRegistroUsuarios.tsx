@@ -5,14 +5,15 @@ import {
   TextField,
   Select,
 } from "@shopify/polaris";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../../firebase";
 import { Toast } from "../Toast/toast";
 import { UserRole } from "../../types/enums";
-import { createUser } from '../../services/users';
+import { createUser } from "../../services/user";
+import { useNavigate } from "react-router-dom";
 
-interface ModalRegistroVendedoresProps {
+interface ModalRegistroUsuariosProps {
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
 }
@@ -26,7 +27,9 @@ interface FormValues {
   confirmContrasena: string;
   telefono: string;
   ciudad: string;
+  estado: string;
   rol: UserRole;
+  oficinas_permitidas: string[];
 }
 
 const initialFormValues: FormValues = {
@@ -38,16 +41,18 @@ const initialFormValues: FormValues = {
   confirmContrasena: "",
   telefono: "",
   ciudad: "",
+  estado: "",
+  oficinas_permitidas: [],
   rol: UserRole.Vendedor,
 };
 
-export default function ModalRegistroVendedores({
+export default function ModalRegistroUsuarios({
   isOpen,
   setIsOpen,
-}: ModalRegistroVendedoresProps) {
+}: ModalRegistroUsuariosProps) {
+  const navigate = useNavigate();
   const [formValues, setFormValues] = useState<FormValues>(initialFormValues);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [passwordsMatch, setPasswordsMatch] = useState(true);
 
@@ -55,32 +60,25 @@ export default function ModalRegistroVendedores({
     { label: "Vendedor", value: UserRole.Vendedor },
     { label: "Administrador", value: UserRole.Administrador },
     { label: "Asignador", value: UserRole.Asignador },
+    { label: "Coordinador", value: UserRole.Coordinador },
+    { label: "Marketing", value: UserRole.Marketing },
   ];
 
   const handleFieldChange = (field: keyof FormValues, value: string) => {
     setFormValues((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, [field]: "" }));
-
     if (field === "contrasena" || field === "confirmContrasena") {
       setPasswordsMatch(
         formValues.contrasena === value ||
-        formValues.confirmContrasena === value
+          formValues.confirmContrasena === value
       );
     }
   };
 
-  useEffect(() => {
-    const allFieldsFilled = Object.values(formValues).every(
-      (value) => value.trim() !== ""
-    );
-    const passwordsAreEqual =
-      formValues.contrasena === formValues.confirmContrasena;
-    setIsSubmitDisabled(!(allFieldsFilled && passwordsAreEqual));
-  }, [formValues]);
-
   const handleSubmit = async () => {
     setIsLoading(true);
     const newErrors: { [key: string]: string } = {};
+
     Object.keys(formValues).forEach((key) => {
       if (!formValues[key as keyof FormValues]) {
         newErrors[key] = "Campo obligatorio";
@@ -97,8 +95,7 @@ export default function ModalRegistroVendedores({
     setErrors({});
 
     try {
-      const newUser = await createUser({
-        id: "",
+      const response = await createUser({
         name: formValues.nombre,
         paternal_surname: formValues.apellidop,
         maternal_surname: formValues.apellidom,
@@ -106,10 +103,18 @@ export default function ModalRegistroVendedores({
         cellphone: formValues.telefono,
         city: formValues.ciudad,
         role: formValues.rol,
-        coordinador_asignado: null
+        oficinas_permitidas: [],
+        permisos: [],
+        state: formValues.estado,
       });
+      console.log(response)
+      if (!response.success) {
+        throw new Error(
+          response.message || "Error desconocido al crear el usuario"
+        );
+      }
 
-      console.log("Usuario creado en la base de datos:", newUser);
+      const userId = response.data._id;
 
       const userCredential = await createUserWithEmailAndPassword(
         auth,
@@ -117,29 +122,29 @@ export default function ModalRegistroVendedores({
         formValues.contrasena
       );
       const user = userCredential.user;
-      console.log("Usuario registrado con éxito en Firebase:", user);
-      Toast.fire({ icon: "success", title: "Usuario registrado" });
-      setTimeout(() => {
-        window.location.reload();
-      }, 500)
-      setIsOpen(false);
-    } catch (error) {
-      console.error("Error al registrar el usuario:", error);
-      setErrors((prev) => ({
-        ...prev,
-        correo: "Hubo un problema al registrar el usuario",
-      }));
 
-      const errorMessage = typeof error === "string" ? error : String(error);
+      Toast.fire({
+        icon: "success",
+        title: `Usuario ${user.email} registrado`,
+        timer: 5000,
+      });
+
+      setIsOpen(false);
+      setTimeout(() => {
+        navigate(`/usuarios/${userId}`);
+      }, 500);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       Toast.fire({
         icon: "error",
         title: errorMessage,
+        timer: 5000,
       });
     } finally {
       setIsLoading(false);
     }
   };
-
 
   return (
     <div>
@@ -147,17 +152,14 @@ export default function ModalRegistroVendedores({
         <Modal
           open={isOpen}
           onClose={() => setIsOpen(false)}
-          title="Registro de vendedores"
+          title="Registro de usuarios"
           primaryAction={{
             content: isLoading ? "Cargando..." : "Registrar",
             onAction: handleSubmit,
-            disabled: isSubmitDisabled || isLoading,
+            disabled: isLoading,
           }}
           secondaryActions={[
-            {
-              content: "Cancelar",
-              onAction: () => setIsOpen(false),
-            },
+            { content: "Cancelar", onAction: () => setIsOpen(false) },
           ]}
         >
           <Modal.Section>
@@ -225,6 +227,13 @@ export default function ModalRegistroVendedores({
                 onChange={(value) => handleFieldChange("ciudad", value)}
                 autoComplete="off"
                 error={errors.ciudad}
+              />
+              <TextField
+                label="Estado"
+                value={formValues.estado}
+                onChange={(value) => handleFieldChange("estado", value)}
+                autoComplete="off"
+                error={errors.estado}
               />
               <Select
                 label="Rol"
