@@ -131,7 +131,7 @@ export default function ModalRegistroUsuarios({
 
       setIsOpen(false);
       setTimeout(() => {
-        navigate(`/usuarios/${userId}`);
+        // navigate(`/usuarios/${userId}`);
       }, 500);
     } catch (error) {
       const errorMessage =
