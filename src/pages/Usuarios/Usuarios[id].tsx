@@ -4,6 +4,7 @@ import { getUserById, updateUser, deleteUser, User } from "../../services/user";
 import { Toast } from "../../components/Toast/toast";
 import { Button, Card, TextField, Modal, Select } from "@shopify/polaris";
 import { UserRole } from "../../types/enums";
+import { Ciudades } from "../../utils/estados";
 import PermisosUsuario from "./PermisosUsuario";
 
 export default function InfoUsuarios() {
@@ -14,14 +15,16 @@ export default function InfoUsuarios() {
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [estados, setEstados] = useState<string[]>([]);
+  const [ciudades, setCiudades] = useState<string[]>([]);
 
-  // Manejando el estado de cada campo
   const [name, setName] = useState<string>("");
   const [paternalSurname, setPaternalSurname] = useState<string>("");
   const [maternalSurname, setMaternalSurname] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [cellphone, setCellphone] = useState<string>("");
   const [city, setCity] = useState<string>("");
+  const [state, setState] = useState<string>("");
   const [role, setRole] = useState<string>(UserRole.Vendedor);
 
   useEffect(() => {
@@ -39,6 +42,7 @@ export default function InfoUsuarios() {
             setEmail(response.data.email);
             setCellphone(response.data.cellphone);
             setCity(response.data.city);
+            setState(response.data.state);
             setRole(response.data.role);
           } else {
             setError("No se pudo obtener la información del usuario.");
@@ -61,6 +65,16 @@ export default function InfoUsuarios() {
     fetchUser();
   }, [id]);
 
+  useEffect(() => {
+    setEstados(Ciudades.map((item) => item.Estado));
+  }, []);
+
+  useEffect(() => {
+    if (state) {
+      const selectedEstado = Ciudades.find((item) => item.Estado === state);
+      setCiudades(selectedEstado ? selectedEstado.Ciudad : []);
+    }
+  }, [state]);
 
   const handleSave = async () => {
     if (id && user) {
@@ -73,8 +87,9 @@ export default function InfoUsuarios() {
           email,
           cellphone,
           city,
+          state,
           role,
-          oficinas_permitidas: ["6736bc4559199109923d4476"], state: "",
+          oficinas_permitidas: ["6736bc4559199109923d4476"],
         });
 
         if (response.success && response.data) {
@@ -85,7 +100,7 @@ export default function InfoUsuarios() {
           });
           setTimeout(() => {
             window.location.reload();
-          }, 500)
+          }, 500);
         } else {
           Toast.fire({
             icon: "error",
@@ -102,7 +117,6 @@ export default function InfoUsuarios() {
       }
     }
   };
-
 
   const handleDelete = async () => {
     if (id) {
@@ -198,11 +212,26 @@ export default function InfoUsuarios() {
           </div>
           <div className="p-2 grid grid-cols-3">
             <p className="font-bold">Ciudad:</p>
-            <TextField
+            <Select
+              label=""
+              options={ciudades.map((ciudad) => ({
+                label: ciudad,
+                value: ciudad,
+              }))}
               value={city}
               onChange={(value) => setCity(value)}
+            />
+          </div>
+          <div className="p-2 grid grid-cols-3">
+            <p className="font-bold">Estado:</p>
+            <Select
               label=""
-              autoComplete="off"
+              options={estados.map((estado) => ({
+                label: estado,
+                value: estado,
+              }))}
+              value={state}
+              onChange={(value) => setState(value)}
             />
           </div>
           <div className="p-2 grid grid-cols-3">
@@ -230,7 +259,6 @@ export default function InfoUsuarios() {
           <PermisosUsuario
             user={{ ...user, _id: user._id ?? '' }}
           />
-
         </Card>
       ) : (
         <p>No se encontró el vendedor.</p>

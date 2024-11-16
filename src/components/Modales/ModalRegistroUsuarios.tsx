@@ -5,13 +5,14 @@ import {
   TextField,
   Select,
 } from "@shopify/polaris";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../../firebase";
 import { Toast } from "../Toast/toast";
 import { UserRole } from "../../types/enums";
 import { createUser } from "../../services/user";
 import { useNavigate } from "react-router-dom";
+import { Ciudades } from "../../utils/estados";
 
 interface ModalRegistroUsuariosProps {
   isOpen: boolean;
@@ -55,6 +56,8 @@ export default function ModalRegistroUsuarios({
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isLoading, setIsLoading] = useState(false);
   const [passwordsMatch, setPasswordsMatch] = useState(true);
+  const [estados, setEstados] = useState<string[]>([]);
+  const [ciudades, setCiudades] = useState<string[]>([]);
 
   const roleOptions = [
     { label: "Vendedor", value: UserRole.Vendedor },
@@ -63,6 +66,10 @@ export default function ModalRegistroUsuarios({
     { label: "Coordinador", value: UserRole.Coordinador },
     { label: "Marketing", value: UserRole.Marketing },
   ];
+
+  useEffect(() => {
+    setEstados(Ciudades.map((item) => item.Estado));
+  }, []);
 
   const handleFieldChange = (field: keyof FormValues, value: string) => {
     setFormValues((prev) => ({ ...prev, [field]: value }));
@@ -73,20 +80,36 @@ export default function ModalRegistroUsuarios({
         formValues.confirmContrasena === value
       );
     }
+    if (field === "estado") {
+      const selectedEstado = Ciudades.find(
+        (item) => item.Estado === value
+      );
+      setCiudades(selectedEstado ? selectedEstado.Ciudad : []);
+    }
   };
 
   const handleSubmit = async () => {
     setIsLoading(true);
     const newErrors: { [key: string]: string } = {};
 
+    // Verificación de campos vacíos
     Object.keys(formValues).forEach((key) => {
       if (!formValues[key as keyof FormValues]) {
         newErrors[key] = "Campo obligatorio";
       }
     });
+
+    // Verificación de contraseñas coincidentes
     if (formValues.contrasena !== formValues.confirmContrasena) {
       newErrors.confirmContrasena = "Las contraseñas no coinciden";
     }
+
+    // Verificación de longitud mínima de la contraseña
+    if (formValues.contrasena && formValues.contrasena.length < 6) {
+      newErrors.contrasena = "La contraseña debe tener al menos 6 caracteres";
+    }
+
+    // Si hay errores, no continuar
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       setIsLoading(false);
@@ -224,19 +247,25 @@ export default function ModalRegistroUsuarios({
                 autoComplete="off"
                 error={errors.telefono}
               />
-              <TextField
-                label="Ciudad"
-                value={formValues.ciudad}
-                onChange={(value) => handleFieldChange("ciudad", value)}
-                autoComplete="off"
-                error={errors.ciudad}
-              />
-              <TextField
+              <Select
                 label="Estado"
-                value={formValues.estado}
+                options={estados.map((estado) => ({
+                  label: estado,
+                  value: estado,
+                }))}
                 onChange={(value) => handleFieldChange("estado", value)}
-                autoComplete="off"
+                value={formValues.estado}
                 error={errors.estado}
+              />
+              <Select
+                label="Ciudad"
+                options={ciudades.map((ciudad) => ({
+                  label: ciudad,
+                  value: ciudad,
+                }))}
+                onChange={(value) => handleFieldChange("ciudad", value)}
+                value={formValues.ciudad}
+                error={errors.ciudad}
               />
               <Select
                 label="Rol"
