@@ -2,7 +2,7 @@ const APP_URL = import.meta.env.VITE_API_URL as string;
 
 export interface OfficeData {
   _id: string;
-  name: string;
+  nombre: string;
   ciudad: string;
   estado: string;
   numero_telefonico: string;
@@ -45,7 +45,7 @@ export const createOffice = async (
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        nombre: officeData.name,
+        nombre: officeData.nombre,
         ciudad: officeData.ciudad,
         estado: officeData.estado,
         numero_telefonico: officeData.numero_telefonico,
@@ -84,7 +84,7 @@ export const updateOffice = async (
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        nombre: officeData.name,
+        nombre: officeData.nombre,
         ciudad: officeData.ciudad,
         estado: officeData.estado,
         numero_telefonico: officeData.numero_telefonico,

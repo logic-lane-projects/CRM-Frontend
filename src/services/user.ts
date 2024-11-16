@@ -9,8 +9,11 @@ export interface User {
   oficinas_permitidas: string[];
   city: string;
   state: string;
-  permisos: string[];
+  permisos?: string[];
   role: string;
+  data?: {
+    _id?: string;
+  };
 }
 
 export interface ApiResponse<T> {
@@ -118,5 +121,30 @@ export const getUserByEmail = async (email: string): Promise<ApiResponse<User>> 
     return { success: response.ok, data };
   } catch (error) {
     throw handleError(error);
+  }
+};
+
+// Funcion para actualizar los permisos
+export const updatePermissions = async (id_admin: any, id_vendedor: any, permisos: any) => {
+  try {
+    const response = await fetch(`${API_URL}/users/asignar/permisos/${id_admin}`, {
+      method: 'POST', // Asegúrate de usar el método POST
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        id_vendedor,
+        permisos, // Un array con los permisos que quieres asignar
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Error al asignar permisos');
+    }
+
+    return await response.json(); // Devuelve la respuesta del servidor en formato JSON
+  } catch (error) {
+    console.error(error);
+    return error; // O puedes retornar un mensaje de error específico
   }
 };

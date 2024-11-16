@@ -1,14 +1,10 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import {
-  getUserById,
-  updateUser,
-  deleteUser,
-  User,
-} from "../../services/users";
+import { getUserById, updateUser, deleteUser, User } from "../../services/user";
 import { Toast } from "../../components/Toast/toast";
 import { Button, Card, TextField, Modal, Select } from "@shopify/polaris";
 import { UserRole } from "../../types/enums";
+import PermisosUsuario from "./PermisosUsuario";
 
 export default function InfoUsuarios() {
   const { id } = useParams<{ id: string }>();
@@ -17,7 +13,7 @@ export default function InfoUsuarios() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isSaving, setIsSaving] = useState(false); 
+  const [isSaving, setIsSaving] = useState(false);
 
   // Manejando el estado de cada campo
   const [name, setName] = useState<string>("");
@@ -26,22 +22,27 @@ export default function InfoUsuarios() {
   const [email, setEmail] = useState<string>("");
   const [cellphone, setCellphone] = useState<string>("");
   const [city, setCity] = useState<string>("");
-  const [role, setRole] = useState<string>(UserRole.Vendedor); 
+  const [role, setRole] = useState<string>(UserRole.Vendedor);
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
         setLoading(true);
         if (id) {
-          const fetchedUser = await getUserById(id);
-          setUser(fetchedUser);
-          setName(fetchedUser.name);
-          setPaternalSurname(fetchedUser.paternal_surname);
-          setMaternalSurname(fetchedUser.maternal_surname);
-          setEmail(fetchedUser.email);
-          setCellphone(fetchedUser.cellphone);
-          setCity(fetchedUser.city);
-          setRole(fetchedUser.role); 
+          const response = await getUserById(id);
+
+          if (response.success && response.data) {
+            setUser(response.data);
+            setName(response.data.name);
+            setPaternalSurname(response.data.paternal_surname);
+            setMaternalSurname(response.data.maternal_surname);
+            setEmail(response.data.email);
+            setCellphone(response.data.cellphone);
+            setCity(response.data.city);
+            setRole(response.data.role);
+          } else {
+            setError("No se pudo obtener la información del usuario.");
+          }
         } else {
           setError("ID no proporcionado.");
         }
@@ -60,11 +61,12 @@ export default function InfoUsuarios() {
     fetchUser();
   }, [id]);
 
+
   const handleSave = async () => {
     if (id && user) {
       setIsSaving(true);
       try {
-        const updatedUser = await updateUser(id, {
+        const response = await updateUser(id, {
           name,
           paternal_surname: paternalSurname,
           maternal_surname: maternalSurname,
@@ -72,15 +74,24 @@ export default function InfoUsuarios() {
           cellphone,
           city,
           role,
-          coordinador_asignado: null
+          oficinas_permitidas: ["6736bc4559199109923d4476"], state: "",
         });
 
-        setUser(updatedUser);
-
-        Toast.fire({
-          icon: "success",
-          title: "Usuario actualizado con éxito",
-        });
+        if (response.success && response.data) {
+          setUser(response.data);
+          Toast.fire({
+            icon: "success",
+            title: "Usuario actualizado con éxito",
+          });
+          setTimeout(() => {
+            window.location.reload();
+          }, 500)
+        } else {
+          Toast.fire({
+            icon: "error",
+            title: response.message || "Error al actualizar el usuario",
+          });
+        }
       } catch (error) {
         Toast.fire({
           icon: "error",
@@ -91,6 +102,7 @@ export default function InfoUsuarios() {
       }
     }
   };
+
 
   const handleDelete = async () => {
     if (id) {
@@ -198,7 +210,7 @@ export default function InfoUsuarios() {
               label=""
               options={roleOptions}
               value={role}
-              onChange={(value) => setRole(value)} 
+              onChange={(value) => setRole(value)}
             />
           </div>
           <div className="p-3 flex justify-end">
@@ -214,6 +226,10 @@ export default function InfoUsuarios() {
               </Button>
             </div>
           </div>
+          <PermisosUsuario
+            user={{ ...user, _id: user._id ?? '' }}
+          />
+
         </Card>
       ) : (
         <p>No se encontró el vendedor.</p>

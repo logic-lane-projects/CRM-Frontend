@@ -70,7 +70,7 @@ export default function ModalRegistroUsuarios({
     if (field === "contrasena" || field === "confirmContrasena") {
       setPasswordsMatch(
         formValues.contrasena === value ||
-          formValues.confirmContrasena === value
+        formValues.confirmContrasena === value
       );
     }
   };
@@ -107,14 +107,17 @@ export default function ModalRegistroUsuarios({
         permisos: [],
         state: formValues.estado,
       });
-      console.log(response)
       if (!response.success) {
         throw new Error(
           response.message || "Error desconocido al crear el usuario"
         );
       }
 
-      const userId = response.data._id;
+      let userId: string | undefined;
+
+      if (response?.data && response.data.data) {
+        userId = response.data.data._id;
+      }
 
       const userCredential = await createUserWithEmailAndPassword(
         auth,
@@ -131,7 +134,7 @@ export default function ModalRegistroUsuarios({
 
       setIsOpen(false);
       setTimeout(() => {
-        // navigate(`/usuarios/${userId}`);
+        navigate(`/usuario/${userId}`);
       }, 500);
     } catch (error) {
       const errorMessage =
