@@ -39,7 +39,7 @@ export function TopBar1({ toggleSidebar }: TopBarProps) {
 
   const logo = {
     topBarSource:
-      "https://cdn.shopify.com/s/files/1/2376/3301/files/Shopify_Secondary_Inverted.png",
+      "/images/CRM_1.png",
     width: 86,
     url: "/",
     accessibilityLabel: "Shopify",
@@ -74,14 +74,27 @@ export function TopBar1({ toggleSidebar }: TopBarProps) {
       onToggle={toggleIsUserMenuOpen}
     />
   );
-  const cityMarkup = userInfo?.city ? (
-    <div className="flex items-center justify-center w-full h-full mr-10">
-        <Text variant="bodyLg" as="p" tone="text-inverse"  fontWeight="bold">
-          Ciudad: {userInfo.city}
+  const userInfoMarkup = (
+    <div className="flex items-center justify-center w-full h-full">
+      {userInfo?.city && (
+        <div className="mr-5">
+          <Text variant="bodyLg" as="p" tone="text-inverse" fontWeight="bold" >
+            Ciudad: {userInfo.city}
+          </Text>
+        </div>
+        
+      )}
+      <div className="mr-5">
+        {userInfo?.role && (
+        <Text variant="bodyLg" as="p" tone="text-inverse" fontWeight="bold">
+          Rol: {userInfo.role}
         </Text>
+      )}
+      </div>
+      
     </div>
-    
-  ) : null;
+  );
+
 
   const searchResultsMarkup = (
     <ActionList
@@ -93,7 +106,7 @@ export function TopBar1({ toggleSidebar }: TopBarProps) {
     <TopBar
       showNavigationToggle
       userMenu={userMenuMarkup}
-      secondaryMenu={cityMarkup}
+      secondaryMenu={userInfoMarkup}
       searchResults={searchResultsMarkup}
       onNavigationToggle={handleNavigationToggle}
     />
