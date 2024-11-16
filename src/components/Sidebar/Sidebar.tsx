@@ -24,12 +24,12 @@ export default function Sidebar({ isOpen }: SidebarProps) {
       icon: PersonIcon,
       selected: currentPath === "/usuarios",
     },
-    {
-      url: "/coordinadores",
-      label: "Coordinadores",
-      icon: WorkIcon,
-      selected: currentPath === "/coordinadores",
-    },
+    // {
+    //   url: "/coordinadores",
+    //   label: "Coordinadores",
+    //   icon: WorkIcon,
+    //   selected: currentPath === "/coordinadores",
+    // },
     {
       url: "/asignaciones",
       label: "Asignaciones",

@@ -19,6 +19,8 @@ import { useAuthToken } from "../../hooks/useAuthToken";
 interface ModalRegistroUsuariosProps {
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
+  idOficina:string;
+  registrar: boolean
 }
 
 interface FormValues {
@@ -267,7 +269,7 @@ console.log(userInfo)
               <ResourceList
                 resourceName={{ singular: "oficina", plural: "oficinas" }}
                 items={offices.filter((office) =>
-                  office.name.toLowerCase().includes(searchTerm.toLowerCase())
+                  office.nombre.toLowerCase().includes(searchTerm.toLowerCase())
                 )}
                 renderItem={(office) => (
                   <ResourceItem
@@ -281,7 +283,7 @@ console.log(userInfo)
                           : "transparent",
                       }}
                     >
-                      {office.name}
+                      {office.nombre}
                     </div>
                   </ResourceItem>
                 )}
