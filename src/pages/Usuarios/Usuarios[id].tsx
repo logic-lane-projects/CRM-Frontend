@@ -183,6 +183,7 @@ export default function InfoUsuarios() {
               label=""
               type="email"
               autoComplete="off"
+              disabled
             />
           </div>
           <div className="p-2 grid grid-cols-3">
