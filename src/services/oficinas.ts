@@ -117,7 +117,6 @@ export const deleteOffice = async (officeId: string, userId: string): Promise<Ap
 };
 
 export const getOfficesByCity = async (city: string): Promise<ApiResponse<OfficeData[]>> => {
-  console.log(city)
   try {
     const response = await fetch(`${APP_URL}/oficinas/find/all/city/${city}`);
     return response.json();

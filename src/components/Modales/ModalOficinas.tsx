@@ -1,4 +1,4 @@
-import { Frame, Modal, TextContainer, TextField } from "@shopify/polaris";
+import { Frame, Modal, TextContainer, TextField, Select } from "@shopify/polaris";
 import { useState, useEffect } from "react";
 import { Toast } from "../Toast/toast";
 import {
@@ -7,6 +7,7 @@ import {
   createOffice,
 } from "../../services/oficinas";
 import { useAuthToken } from "../../hooks/useAuthToken";
+import { Ciudades } from "../../utils/estados";
 
 interface ModalRegistroOficinasProps {
   isOpen: boolean;
@@ -34,6 +35,25 @@ export default function ModalRegistroOficinas({
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
 
+  const [states, setStates] = useState<{ Estado: string; Ciudad: string[] }[]>([]);
+  const [cities, setCities] = useState<string[]>([]);
+
+  // Cargar los estados y ciudades desde el JSON
+  useEffect(() => {
+    setStates(Ciudades); // Asumimos que Ciudades es el nombre del archivo JSON importado
+  }, []);
+
+  // Cuando cambia el estado, actualizar las ciudades disponibles
+  useEffect(() => {
+    const selectedState = states.find((state) => state.Estado === formValues.estado);
+    if (selectedState) {
+      setCities(selectedState.Ciudad);
+    } else {
+      setCities([]);
+    }
+  }, [formValues.estado, states]);
+
+  // Cargar datos de la oficina si es un caso de edición
   useEffect(() => {
     if (!registrar && idOficina) {
       const fetchOfficeData = async () => {
@@ -166,25 +186,37 @@ export default function ModalRegistroOficinas({
           <Modal.Section>
             <TextContainer>
               <TextField
-                label="Ciudad"
-                value={formValues.ciudad}
-                onChange={(value) => handleFieldChange("ciudad", value)}
-                autoComplete="off"
-                error={errors.ciudad}
-              />
-              <TextField
-                label="Estado"
-                value={formValues.estado}
-                onChange={(value) => handleFieldChange("estado", value)}
-                autoComplete="off"
-                error={errors.estado}
-              />
-              <TextField
                 label="Nombre"
                 value={formValues.nombre}
                 onChange={(value) => handleFieldChange("nombre", value)}
                 autoComplete="off"
                 error={errors.nombre}
+              />
+              <Select
+                label="Estado"
+                value={formValues.estado}
+                onChange={(value) => handleFieldChange("estado", value)}
+                options={[
+                  { label: "Selecciona una opción", value: "" }, // Opción predeterminada
+                  ...states.map((state) => ({
+                    label: state.Estado,
+                    value: state.Estado,
+                  })),
+                ]}
+                error={errors.estado}
+              />
+              <Select
+                label="Ciudad"
+                value={formValues.ciudad}
+                onChange={(value) => handleFieldChange("ciudad", value)}
+                options={[
+                  { label: "Selecciona una opción", value: "" }, // Opción predeterminada
+                  ...cities.map((city) => ({
+                    label: city,
+                    value: city,
+                  })),
+                ]}
+                error={errors.ciudad}
               />
               <TextField
                 label="Número Telefónico"

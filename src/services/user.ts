@@ -6,7 +6,7 @@ export interface User {
   maternal_surname: string;
   email: string;
   cellphone: string;
-  oficinas_permitidas: string[];
+  oficinas_permitidas?: string[];
   city: string;
   state: string;
   permisos?: string[];
@@ -148,3 +148,32 @@ export const updatePermissions = async (id_admin: any, id_vendedor: any, permiso
     return error; // O puedes retornar un mensaje de error específico
   }
 };
+
+export const updateOficinasPermitidas = async (idVendedor: string, selectedOffices: string[], idAdmin: string) => {
+  try {
+    const response = await fetch(`${API_URL}users/asignar/oficina/${idAdmin}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        id_vendedor: idVendedor,
+        oficinas: selectedOffices,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Error al actualizar las oficinas permitidas');
+    }
+
+    return response.json();
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error('Error al actualizar las oficinas permitidas:', error.message);
+      return { error: error.message };
+    }
+    console.error('Error desconocido:', error);
+    return { error: 'Error desconocido' };
+  }
+};
+

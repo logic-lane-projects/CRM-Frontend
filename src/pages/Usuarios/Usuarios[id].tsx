@@ -6,6 +6,7 @@ import { Button, Card, TextField, Modal, Select } from "@shopify/polaris";
 import { UserRole } from "../../types/enums";
 import { Ciudades } from "../../utils/estados";
 import PermisosUsuario from "./PermisosUsuario";
+import OficinasPermitidas from "./OficinasPermitidas";
 
 export default function InfoUsuarios() {
   const { id } = useParams<{ id: string }>();
@@ -89,7 +90,6 @@ export default function InfoUsuarios() {
           city,
           state,
           role,
-          oficinas_permitidas: ["6736bc4559199109923d4476"],
         });
 
         if (response.success && response.data) {
@@ -211,18 +211,6 @@ export default function InfoUsuarios() {
             />
           </div>
           <div className="p-2 grid grid-cols-3">
-            <p className="font-bold">Ciudad:</p>
-            <Select
-              label=""
-              options={ciudades.map((ciudad) => ({
-                label: ciudad,
-                value: ciudad,
-              }))}
-              value={city}
-              onChange={(value) => setCity(value)}
-            />
-          </div>
-          <div className="p-2 grid grid-cols-3">
             <p className="font-bold">Estado:</p>
             <Select
               label=""
@@ -232,6 +220,18 @@ export default function InfoUsuarios() {
               }))}
               value={state}
               onChange={(value) => setState(value)}
+            />
+          </div>
+          <div className="p-2 grid grid-cols-3">
+            <p className="font-bold">Ciudad:</p>
+            <Select
+              label=""
+              options={ciudades.map((ciudad) => ({
+                label: ciudad,
+                value: ciudad,
+              }))}
+              value={city}
+              onChange={(value) => setCity(value)}
             />
           </div>
           <div className="p-2 grid grid-cols-3">
@@ -259,6 +259,14 @@ export default function InfoUsuarios() {
           <PermisosUsuario
             user={{ ...user, _id: user._id ?? '' }}
           />
+          <OficinasPermitidas
+            user={{
+              ...user,
+              _id: user?._id ?? '',
+              oficinas_permitidas: user?.oficinas_permitidas ?? []
+            }}
+          />
+
         </Card>
       ) : (
         <p>No se encontró el vendedor.</p>
