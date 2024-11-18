@@ -68,16 +68,16 @@ const Archivos: React.FC = () => {
             });
             return;
         }
-    
+
         setLoadingUpload(true);
         try {
             // Obtenemos la extensión del archivo original
             const fileExtension = file.name.split('.').pop(); // Obtiene la extensión del archivo original
             const newFileName = `${fileName}.${fileExtension}`; // Asigna el nuevo nombre con la extensión original
-    
+
             // Renombramos el archivo con el nuevo nombre
             const renamedFile = new File([file], newFileName, { type: file.type });
-    
+
             if (userInfo?.id) {
                 await uploadMarketingFile(userInfo.id, renamedFile);
                 Toast.fire({
@@ -103,7 +103,7 @@ const Archivos: React.FC = () => {
             setLoadingUpload(false);
         }
     };
-    
+
 
     const handleSearchByName = async () => {
         setLoadingFiles(true);
@@ -148,6 +148,7 @@ const Archivos: React.FC = () => {
         <div>
             <Card>
                 <div className="mb-4">
+                    <span className="font-bold text-[20px]">Archvios Generales</span>
                     <TextField
                         label="Buscar archivo por nombre"
                         value={fileName}
