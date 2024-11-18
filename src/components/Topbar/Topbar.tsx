@@ -69,7 +69,7 @@ export function TopBar1({ toggleSidebar }: TopBarProps) {
       ]}
       name={cortarEmailAntesDeArroba(email || "")}
       detail={email || ""}
-      initials={email?.slice(0, 2)}
+      initials={email?.slice(0, 2).toUpperCase()}
       open={isUserMenuOpen}
       onToggle={toggleIsUserMenuOpen}
     />
