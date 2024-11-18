@@ -48,6 +48,12 @@ export default function Sidebar({ isOpen }: SidebarProps) {
       icon: WorkIcon,
       selected: currentPath === "/sin-asignacion",
     },
+    {
+      url: "/archivos",
+      label: "Archivos",
+      icon: WorkIcon,
+      selected: currentPath === "/archivos",
+    },
   ];
 
   return (
