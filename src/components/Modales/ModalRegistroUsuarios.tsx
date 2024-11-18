@@ -249,24 +249,31 @@ export default function ModalRegistroUsuarios({
               />
               <Select
                 label="Estado"
-                options={estados.map((estado) => ({
-                  label: estado,
-                  value: estado,
-                }))}
+                options={[
+                  { label: "Selecciona una opción", value: "" },
+                  ...estados.map((estado) => ({
+                    label: estado,
+                    value: estado,
+                  })),
+                ]}
                 onChange={(value) => handleFieldChange("estado", value)}
                 value={formValues.estado}
                 error={errors.estado}
               />
               <Select
                 label="Ciudad"
-                options={ciudades.map((ciudad) => ({
-                  label: ciudad,
-                  value: ciudad,
-                }))}
+                options={[
+                  { label: "Selecciona una opción", value: "" },
+                  ...ciudades.map((ciudad) => ({
+                    label: ciudad,
+                    value: ciudad,
+                  })),
+                ]}
                 onChange={(value) => handleFieldChange("ciudad", value)}
                 value={formValues.ciudad}
                 error={errors.ciudad}
               />
+
               <Select
                 label="Rol"
                 options={roleOptions}
