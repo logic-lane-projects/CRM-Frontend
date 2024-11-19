@@ -35,7 +35,7 @@ const handleError = (error: unknown): string => {
 // Crear un usuario
 export const createUser = async (userData: User): Promise<ApiResponse<User>> => {
   try {
-    const response = await fetch(`${API_URL}/users`, {
+    const response = await fetch(`${API_URL}users`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(userData),
@@ -60,7 +60,7 @@ export const createUser = async (userData: User): Promise<ApiResponse<User>> => 
 // Obtener todos los usuarios
 export const getAllUsers = async (): Promise<ApiResponse<User[]>> => {
   try {
-    const response = await fetch(`${API_URL}/users`);
+    const response = await fetch(`${API_URL}users`);
     const data = await response.json();
     return { success: response.ok, data };
   } catch (error) {
@@ -71,7 +71,7 @@ export const getAllUsers = async (): Promise<ApiResponse<User[]>> => {
 // Obtener usuario por ID
 export const getUserById = async (id: string): Promise<ApiResponse<User>> => {
   try {
-    const response = await fetch(`${API_URL}/users/${id}`);
+    const response = await fetch(`${API_URL}users/${id}`);
     const data = await response.json();
     return { success: response.ok, data };
   } catch (error) {
@@ -85,7 +85,7 @@ export const updateUser = async (
   userData: User
 ): Promise<ApiResponse<User>> => {
   try {
-    const response = await fetch(`${API_URL}/users/${id}`, {
+    const response = await fetch(`${API_URL}users/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(userData),
@@ -100,7 +100,7 @@ export const updateUser = async (
 // Eliminar usuario
 export const deleteUser = async (id: string): Promise<ApiResponse<null>> => {
   try {
-    const response = await fetch(`${API_URL}/users/${id}`, {
+    const response = await fetch(`${API_URL}users/${id}`, {
       method: "DELETE",
     });
     return { success: response.ok };
@@ -112,7 +112,7 @@ export const deleteUser = async (id: string): Promise<ApiResponse<null>> => {
 // Buscar usuario por email
 export const getUserByEmail = async (email: string): Promise<ApiResponse<User>> => {
   try {
-    const response = await fetch(`${API_URL}/users/find/email`, {
+    const response = await fetch(`${API_URL}users/find/email`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
@@ -125,16 +125,16 @@ export const getUserByEmail = async (email: string): Promise<ApiResponse<User>> 
 };
 
 // Funcion para actualizar los permisos
-export const updatePermissions = async (id_admin: any, id_vendedor: any, permisos: any) => {
+export const updatePermissions = async (id_admin: unknown, id_vendedor: unknown, permisos: unknown) => {
   try {
-    const response = await fetch(`${API_URL}/users/asignar/permisos/${id_admin}`, {
-      method: 'POST', // Asegúrate de usar el método POST
+    const response = await fetch(`${API_URL}users/asignar/permisos/${id_admin}`, {
+      method: 'POST', 
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         id_vendedor,
-        permisos, // Un array con los permisos que quieres asignar
+        permisos, 
       }),
     });
 
@@ -142,10 +142,10 @@ export const updatePermissions = async (id_admin: any, id_vendedor: any, permiso
       throw new Error('Error al asignar permisos');
     }
 
-    return await response.json(); // Devuelve la respuesta del servidor en formato JSON
+    return await response.json(); 
   } catch (error) {
     console.error(error);
-    return error; // O puedes retornar un mensaje de error específico
+    return error; 
   }
 };
 

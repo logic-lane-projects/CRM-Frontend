@@ -5,11 +5,13 @@ interface UserInfo {
   city: string | null;
   id: string;
   role: string;
+  permisos?: string[];
+  oficinas_permitidas?: string[];
 }
 
 export const useAuthToken = () => {
   const [emailOnline, setEmailOnline] = useState<string | null>(null);
-  const [userInfo, setUserInfo] = useState<UserInfo | null>(null); 
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
