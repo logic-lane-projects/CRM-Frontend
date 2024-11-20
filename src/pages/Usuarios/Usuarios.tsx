@@ -16,7 +16,12 @@ import { getAllOffices } from "../../services/oficinas";
 import { useAuthToken } from "../../hooks/useAuthToken";
 
 export default function Usuarios() {
-  const { userInfo } = useAuthToken();
+  const { userInfo, permisos } = useAuthToken();
+  const crearVendedores = permisos?.includes("Crear Vendedores");
+  const crearAdministradores = permisos?.includes("Crear Administradores");
+  const crearAsignadores = permisos?.includes("Crear Asignadores");
+  const crearCoordinadores = permisos?.includes("Crear Coordinadores");
+  const crearMarketing = permisos?.includes("Crear Marketing");
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
@@ -202,15 +207,21 @@ export default function Usuarios() {
   if (error) {
     return <p>{error}</p>;
   }
-
+  console.log(crearVendedores);
   return (
     <div className="w-full flex flex-col gap-4">
       <div className="flex w-full justify-between items-center">
         <span className="font-semibold text-[20px]">Usuarios</span>
         <div className="flex gap-2">
-          <Button onClick={() => setIsOpen(true)} variant="primary">
-            Registro
-          </Button>
+          {(crearVendedores ||
+            crearAdministradores ||
+            crearAsignadores ||
+            crearCoordinadores ||
+            crearMarketing) && (
+            <Button onClick={() => setIsOpen(true)} variant="primary">
+              Registro
+            </Button>
+          )}
           <Button
             onClick={() => {
               setShowWithoutOffices((prev) => !prev);

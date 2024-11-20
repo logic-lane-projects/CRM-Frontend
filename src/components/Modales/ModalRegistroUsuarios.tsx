@@ -13,6 +13,7 @@ import { UserRole } from "../../types/enums";
 import { createUser } from "../../services/user";
 import { useNavigate } from "react-router-dom";
 import { Ciudades } from "../../utils/estados";
+import { useAuthToken } from "../../hooks/useAuthToken";
 
 interface ModalRegistroUsuariosProps {
   isOpen: boolean;
@@ -52,6 +53,12 @@ export default function ModalRegistroUsuarios({
   setIsOpen,
 }: ModalRegistroUsuariosProps) {
   const navigate = useNavigate();
+  const { permisos } = useAuthToken();
+  const crearVendedores = permisos?.includes("Crear Vendedores");
+  const crearAdministradores = permisos?.includes("Crear Administradores");
+  const crearAsignadores = permisos?.includes("Crear Asignadores");
+  const crearCoordinadores = permisos?.includes("Crear Coordinadores");
+  const crearMarketing = permisos?.includes("Crear Marketing");
   const [formValues, setFormValues] = useState<FormValues>(initialFormValues);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isLoading, setIsLoading] = useState(false);
@@ -60,12 +67,13 @@ export default function ModalRegistroUsuarios({
   const [ciudades, setCiudades] = useState<string[]>([]);
 
   const roleOptions = [
-    { label: "Vendedor", value: UserRole.Vendedor },
-    { label: "Administrador", value: UserRole.Administrador },
-    { label: "Asignador", value: UserRole.Asignador },
-    { label: "Coordinador", value: UserRole.Coordinador },
-    { label: "Marketing", value: UserRole.Marketing },
-  ];
+    { label: "Vendedor", value: UserRole.Vendedor, permiso: crearVendedores },
+    { label: "Administrador", value: UserRole.Administrador, permiso: crearAdministradores },
+    { label: "Asignador", value: UserRole.Asignador, permiso: crearAsignadores },
+    { label: "Coordinador", value: UserRole.Coordinador, permiso: crearCoordinadores },
+    { label: "Marketing", value: UserRole.Marketing, permiso: crearMarketing },
+  ].filter((role) => role.permiso);
+  
 
   useEffect(() => {
     setEstados(Ciudades.map((item) => item.Estado));
@@ -77,13 +85,11 @@ export default function ModalRegistroUsuarios({
     if (field === "contrasena" || field === "confirmContrasena") {
       setPasswordsMatch(
         formValues.contrasena === value ||
-        formValues.confirmContrasena === value
+          formValues.confirmContrasena === value
       );
     }
     if (field === "estado") {
-      const selectedEstado = Ciudades.find(
-        (item) => item.Estado === value
-      );
+      const selectedEstado = Ciudades.find((item) => item.Estado === value);
       setCiudades(selectedEstado ? selectedEstado.Ciudad : []);
     }
   };

@@ -153,6 +153,9 @@ export default function InfoUsuarios() {
   const roleOptions = [
     { label: "Vendedor", value: UserRole.Vendedor },
     { label: "Administrador", value: UserRole.Administrador },
+    { label: "Asignador", value: UserRole.Asignador },
+    { label: "Coordinador", value: UserRole.Coordinador },
+    { label: "Marketing", value: UserRole.Marketing },
   ];
 
   return (
@@ -256,17 +259,14 @@ export default function InfoUsuarios() {
               </Button>
             </div>
           </div>
-          <PermisosUsuario
-            user={{ ...user, _id: user._id ?? '' }}
-          />
+          <PermisosUsuario user={{ ...user, _id: user._id ?? "" }} />
           <OficinasPermitidas
             user={{
               ...user,
-              _id: user?._id ?? '',
-              oficinas_permitidas: user?.oficinas_permitidas ?? []
+              _id: user?._id ?? "",
+              oficinas_permitidas: user?.oficinas_permitidas ?? [],
             }}
           />
-
         </Card>
       ) : (
         <p>No se encontró el vendedor.</p>
