@@ -236,7 +236,7 @@ export default function LeadInfo() {
           <div className="border-[1px] border-gray-300 p-2">
             {selectedTab === "Actividad" && <Actividad />}
             {selectedTab === "Correos" && <Correos />}
-            {selectedTab === "Llamadas" && <Llamadas />}
+            {selectedTab === "Llamadas" && <Llamadas phone={leadData.phone_number} />}
             {selectedTab === "Tareas" && <Tareas />}
             {selectedTab === "Notas" && <Notas />}
             {selectedTab === "Whatsapp" && <Whatsapp phone={leadData.phone_number} />}
