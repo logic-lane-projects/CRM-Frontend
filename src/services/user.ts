@@ -194,3 +194,31 @@ export const updateOficinasPermitidas = async (idVendedor: string, selectedOffic
     return { error: 'Error desconocido' };
   }
 };
+
+export const assignSeller = async (
+  userId: string,
+  sellerId: string,
+  leadIds: string[]
+) => {
+  try {
+    const response = await fetch(`${API_URL}clientes/asignar/vendedor/${userId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id_vendedor: sellerId,
+        clientes: leadIds,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Error assigning lead to seller");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error in assignSeller:", error);
+    throw error;
+  }
+};

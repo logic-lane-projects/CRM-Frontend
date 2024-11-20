@@ -171,7 +171,7 @@ export default function ModalRegistroLeads({
           icon: "success", title: "Lead registrado con éxito", timer: 5000
         });
         setTimeout(() => {
-          // window.location.reload();
+          window.location.reload();
         }, 500);
       }
 

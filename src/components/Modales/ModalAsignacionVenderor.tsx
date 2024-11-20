@@ -9,7 +9,7 @@ import {
   Button,
 } from "@shopify/polaris";
 import { getUsers, getUserById } from "../../services/users";
-import { assignSeller } from "../../services/users";
+import { assignSeller } from "../../services/user";
 import { useAuthToken } from "../../hooks/useAuthToken";
 import type { User } from "../../services/users";
 import { Toast } from "../Toast/toast";

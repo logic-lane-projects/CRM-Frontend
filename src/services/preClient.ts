@@ -30,7 +30,7 @@ export const getActivePreClients = async (): Promise<{
 }> => {
   try {
     const response = await fetch(
-      `${API_URL}customer_prospectus/active
+      `${API_URL}clientes/custom/all/PROSPECTO_CLIENTE
 `,
       {
         method: "GET",
@@ -52,7 +52,7 @@ export const getPreClientById = async (
 ): Promise<{ result: boolean; error: string; data: PreClient }> => {
   // data es un objeto Client
   try {
-    const response = await fetch(`${API_URL}customer_prospectus/active/${id}`, {
+    const response = await fetch(`${API_URL}clientes/custom/${id}`, {
       method: "GET",
     });
 

@@ -63,7 +63,7 @@ export const createLead = async (
 // Obtener un lead por ID
 export const getLeadById = async (id: string): Promise<Lead> => {
   try {
-    const response = await fetch(`${API_URL}leads/${id}`, {
+    const response = await fetch(`${API_URL}clientes/custom/${id}`, {
       method: "GET",
     });
     if (!response.ok) {
@@ -98,7 +98,7 @@ export const getActiveLeadById = async (id: string): Promise<Lead> => {
 // Obtener todos los leads (borrados y no borrados)
 export const getAllLeads = async (): Promise<Lead[]> => {
   try {
-    const response = await fetch(`${API_URL}leads`, {
+    const response = await fetch(`${API_URL}clientes/custom/all/LEAD`, {
       method: "GET",
     });
     const data = await response.json();
@@ -242,7 +242,7 @@ export const updateClient = async (
   leadData: InfoLeads
 ): Promise<InfoLeads> => {
   try {
-    const response = await fetch(`${API_URL}custom/client/${id}/${userId}`, {
+    const response = await fetch(`${API_URL}clientes/custom/${id}/${userId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

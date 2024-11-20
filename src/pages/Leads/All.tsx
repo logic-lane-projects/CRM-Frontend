@@ -49,61 +49,70 @@ export default function Leads() {
   const fetchLeads = async () => {
     setIsLoading(true);
     setSelected("lead");
+    setLeads([]);
+    setSelectedData([]);
     try {
       const response = await getAllLeads();
       if (Array.isArray(response)) {
         setLeads(response);
         setSelectedData(response);
       }
-      setIsLoading(false);
     } catch (error) {
-      setIsLoading(false);
+      setSelectedData([]);
       console.error("Error al obtener los leads:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const fetchClients = async () => {
     setSelected("client");
     setIsLoading(true);
+    setSelectedData([]);
     try {
       const clients = await getActiveClient();
       if (clients.result) {
         setSelectedData(clients.data);
       }
-      setIsLoading(false);
     } catch (error) {
-      setIsLoading(false);
+      setSelectedData([]);
       console.error("Error al obtener clientes activos", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const fetchPreClient = async () => {
     setSelected("prospecto");
     setIsLoading(true);
+    setSelectedData([]);
     try {
       const clients = await getActivePreClients();
       if (clients.result) {
         setSelectedData(clients.data);
       }
-      setIsLoading(false);
     } catch (error) {
-      setIsLoading(false);
+      setSelectedData([]);
       console.error("Error al obtener prospectos activos", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const fetchComprador = async () => {
     setSelected("comprador");
     setIsLoading(true);
+    setSelectedData([]);
     try {
       const clients = await getActiveBuyers();
       if (clients.result) {
         setSelectedData(clients.data);
       }
-      setIsLoading(false);
     } catch (error) {
-      setIsLoading(false);
+      setSelectedData([]);
       console.error("Error al obtener compradores activos", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -130,11 +139,10 @@ export default function Leads() {
           break;
       }
     } else {
-      // Si no hay ninguna tabla seleccionada, cargar "Leads" por defecto
       setSelected("lead");
       fetchLeads();
     }
-  }, [location.search]);
+  }, [location.search, selected]);
 
   const leadsForIndexTable = selectedData.map((lead) => ({
     id: lead._id,
