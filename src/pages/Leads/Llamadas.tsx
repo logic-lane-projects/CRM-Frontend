@@ -9,18 +9,18 @@ const states = {
 }
 
 function Llamadas({phone}: {phone? : string}) {
-  const APP_URL = "https://5zvg4txf-9000.usw3.devtunnels.ms/"
+  const APP_URL = "https://fiftydoctorsback.com/crmtwilio/"
 
   const [token, setToken] = useState("")
 
   useEffect(() => {
     if (token && window.process !== undefined) {
+      console.log("hola", states)
     }
   }, [token])
   
 
   useEffect(() => {
-    // Fetch authentication token from the server
     const fetchToken = async () => {
       try {
         const response = await fetch(`${APP_URL}token`);

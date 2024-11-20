@@ -1,17 +1,12 @@
-import {
-  Frame,
-  Modal,
-  TextContainer,
-  TextField,
-  Select,
-} from "@shopify/polaris";
+import { Frame, Modal, TextContainer, TextField, Select } from "@shopify/polaris";
 import { useState, useEffect } from "react";
 import { Toast } from "../Toast/toast";
 import { createLead, updateLead } from "../../services/leads";
 import { Lead } from "../../services/leads";
 import { useAuthToken } from "../../hooks/useAuthToken";
+import { Ciudades } from "../../utils/estados";
 
-interface ModalRegistroVendedoresProps {
+interface ModalRegistroLeadsProps {
   leadInfo: Lead | null;
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
@@ -49,25 +44,24 @@ export default function ModalRegistroLeads({
   leadInfo,
   isOpen,
   setIsOpen,
-}: ModalRegistroVendedoresProps) {
+}: ModalRegistroLeadsProps) {
   const { userInfo } = useAuthToken();
   const [formValues, setFormValues] = useState<FormValues>(initialFormValues);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-  const genderOptions = [
-    { label: "Selecciona una opción", value: "" },
-    { label: "Masculino", value: "MALE" },
-    { label: "Femenino", value: "FEMALE" },
-  ];
 
-  const typeLeadOptions = [
-    { label: "Tibio", value: "TIBIO" },
-    { label: "Frío", value: "FRIO" },
-    { label: "Caliente", value: "CALIENTE" },
-  ];
+  // Estado para las opciones de estados y ciudades
+  const [states, setStates] = useState<{ label: string; value: string }[]>([]);
+  const [cities, setCities] = useState<{ label: string; value: string }[]>([]);
 
   useEffect(() => {
+    const formattedStates = Ciudades.map((item) => ({
+      label: item.Estado,
+      value: item.Estado,
+    }));
+    setStates(formattedStates);
+
     if (leadInfo) {
       setFormValues({
         nombre: leadInfo.names || "",
@@ -82,10 +76,25 @@ export default function ModalRegistroLeads({
         type_lead: leadInfo.type_lead || "TIBIO",
         gender: leadInfo.gender || "MALE",
       });
+      const selectedState = leadInfo.state || "";
+      updateCities(selectedState);
     } else {
       setFormValues(initialFormValues);
     }
   }, [leadInfo]);
+
+  const updateCities = (state: string) => {
+    const selectedStateData = Ciudades.find((item) => item.Estado === state);
+    if (selectedStateData) {
+      const formattedCities = selectedStateData.Ciudad.map((ciudad) => ({
+        label: ciudad,
+        value: ciudad,
+      }));
+      setCities(formattedCities);
+    } else {
+      setCities([]);
+    }
+  };
 
   const handleFieldChange = (
     field: keyof FormValues,
@@ -93,6 +102,10 @@ export default function ModalRegistroLeads({
   ) => {
     setFormValues((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, [field]: "" }));
+
+    if (field === "state") {
+      updateCities(value as string);
+    }
   };
 
   const calculateAge = (birthDate: string) => {
@@ -125,6 +138,7 @@ export default function ModalRegistroLeads({
       Toast.fire({
         icon: "error",
         title: "No se ha podido obtener la información del usuario",
+        timer: 5000
       });
       return;
     }
@@ -148,12 +162,16 @@ export default function ModalRegistroLeads({
 
       if (leadInfo && leadInfo._id) {
         await updateLead(leadInfo._id, leadData);
-        Toast.fire({ icon: "success", title: "Lead actualizado con éxito" });
+        Toast.fire({
+          icon: "success", title: "Lead actualizado con éxito", timer: 5000
+        });
       } else {
         await createLead(leadData, userInfo.id);
-        Toast.fire({ icon: "success", title: "Lead registrado con éxito" });
+        Toast.fire({
+          icon: "success", title: "Lead registrado con éxito", timer: 5000
+        });
         setTimeout(() => {
-          // window.location.reload();
+          window.location.reload();
         }, 500);
       }
 
@@ -163,7 +181,7 @@ export default function ModalRegistroLeads({
       Toast.fire({
         icon: "error",
         title: errorMessage,
-        timer: 2000,
+        timer: 5000,
       });
     } finally {
       setIsLoading(false);
@@ -181,8 +199,8 @@ export default function ModalRegistroLeads({
             content: isLoading
               ? "Cargando..."
               : leadInfo
-              ? "Actualizar"
-              : "Registrar",
+                ? "Actualizar"
+                : "Registrar",
             onAction: handleSubmit,
             disabled: isSubmitDisabled || isLoading,
           }}
@@ -230,18 +248,25 @@ export default function ModalRegistroLeads({
                 autoComplete="off"
                 error={errors.telefono}
               />
-              <TextField
-                label="Ciudad"
-                value={formValues.ciudad}
-                onChange={(value) => handleFieldChange("ciudad", value)}
-                autoComplete="off"
-              />
-              <TextField
+              <Select
                 label="Estado"
+                options={[
+                  { label: "Selecciona una opción", value: "" },
+                  ...states,
+                ]}
                 value={formValues.state || ""}
                 onChange={(value) => handleFieldChange("state", value)}
-                autoComplete="off"
               />
+              <Select
+                label="Ciudad"
+                options={[
+                  { label: "Selecciona una opción", value: "" },
+                  ...cities,
+                ]}
+                value={formValues.ciudad || ""}
+                onChange={(value) => handleFieldChange("ciudad", value)}
+              />
+
               <TextField
                 label="Fecha de Nacimiento"
                 type="date"
@@ -260,15 +285,20 @@ export default function ModalRegistroLeads({
               />
               <Select
                 label="Género"
-                options={genderOptions}
-                onChange={(value) =>
-                  handleFieldChange("gender", value as "MALE" | "FEMALE")
-                }
+                options={[
+                  { label: "Masculino", value: "MALE" },
+                  { label: "Femenino", value: "FEMALE" },
+                ]}
+                onChange={(value) => handleFieldChange("gender", value as "MALE" | "FEMALE")}
                 value={formValues.gender || ""}
               />
               <Select
                 label="Tipo de Lead"
-                options={typeLeadOptions}
+                options={[
+                  { label: "Tibio", value: "TIBIO" },
+                  { label: "Frío", value: "FRIO" },
+                  { label: "Caliente", value: "CALIENTE" },
+                ]}
                 onChange={(value) => handleFieldChange("type_lead", value)}
                 value={formValues.type_lead || ""}
               />

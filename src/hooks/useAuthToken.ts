@@ -5,13 +5,16 @@ interface UserInfo {
   city: string | null;
   id: string;
   role: string;
+  permisos?: string[];
+  oficinas_permitidas?: string[];
 }
 
 export const useAuthToken = () => {
   const [emailOnline, setEmailOnline] = useState<string | null>(null);
-  const [userInfo, setUserInfo] = useState<UserInfo | null>(null); 
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [permisos, setPermisos] = useState<string[] | undefined>(undefined);
 
   useEffect(() => {
     const token = localStorage.getItem("email");
@@ -22,6 +25,7 @@ export const useAuthToken = () => {
       getUserInfo(token)
         .then((data) => {
           setUserInfo(data?.data || null);
+          setPermisos(data?.data?.permisos || undefined);
           setLoading(false);
         })
         .catch(() => {
@@ -33,5 +37,5 @@ export const useAuthToken = () => {
     }
   }, []);
 
-  return { emailOnline, userInfo, loading, error };
+  return { emailOnline, userInfo, permisos, loading, error };
 };

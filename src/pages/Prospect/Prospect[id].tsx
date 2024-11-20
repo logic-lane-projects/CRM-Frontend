@@ -87,9 +87,9 @@ export default function ProspectInfo() {
       Toast.fire({
         icon: "error",
         title: "Primero se debe de confirmar el primer pago del cliente",
-        timer: 5000
+        timer: 5000,
       });
-      setSelectedTab("Archivos")
+      setSelectedTab("Archivos");
       return;
     }
 
@@ -252,10 +252,19 @@ export default function ProspectInfo() {
             {selectedTab === "Correos" && <Correos />}
             {selectedTab === "Llamadas" && <Llamadas />}
             {selectedTab === "Tareas" && <Tareas />}
-            {selectedTab === "Notas" && <Notas />}
-            {selectedTab === "Whatsapp" && <Whatsapp phone={leadData.phone_number} />}
+            {selectedTab === "Notas" && (
+              <Notas idCliente={leadData._id ?? ""} />
+            )}{" "}
+            {selectedTab === "Whatsapp" && (
+              <Whatsapp phone={leadData.phone_number} />
+            )}
             {selectedTab === "Archivos" && (
-              <Archivos id={id} isPayment={isPayment} setFinishLoading={setFinishLoading} regimen={""}/>
+              <Archivos
+                id={id}
+                isPayment={isPayment}
+                setFinishLoading={setFinishLoading}
+                regimen={""}
+              />
             )}
             {selectedTab === "Historial" && <Historial />}
           </div>
@@ -273,7 +282,7 @@ export default function ProspectInfo() {
                 status: leadData?.status ?? null,
                 created_at: leadData?.created_at ?? "",
                 updated_at: leadData?.updated_at ?? "",
-                is_client: leadData?.is_client ?? undefined, 
+                is_client: leadData?.is_client ?? undefined,
               }}
             />
           </div>

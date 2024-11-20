@@ -1,4 +1,4 @@
-import { TopBar, ActionList, Frame, Text} from "@shopify/polaris";
+import { TopBar, ActionList, Frame, Badge} from "@shopify/polaris";
 import { ArrowLeftIcon } from "@shopify/polaris-icons";
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
@@ -69,7 +69,7 @@ export function TopBar1({ toggleSidebar }: TopBarProps) {
       ]}
       name={cortarEmailAntesDeArroba(email || "")}
       detail={email || ""}
-      initials={email?.slice(0, 2)}
+      initials={email?.slice(0, 2).toUpperCase()}
       open={isUserMenuOpen}
       onToggle={toggleIsUserMenuOpen}
     />
@@ -78,17 +78,17 @@ export function TopBar1({ toggleSidebar }: TopBarProps) {
     <div className="flex items-center justify-center w-full h-full">
       {userInfo?.city && (
         <div className="mr-5">
-          <Text variant="bodyLg" as="p" tone="text-inverse" fontWeight="bold" >
-            Ciudad: {userInfo.city}
-          </Text>
+          <Badge tone="info">
+            {userInfo.city}
+          </Badge>
         </div>
         
       )}
       <div className="mr-5">
         {userInfo?.role && (
-        <Text variant="bodyLg" as="p" tone="text-inverse" fontWeight="bold">
-          Rol: {userInfo.role}
-        </Text>
+        <Badge tone="success">
+          {userInfo.role.toUpperCase()}
+        </Badge>
       )}
       </div>
       

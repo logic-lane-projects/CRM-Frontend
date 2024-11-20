@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, SetStateAction } from "react";
 import ModalRegistroUsuarios from "../../components/Modales/ModalRegistroUsuarios";
 import {
   IndexTable,
@@ -6,34 +6,71 @@ import {
   Pagination,
   Button,
   Card,
-  Select,
   Badge,
+  Select,
 } from "@shopify/polaris";
-import { getUsers, User } from "../../services/users";
+import { getAllUsers, getUsersByOffice, User } from "../../services/user";
 import { Toast } from "../../components/Toast/toast";
 import { useNavigate } from "react-router-dom";
-import ModalAsignacionCoordinador from "../../components/Modales/ModalAsignacionCoordinador";
+import { getAllOffices } from "../../services/oficinas";
 import { useAuthToken } from "../../hooks/useAuthToken";
 
 export default function Usuarios() {
-  const { userInfo } = useAuthToken();
+  const { userInfo, permisos } = useAuthToken();
+  const crearVendedores = permisos?.includes("Crear Vendedores");
+  const crearAdministradores = permisos?.includes("Crear Administradores");
+  const crearAsignadores = permisos?.includes("Crear Asignadores");
+  const crearCoordinadores = permisos?.includes("Crear Coordinadores");
+  const crearMarketing = permisos?.includes("Crear Marketing");
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState("10");
   const [usuarios, setUsuarios] = useState<User[]>([]);
+  const [offices, setOffices] = useState<{ _id: string; nombre: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedResource, setSelectedResource] = useState<string>("");
-  const [isOpenCoordinador, setIsOpenCoordinador] = useState(false);
+  const [showWithoutOffices, setShowWithoutOffices] = useState(false);
 
   useEffect(() => {
     const fetchUsers = async () => {
+      if (!userInfo?.role) {
+        return;
+      }
+
       try {
-        // Traemos todos los usuarios
-        const usersData: User[] = await getUsers();
-        setUsuarios(usersData);
+        if (userInfo.role === "administrador") {
+          const response = await getAllUsers();
+          if (response.success && Array.isArray(response.data)) {
+            setUsuarios(response.data);
+          } else {
+            throw new Error(response.message || "Error al cargar usuarios");
+          }
+        } else {
+          const city = userInfo.city;
+          if (!city) {
+            throw new Error("No se pudo determinar la ciudad del usuario");
+          }
+
+          const currentOfficeId = localStorage.getItem("oficinaActual");
+          if (currentOfficeId) {
+            const response = await getUsersByOffice(currentOfficeId);
+            if (response.success && Array.isArray(response?.data?.data)) {
+              setUsuarios(response?.data?.data);
+            } else {
+              throw new Error(response.message || "Error al cargar usuarios");
+            }
+          } else {
+            const response = await getAllUsers();
+            if (response.success && Array.isArray(response.data)) {
+              setUsuarios(response.data.filter((user) => user.city === city));
+            } else {
+              throw new Error(response.message || "Error al cargar usuarios");
+            }
+          }
+        }
       } catch (error) {
         setError("Error al cargar los usuarios");
         const errorMessage = typeof error === "string" ? error : String(error);
@@ -46,15 +83,45 @@ export default function Usuarios() {
       }
     };
 
-    fetchUsers();
-  }, []);
+    const fetchOffices = async () => {
+      try {
+        const allOfficesResponse = await getAllOffices();
+        if (allOfficesResponse.result) {
+          setOffices(allOfficesResponse.data);
+        }
+      } catch (error) {
+        console.error("Error fetching offices:", error);
+      }
+    };
 
-  const filteredUsuarios = usuarios.filter(
-    (usuario: User) =>
-      usuario.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-      usuario.email.toLowerCase().includes(searchValue.toLowerCase()) ||
-      usuario.city.toLowerCase().includes(searchValue.toLowerCase())
-  );
+    fetchUsers();
+    fetchOffices();
+  }, [userInfo]);
+
+  const filteredUsuarios = Array.isArray(usuarios)
+    ? usuarios.filter((usuario: User) => {
+        const officeNames = usuario.oficinas_permitidas
+          ?.map((officeId) => {
+            const office = offices.find((office) => office._id === officeId);
+            return office?.nombre || "";
+          })
+          .join(", ");
+
+        if (showWithoutOffices) {
+          return (
+            !usuario.oficinas_permitidas ||
+            usuario.oficinas_permitidas.length === 0
+          );
+        }
+
+        return (
+          usuario.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+          usuario.email.toLowerCase().includes(searchValue.toLowerCase()) ||
+          usuario.city.toLowerCase().includes(searchValue.toLowerCase()) ||
+          officeNames?.toLowerCase().includes(searchValue.toLowerCase())
+        );
+      })
+    : [];
 
   const numItemsPerPage =
     itemsPerPage === "todos"
@@ -90,28 +157,47 @@ export default function Usuarios() {
 
   const rowMarkup = paginatedUsuarios.map(
     (
-      { id, name, email, city, role }: User,
+      { _id, name, email, city, role, oficinas_permitidas }: User,
       index: number
-    ) => (
-      <IndexTable.Row
-        id={id ?? "unknown-id"}
-        key={id ?? index}
-        position={index}
-        selected={selectedResource === id}
-        onClick={() => {
-          setSelectedResource(
-            selectedResource === id ? "" : id ?? "unknown-id"
-          );
-        }}
-      >
-        <IndexTable.Cell>{name ?? "Nombre desconocido"}</IndexTable.Cell>
-        <IndexTable.Cell>{email ?? "Correo desconocido"}</IndexTable.Cell>
-        <IndexTable.Cell>{city ?? "Ciudad desconocida"}</IndexTable.Cell>
-        <IndexTable.Cell>
-          <Badge>{role ?? "Sin rol"}</Badge>
-        </IndexTable.Cell>
-      </IndexTable.Row>
-    )
+    ) => {
+      const officeNames = oficinas_permitidas
+        ?.map((officeId) => {
+          const office = offices.find((office) => office._id === officeId);
+          return office?.nombre || "Oficina desconocida";
+        })
+        .join(", ");
+
+      return (
+        <IndexTable.Row
+          id={_id ?? "unknown-id"}
+          key={_id ?? index}
+          position={index}
+          selected={selectedResource === _id}
+          onClick={() => {
+            setSelectedResource(
+              selectedResource === _id ? "" : _id ?? "unknown-id"
+            );
+          }}
+        >
+          <IndexTable.Cell>{name ?? "Nombre desconocido"}</IndexTable.Cell>
+          <IndexTable.Cell>{email ?? "Correo desconocido"}</IndexTable.Cell>
+          <IndexTable.Cell>{city ?? "Ciudad desconocida"}</IndexTable.Cell>
+          <IndexTable.Cell>
+            {officeNames || (
+              <Button
+                onClick={() => navigate(`/usuario/${_id}`)}
+                variant="primary"
+              >
+                Agregar oficinas
+              </Button>
+            )}
+          </IndexTable.Cell>
+          <IndexTable.Cell>
+            <Badge>{role ?? "Sin rol"}</Badge>
+          </IndexTable.Cell>
+        </IndexTable.Row>
+      );
+    }
   );
 
   if (loading) {
@@ -121,32 +207,51 @@ export default function Usuarios() {
   if (error) {
     return <p>{error}</p>;
   }
-
+  console.log(crearVendedores);
   return (
     <div className="w-full flex flex-col gap-4">
       <div className="flex w-full justify-between items-center">
         <span className="font-semibold text-[20px]">Usuarios</span>
-        <Button onClick={() => setIsOpen(true)} variant="primary">
-          Registro
-        </Button>
+        <div className="flex gap-2">
+          {(crearVendedores ||
+            crearAdministradores ||
+            crearAsignadores ||
+            crearCoordinadores ||
+            crearMarketing) && (
+            <Button onClick={() => setIsOpen(true)} variant="primary">
+              Registro
+            </Button>
+          )}
+          <Button
+            onClick={() => {
+              setShowWithoutOffices((prev) => !prev);
+              setCurrentPage(1);
+            }}
+            variant="secondary"
+          >
+            {showWithoutOffices
+              ? "Mostrar todos los usuarios"
+              : "Usuarios sin oficinas"}
+          </Button>
+        </div>
       </div>
       <Card>
         <div className="flex flex-col gap-4">
           <TextField
-            label=""
+            label="Buscar Usuarios"
             value={searchValue}
             onChange={(value) => {
               setSearchValue(value);
               setCurrentPage(1);
             }}
-            placeholder="Buscar por nombre, correo o ciudad"
+            placeholder="Buscar por nombre, correo, ciudad u oficina"
             clearButton
             onClearButtonClick={() => setSearchValue("")}
             autoComplete="off"
           />
 
           <IndexTable
-            resourceName={{ singular: "usuasrio", plural: "usuarios" }}
+            resourceName={{ singular: "usuario", plural: "usuarios" }}
             itemCount={filteredUsuarios.length}
             selectedItemsCount={selectedResource ? 1 : 0}
             onSelectionChange={() => {}}
@@ -154,6 +259,7 @@ export default function Usuarios() {
               { title: "Nombre" },
               { title: "Correo Electrónico" },
               { title: "Ciudad" },
+              { title: "Oficinas" },
               { title: "Rol" },
             ]}
             promotedBulkActions={promotedBulkActions}
@@ -168,7 +274,6 @@ export default function Usuarios() {
               hasNext={currentPage < totalPages}
               onNext={() => handlePagination("next")}
             />
-
             <Select
               label=""
               options={[
@@ -177,7 +282,7 @@ export default function Usuarios() {
                 { label: "Todos", value: "todos" },
               ]}
               value={itemsPerPage}
-              onChange={(value) => {
+              onChange={(value: SetStateAction<string>) => {
                 setItemsPerPage(value);
                 setCurrentPage(1);
               }}
@@ -187,16 +292,6 @@ export default function Usuarios() {
       </Card>
       {isOpen && (
         <ModalRegistroUsuarios isOpen={isOpen} setIsOpen={setIsOpen} />
-      )}
-
-      {isOpenCoordinador && (
-        <ModalAsignacionCoordinador
-          isOpen={isOpenCoordinador}
-          setIsOpen={setIsOpenCoordinador}
-          assignedTo={""}
-          userId={userInfo?.id}
-          vendedorId={selectedResource}
-        />
       )}
     </div>
   );

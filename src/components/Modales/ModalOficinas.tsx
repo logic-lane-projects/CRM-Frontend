@@ -171,8 +171,8 @@ export default function ModalRegistroOficinas({
             content: isLoading
               ? "Cargando..."
               : registrar
-              ? "Registrar"
-              : "Guardar",
+                ? "Registrar"
+                : "Guardar",
             onAction: handleSubmit,
             disabled: isSubmitDisabled || isLoading,
           }}
@@ -210,7 +210,7 @@ export default function ModalRegistroOficinas({
                 value={formValues.ciudad}
                 onChange={(value) => handleFieldChange("ciudad", value)}
                 options={[
-                  { label: "Selecciona una opción", value: "" }, // Opción predeterminada
+                  { label: "Selecciona una opción", value: "" },
                   ...cities.map((city) => ({
                     label: city,
                     value: city,

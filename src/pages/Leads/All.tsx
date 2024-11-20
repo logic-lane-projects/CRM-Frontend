@@ -21,11 +21,11 @@ import { getActiveBuyers } from "../../services/buyer";
 import ModalAsignacionVendedor from "../../components/Modales/ModalAsignacionVenderor";
 import { useAuthToken } from "../../hooks/useAuthToken";
 
-
 export default function Leads() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { userInfo } = useAuthToken();
+  const { userInfo, permisos } = useAuthToken();
+  const crearLeads = permisos?.includes("Crear Leads") ?? false;
   const [isOpen, setIsOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -41,7 +41,6 @@ export default function Leads() {
   const [assignedTo, setAssignedTo] = useState("");
   const [selectedResources, setSelectedResources] = useState<string[]>([]);
 
-
   const handleTableSelection = (table: SetStateAction<string>) => {
     setSelected(table);
     navigate(`?selected=${table}`);
@@ -50,61 +49,70 @@ export default function Leads() {
   const fetchLeads = async () => {
     setIsLoading(true);
     setSelected("lead");
+    setLeads([]);
+    setSelectedData([]);
     try {
       const response = await getAllLeads();
       if (Array.isArray(response)) {
         setLeads(response);
         setSelectedData(response);
       }
-      setIsLoading(false);
     } catch (error) {
-      setIsLoading(false);
+      setSelectedData([]);
       console.error("Error al obtener los leads:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const fetchClients = async () => {
     setSelected("client");
     setIsLoading(true);
+    setSelectedData([]);
     try {
       const clients = await getActiveClient();
       if (clients.result) {
         setSelectedData(clients.data);
       }
-      setIsLoading(false);
     } catch (error) {
-      setIsLoading(false);
+      setSelectedData([]);
       console.error("Error al obtener clientes activos", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const fetchPreClient = async () => {
     setSelected("prospecto");
     setIsLoading(true);
+    setSelectedData([]);
     try {
       const clients = await getActivePreClients();
       if (clients.result) {
         setSelectedData(clients.data);
       }
-      setIsLoading(false);
     } catch (error) {
-      setIsLoading(false);
+      setSelectedData([]);
       console.error("Error al obtener prospectos activos", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const fetchComprador = async () => {
     setSelected("comprador");
     setIsLoading(true);
+    setSelectedData([]);
     try {
       const clients = await getActiveBuyers();
       if (clients.result) {
         setSelectedData(clients.data);
       }
-      setIsLoading(false);
     } catch (error) {
-      setIsLoading(false);
+      setSelectedData([]);
       console.error("Error al obtener compradores activos", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -131,11 +139,10 @@ export default function Leads() {
           break;
       }
     } else {
-      // Si no hay ninguna tabla seleccionada, cargar "Leads" por defecto
       setSelected("lead");
       fetchLeads();
     }
-  }, [location.search]);
+  }, [location.search, selected]);
 
   const leadsForIndexTable = selectedData.map((lead) => ({
     id: lead._id,
@@ -171,7 +178,9 @@ export default function Leads() {
   const handleSelectionChangeSingle = (selection: string | undefined) => {
     if (selection !== undefined) {
       if (selectedResources.includes(selection)) {
-        setSelectedResources(selectedResources.filter((id) => id !== selection));
+        setSelectedResources(
+          selectedResources.filter((id) => id !== selection)
+        );
       } else {
         setSelectedResources([selection]);
       }
@@ -179,7 +188,6 @@ export default function Leads() {
       setSelectedResources([]);
     }
   };
-
 
   const handleDeleteAction = async () => {
     if (!selectedLead) return;
@@ -208,24 +216,24 @@ export default function Leads() {
         selected === "lead"
           ? "Ver Lead"
           : selected === "client"
-            ? "Ver Cliente"
-            : selected === "prospecto"
-              ? "Ver Prospecto"
-              : selected === "comprador"
-                ? "Ver Comprador"
-                : "",
+          ? "Ver Cliente"
+          : selected === "prospecto"
+          ? "Ver Prospecto"
+          : selected === "comprador"
+          ? "Ver Comprador"
+          : "",
       onAction: () => {
         if (selectedResources.length === 1) {
           const path =
             selected === "lead"
               ? "leads"
               : selected === "client"
-                ? "cliente"
-                : selected === "prospecto"
-                  ? "prospecto"
-                  : selected === "comprador"
-                    ? "comprador"
-                    : "";
+              ? "cliente"
+              : selected === "prospecto"
+              ? "prospecto"
+              : selected === "comprador"
+              ? "comprador"
+              : "";
 
           if (path) {
             navigate(`/${path}/${selectedResources[0]}`);
@@ -318,14 +326,14 @@ export default function Leads() {
             {selected === "lead"
               ? "Leads"
               : selected === "client"
-                ? "Clientes"
-                : selected === "prospecto"
-                  ? "Prospecto"
-                  : selected === "comprador"
-                    ? "Comprador"
-                    : ""}
+              ? "Clientes"
+              : selected === "prospecto"
+              ? "Prospecto"
+              : selected === "comprador"
+              ? "Comprador"
+              : ""}
           </span>
-          {selected === "lead" && (
+          {selected === "lead" && crearLeads && (
             <Button
               onClick={() => {
                 setIsOpen(true);
@@ -388,27 +396,25 @@ export default function Leads() {
                       selected === "lead"
                         ? "lead"
                         : selected === "prospecto"
-                          ? "Prospecto"
-                          : selected === "comprador"
-                            ? "Comprador"
-                            : selected === "cliente"
-                              ? "Cliente"
-                              : "",
+                        ? "Prospecto"
+                        : selected === "comprador"
+                        ? "Comprador"
+                        : selected === "cliente"
+                        ? "Cliente"
+                        : "",
                     plural:
                       selected === "lead"
                         ? "lead"
                         : selected === "prospecto"
-                          ? "Prospecto"
-                          : selected === "comprador"
-                            ? "Comprador"
-                            : selected === "cliente"
-                              ? "Cliente"
-                              : "",
+                        ? "Prospecto"
+                        : selected === "comprador"
+                        ? "Comprador"
+                        : selected === "cliente"
+                        ? "Cliente"
+                        : "",
                   }}
                   itemCount={filteredLeads.length}
-                  selectedItemsCount={
-                    selectedResources.length
-                  }
+                  selectedItemsCount={selectedResources.length}
                   onSelectionChange={handleSelectionChangeSingle}
                   headings={[
                     { title: "Nombre" },

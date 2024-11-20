@@ -35,7 +35,7 @@ export default function LeadInfo() {
 
   useEffect(() => {
     console.log("leadData", leadData);
-  }, [leadData])
+  }, [leadData]);
 
   useEffect(() => {
     const fetchLeadData = async () => {
@@ -95,9 +95,6 @@ export default function LeadInfo() {
       setIsLoadingChange(false);
     }
   };
-
-
-  
 
   return (
     <Card>
@@ -238,8 +235,12 @@ export default function LeadInfo() {
             {selectedTab === "Correos" && <Correos />}
             {selectedTab === "Llamadas" && <Llamadas phone={leadData.phone_number} />}
             {selectedTab === "Tareas" && <Tareas />}
-            {selectedTab === "Notas" && <Notas />}
-            {selectedTab === "Whatsapp" && <Whatsapp phone={leadData.phone_number} />}
+            {selectedTab === "Notas" && (
+              <Notas idCliente={leadData._id ?? ""} />
+            )}
+            {selectedTab === "Whatsapp" && (
+              <Whatsapp phone={leadData.phone_number} />
+            )}
             {selectedTab === "Historial" && <Historial />}
           </div>
         </div>

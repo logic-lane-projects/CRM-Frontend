@@ -202,9 +202,15 @@ export default function LeadInfo() {
             {selectedTabFromUrl === "Correos" && <Correos />}
             {selectedTabFromUrl === "Llamadas" && <Llamadas phone={clientData.phone_number} />}
             {selectedTabFromUrl === "Tareas" && <Tareas />}
-            {selectedTabFromUrl === "Notas" && <Notas />}
-            {selectedTabFromUrl === "Whatsapp" && <Whatsapp phone={clientData.phone_number} />}
-            {selectedTabFromUrl === "Archivos" && <Archivos id={id} regimen={clientData.type_person}/>}
+            {selectedTabFromUrl === "Notas" && (
+              <Notas idCliente={clientData._id ?? ""} />
+            )}{" "}
+            {selectedTabFromUrl === "Whatsapp" && (
+              <Whatsapp phone={clientData.phone_number} />
+            )}
+            {selectedTabFromUrl === "Archivos" && (
+              <Archivos id={id} regimen={clientData.type_person} />
+            )}
             {selectedTabFromUrl === "Historial" && <Historial />}
           </div>
         </div>
