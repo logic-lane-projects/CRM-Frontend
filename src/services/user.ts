@@ -177,3 +177,12 @@ export const updateOficinasPermitidas = async (idVendedor: string, selectedOffic
   }
 };
 
+export const getUsersByOffice = async (officeId: string): Promise<ApiResponse<User[]>> => {
+  try {
+    const response = await fetch(`${API_URL}/users/buscar/por/oficina/${officeId}`);
+    const data = await response.json();
+    return { success: response.ok, data };
+  } catch (error) {
+    throw handleError(error);
+  }
+};

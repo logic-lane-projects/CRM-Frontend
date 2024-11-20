@@ -45,7 +45,7 @@ export const createLead = async (
   };
 
   try {
-    const response = await fetch(`${API_URL}leads/${userId}`, requestOptions);
+    const response = await fetch(`${API_URL}clientes/leads/${userId}`, requestOptions);
 
     if (!response.ok) {
       const errorResponse = await response.json();
