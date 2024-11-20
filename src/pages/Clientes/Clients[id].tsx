@@ -200,7 +200,7 @@ export default function LeadInfo() {
           <div className="border-[1px] border-gray-300 p-2">
             {selectedTabFromUrl === "Actividad" && <Actividad />}
             {selectedTabFromUrl === "Correos" && <Correos />}
-            {selectedTabFromUrl === "Llamadas" && <Llamadas />}
+            {selectedTabFromUrl === "Llamadas" && <Llamadas phone={clientData.phone_number} />}
             {selectedTabFromUrl === "Tareas" && <Tareas />}
             {selectedTabFromUrl === "Notas" && (
               <Notas idCliente={clientData._id ?? ""} />
