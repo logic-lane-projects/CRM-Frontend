@@ -9,15 +9,14 @@ import {
   Badge,
   Select,
 } from "@shopify/polaris";
-import { getAllUsers, User } from "../../services/user";
+import { getAllUsers, getUsersByOffice, User } from "../../services/user";
 import { Toast } from "../../components/Toast/toast";
 import { useNavigate } from "react-router-dom";
-import ModalAsignacionCoordinador from "../../components/Modales/ModalAsignacionCoordinador";
-import { useAuthToken } from "../../hooks/useAuthToken";
 import { getAllOffices } from "../../services/oficinas";
+import { useAuthToken } from "../../hooks/useAuthToken";
 
 export default function Usuarios() {
-  const { userInfo } = useAuthToken();
+  const {userInfo} = useAuthToken();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
@@ -28,17 +27,47 @@ export default function Usuarios() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedResource, setSelectedResource] = useState<string>("");
-  const [isOpenCoordinador, setIsOpenCoordinador] = useState(false);
   const [showWithoutOffices, setShowWithoutOffices] = useState(false);
 
   useEffect(() => {
     const fetchUsers = async () => {
+      if (!userInfo?.role) {
+        return;
+      }
+  
       try {
-        const response = await getAllUsers();
-        if (response.success && response.data) {
-          setUsuarios(response.data);
+        if (userInfo.role === "administrador") {
+          console.log("Es administrador");
+          const response = await getAllUsers();
+          if (response.success && Array.isArray(response.data)) {
+            setUsuarios(response.data);
+          } else {
+            throw new Error(response.message || "Error al cargar usuarios");
+          }
         } else {
-          throw new Error(response.message || "Error al cargar usuarios");
+          console.log("No es administrador");
+          const city = userInfo.city;
+          if (!city) {
+            throw new Error("No se pudo determinar la ciudad del usuario");
+          }
+  
+          const currentOfficeId = localStorage.getItem("oficinaActual");
+          console.log(currentOfficeId);
+          if (currentOfficeId) {
+            const response = await getUsersByOffice(currentOfficeId);
+            if (response.success && Array.isArray(response?.data?.data)) {
+              setUsuarios(response?.data?.data);
+            } else {
+              throw new Error(response.message || "Error al cargar usuarios");
+            }
+          } else {
+            const response = await getAllUsers();
+            if (response.success && Array.isArray(response.data)) {
+              setUsuarios(response.data.filter((user) => user.city === city));
+            } else {
+              throw new Error(response.message || "Error al cargar usuarios");
+            }
+          }
         }
       } catch (error) {
         setError("Error al cargar los usuarios");
@@ -51,7 +80,7 @@ export default function Usuarios() {
         setLoading(false);
       }
     };
-
+  
     const fetchOffices = async () => {
       try {
         const allOfficesResponse = await getAllOffices();
@@ -62,10 +91,15 @@ export default function Usuarios() {
         console.error("Error fetching offices:", error);
       }
     };
-
+  
     fetchUsers();
     fetchOffices();
-  }, []);
+  }, [userInfo]);
+  
+  
+  
+  
+  
 
   const filteredUsuarios = Array.isArray(usuarios)
     ? usuarios.filter((usuario: User) => {
@@ -129,6 +163,13 @@ export default function Usuarios() {
       { _id, name, email, city, role, oficinas_permitidas }: User,
       index: number
     ) => {
+      const officeNames = oficinas_permitidas
+        ?.map((officeId) => {
+          const office = offices.find((office) => office._id === officeId);
+          return office?.nombre || "Oficina desconocida";
+        })
+        .join(", ");
+
       return (
         <IndexTable.Row
           id={_id ?? "unknown-id"}
@@ -145,11 +186,7 @@ export default function Usuarios() {
           <IndexTable.Cell>{email ?? "Correo desconocido"}</IndexTable.Cell>
           <IndexTable.Cell>{city ?? "Ciudad desconocida"}</IndexTable.Cell>
           <IndexTable.Cell>
-            {oficinas_permitidas?.length ? (
-              <Button onClick={() => navigate(`/usuario/${_id}`)}>
-                Ver oficinas
-              </Button>
-            ) : (
+            {officeNames || (
               <Button
                 onClick={() => navigate(`/usuario/${_id}`)}
                 variant="primary"
@@ -158,7 +195,6 @@ export default function Usuarios() {
               </Button>
             )}
           </IndexTable.Cell>
-
           <IndexTable.Cell>
             <Badge>{role ?? "Sin rol"}</Badge>
           </IndexTable.Cell>
@@ -251,19 +287,7 @@ export default function Usuarios() {
           </div>
         </div>
       </Card>
-      {isOpen && (
-        <ModalRegistroUsuarios isOpen={isOpen} setIsOpen={setIsOpen} />
-      )}
-
-      {isOpenCoordinador && (
-        <ModalAsignacionCoordinador
-          isOpen={isOpenCoordinador}
-          setIsOpen={setIsOpenCoordinador}
-          assignedTo={""}
-          userId={userInfo?.id}
-          vendedorId={selectedResource}
-        />
-      )}
+      {isOpen && <ModalRegistroUsuarios isOpen={isOpen} setIsOpen={setIsOpen} />}
     </div>
   );
 }

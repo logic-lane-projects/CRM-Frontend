@@ -22,6 +22,11 @@ export interface ApiResponse<T> {
   message?: string;
 }
 
+export interface PaginatedResponse<T> {
+  data: T[];
+}
+
+
 const API_URL = import.meta.env.VITE_API_URL;
 
 // Función para manejar errores
@@ -60,13 +65,26 @@ export const createUser = async (userData: User): Promise<ApiResponse<User>> => 
 // Obtener todos los usuarios
 export const getAllUsers = async (): Promise<ApiResponse<User[]>> => {
   try {
-    const response = await fetch(`${API_URL}users`);
+    const response = await fetch(`${API_URL}/users`);
     const data = await response.json();
     return { success: response.ok, data };
   } catch (error) {
     throw handleError(error);
   }
 };
+
+export const getUsersByOffice = async (
+  officeId: string
+): Promise<ApiResponse<PaginatedResponse<User>>> => {
+  try {
+    const response = await fetch(`${API_URL}/users/buscar/por/oficina/${officeId}`);
+    const data = await response.json();
+    return { success: response.ok, data };
+  } catch (error) {
+    throw handleError(error);
+  }
+};
+
 
 // Obtener usuario por ID
 export const getUserById = async (id: string): Promise<ApiResponse<User>> => {
@@ -174,15 +192,5 @@ export const updateOficinasPermitidas = async (idVendedor: string, selectedOffic
     }
     console.error('Error desconocido:', error);
     return { error: 'Error desconocido' };
-  }
-};
-
-export const getUsersByOffice = async (officeId: string): Promise<ApiResponse<User[]>> => {
-  try {
-    const response = await fetch(`${API_URL}/users/buscar/por/oficina/${officeId}`);
-    const data = await response.json();
-    return { success: response.ok, data };
-  } catch (error) {
-    throw handleError(error);
   }
 };
