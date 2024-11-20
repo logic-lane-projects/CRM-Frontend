@@ -6,16 +6,18 @@ import { useAuthToken } from "../../hooks/useAuthToken";
 import { Toast } from "../../components/Toast/toast";
 
 interface PermisosUsuarioProps {
-  user: { permisos?: string[], _id: string };
+  user: { permisos?: string[]; _id: string };
 }
 
 export default function PermisosUsuario({ user }: PermisosUsuarioProps) {
   const { userInfo } = useAuthToken();
-  const [selectedPermissions, setSelectedPermissions] = useState<string[]>(user.permisos ?? []);  // Cambio aquí
+  const [selectedPermissions, setSelectedPermissions] = useState<string[]>(
+    user.permisos ?? []
+  );
   const [loadingUpdate, setLoadingUpdate] = useState<boolean>(false);
 
   useEffect(() => {
-    setSelectedPermissions(user.permisos ?? []);  // Cambio aquí
+    setSelectedPermissions(user.permisos ?? []);
   }, [user.permisos]);
 
   const handleCheckboxChange = (permission: string) => {
@@ -31,9 +33,9 @@ export default function PermisosUsuario({ user }: PermisosUsuarioProps) {
   const handleUpdatePermissions = async () => {
     if (!userInfo) {
       Toast.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'No se ha podido cargar la información del usuario.',
+        icon: "error",
+        title: "Error",
+        text: "No se ha podido cargar la información del usuario.",
       });
       return;
     }
@@ -41,33 +43,38 @@ export default function PermisosUsuario({ user }: PermisosUsuarioProps) {
     setLoadingUpdate(true);
 
     try {
-      const response = await updatePermissions(userInfo.id, user._id, selectedPermissions);
+      const response = await updatePermissions(
+        userInfo.id,
+        user._id,
+        selectedPermissions
+      );
 
       if (response && response.result) {
         Toast.fire({
-          icon: 'success',
-          title: 'Éxito',
-          text: 'Permisos actualizados con éxito',
-          timer: 5000
+          icon: "success",
+          title: "Éxito",
+          text: "Permisos actualizados con éxito",
+          timer: 5000,
         });
         setTimeout(() => {
           window.location.reload();
         }, 500);
       } else {
-        const errorMessage = response?.error || 'Error al actualizar los permisos.';
+        const errorMessage =
+          response?.error || "Error al actualizar los permisos.";
         Toast.fire({
-          icon: 'error',
-          title: 'Error',
+          icon: "error",
+          title: "Error",
           text: errorMessage,
-          timer: 5000
+          timer: 5000,
         });
       }
     } catch (error) {
       Toast.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Hubo un problema al actualizar los permisos.',
-        timer: 5000
+        icon: "error",
+        title: error || "Error",
+        text: "Hubo un problema al actualizar los permisos.",
+        timer: 5000,
       });
     } finally {
       setLoadingUpdate(false);

@@ -16,7 +16,7 @@ import { getAllOffices } from "../../services/oficinas";
 import { useAuthToken } from "../../hooks/useAuthToken";
 
 export default function Usuarios() {
-  const {userInfo} = useAuthToken();
+  const { userInfo } = useAuthToken();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
@@ -34,10 +34,9 @@ export default function Usuarios() {
       if (!userInfo?.role) {
         return;
       }
-  
+
       try {
         if (userInfo.role === "administrador") {
-          console.log("Es administrador");
           const response = await getAllUsers();
           if (response.success && Array.isArray(response.data)) {
             setUsuarios(response.data);
@@ -45,14 +44,12 @@ export default function Usuarios() {
             throw new Error(response.message || "Error al cargar usuarios");
           }
         } else {
-          console.log("No es administrador");
           const city = userInfo.city;
           if (!city) {
             throw new Error("No se pudo determinar la ciudad del usuario");
           }
-  
+
           const currentOfficeId = localStorage.getItem("oficinaActual");
-          console.log(currentOfficeId);
           if (currentOfficeId) {
             const response = await getUsersByOffice(currentOfficeId);
             if (response.success && Array.isArray(response?.data?.data)) {
@@ -80,7 +77,7 @@ export default function Usuarios() {
         setLoading(false);
       }
     };
-  
+
     const fetchOffices = async () => {
       try {
         const allOfficesResponse = await getAllOffices();
@@ -91,15 +88,10 @@ export default function Usuarios() {
         console.error("Error fetching offices:", error);
       }
     };
-  
+
     fetchUsers();
     fetchOffices();
   }, [userInfo]);
-  
-  
-  
-  
-  
 
   const filteredUsuarios = Array.isArray(usuarios)
     ? usuarios.filter((usuario: User) => {
@@ -287,7 +279,9 @@ export default function Usuarios() {
           </div>
         </div>
       </Card>
-      {isOpen && <ModalRegistroUsuarios isOpen={isOpen} setIsOpen={setIsOpen} />}
+      {isOpen && (
+        <ModalRegistroUsuarios isOpen={isOpen} setIsOpen={setIsOpen} />
+      )}
     </div>
   );
 }
