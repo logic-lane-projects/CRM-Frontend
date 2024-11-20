@@ -129,13 +129,6 @@ export default function Usuarios() {
       { _id, name, email, city, role, oficinas_permitidas }: User,
       index: number
     ) => {
-      const officeNames = oficinas_permitidas
-        ?.map((officeId) => {
-          const office = offices.find((office) => office._id === officeId);
-          return office?.nombre || "Oficina desconocida";
-        })
-        .join(", ");
-
       return (
         <IndexTable.Row
           id={_id ?? "unknown-id"}
@@ -152,7 +145,11 @@ export default function Usuarios() {
           <IndexTable.Cell>{email ?? "Correo desconocido"}</IndexTable.Cell>
           <IndexTable.Cell>{city ?? "Ciudad desconocida"}</IndexTable.Cell>
           <IndexTable.Cell>
-            {officeNames || (
+            {oficinas_permitidas?.length ? (
+              <Button onClick={() => navigate(`/usuario/${_id}`)}>
+                Ver oficinas
+              </Button>
+            ) : (
               <Button
                 onClick={() => navigate(`/usuario/${_id}`)}
                 variant="primary"
@@ -161,6 +158,7 @@ export default function Usuarios() {
               </Button>
             )}
           </IndexTable.Cell>
+
           <IndexTable.Cell>
             <Badge>{role ?? "Sin rol"}</Badge>
           </IndexTable.Cell>
