@@ -1,14 +1,16 @@
 // src/services/users.ts
 export interface User {
-  id?: string;
-  cellphone: string;
-  city: string;
-  email: string;
-  maternal_surname: string;
+  id: string;
   name: string;
   paternal_surname: string;
+  maternal_surname: string;
+  email: string;
+  cellphone: string;
+  city: string;
   role: string;
-  coordinador_asignado: string | null;
+  state: string;
+  permisos: string[];
+  oficinas_permitidas: string[];
 }
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -149,25 +151,25 @@ export const assignSeller = async (
   }
 };
 
-
-
-export const getLeadsBySellerAndRole = async (sellerId:string, role:string) => {
+export const getLeadsBySellerAndRole = async (
+  sellerId: string,
+  role: string
+) => {
   try {
     const response = await fetch(
       `${API_URL}client/buscar_leads_por_vendedor_y_tipo_client/all/${sellerId}/${role}`,
       {
         method: "GET",
       }
-    );    
-    
+    );
+
     if (!response.ok) {
       throw new Error("Error fetching leads assigned to seller");
     }
 
-    return await response.json();    
+    return await response.json();
   } catch (error) {
     console.error("Error in getLeadsBySellerAndRole:", error);
     throw error;
   }
 };
-

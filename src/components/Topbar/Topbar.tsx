@@ -1,4 +1,4 @@
-import { TopBar, ActionList, Frame, Text} from "@shopify/polaris";
+import { TopBar, ActionList, Frame, Badge} from "@shopify/polaris";
 import { ArrowLeftIcon } from "@shopify/polaris-icons";
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
@@ -39,7 +39,7 @@ export function TopBar1({ toggleSidebar }: TopBarProps) {
 
   const logo = {
     topBarSource:
-      "https://cdn.shopify.com/s/files/1/2376/3301/files/Shopify_Secondary_Inverted.png",
+      "/images/CRM_1.png",
     width: 86,
     url: "/",
     accessibilityLabel: "Shopify",
@@ -69,19 +69,32 @@ export function TopBar1({ toggleSidebar }: TopBarProps) {
       ]}
       name={cortarEmailAntesDeArroba(email || "")}
       detail={email || ""}
-      initials={email?.slice(0, 2)}
+      initials={email?.slice(0, 2).toUpperCase()}
       open={isUserMenuOpen}
       onToggle={toggleIsUserMenuOpen}
     />
   );
-  const cityMarkup = userInfo?.city ? (
-    <div className="flex items-center justify-center w-full h-full mr-10">
-        <Text variant="bodyLg" as="p" tone="text-inverse"  fontWeight="bold">
-          Ciudad: {userInfo.city}
-        </Text>
+  const userInfoMarkup = (
+    <div className="flex items-center justify-center w-full h-full">
+      {userInfo?.city && (
+        <div className="mr-5">
+          <Badge tone="info">
+            {userInfo.city}
+          </Badge>
+        </div>
+        
+      )}
+      <div className="mr-5">
+        {userInfo?.role && (
+        <Badge tone="success">
+          {userInfo.role.toUpperCase()}
+        </Badge>
+      )}
+      </div>
+      
     </div>
-    
-  ) : null;
+  );
+
 
   const searchResultsMarkup = (
     <ActionList
@@ -93,7 +106,7 @@ export function TopBar1({ toggleSidebar }: TopBarProps) {
     <TopBar
       showNavigationToggle
       userMenu={userMenuMarkup}
-      secondaryMenu={cityMarkup}
+      secondaryMenu={userInfoMarkup}
       searchResults={searchResultsMarkup}
       onNavigationToggle={handleNavigationToggle}
     />

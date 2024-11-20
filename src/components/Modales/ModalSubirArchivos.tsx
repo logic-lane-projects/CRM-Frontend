@@ -42,7 +42,6 @@ export default function ModalSubirArchivos({
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
       const selectedFile = event.target.files[0];
-
       const fileName = selectedFile.name;
       if (uploadedFileNames.includes(fileName)) {
         Toast.fire({
@@ -51,7 +50,6 @@ export default function ModalSubirArchivos({
         });
         return;
       }
-
       if (selectedFile.type !== "application/pdf") {
         Toast.fire({
           icon: "warning",
@@ -59,36 +57,21 @@ export default function ModalSubirArchivos({
         });
         return;
       }
-
       setFileToUpload(selectedFile);
     }
   };
 
   const handleFileUpload = async () => {
-    if (
-      !fileToUpload ||
-      (!selectedOption &&
-        selectedOption !== "otro" &&
-        !pathname.includes("prospecto"))
-    ) {
+    if (!fileToUpload || (!selectedOption && !pathname.includes("prospecto"))) {
       Toast.fire({
         icon: "warning",
         title: "Por favor selecciona un archivo y una opción",
       });
       return;
     }
-    if (pathname.includes("prospecto") && !fileToUpload) {
-      Toast.fire({
-        icon: "warning",
-        title: "Por favor selecciona un archivo",
-      });
-      return;
-    }
-
     try {
       setIsLoading(true);
       let renamedFile: File;
-
       if (
         regimen &&
         selectedOption &&
@@ -100,38 +83,35 @@ export default function ModalSubirArchivos({
           type: fileToUpload.type,
         });
         await uploadFileByClientId(id!, renamedFile, userInfo.id);
-        setIsLoading(false);
       } else if (
         regimen &&
-        (selectedOption === "otro" || isPayment) &&
+        selectedOption === "otro" &&
         userInfo &&
         userInfo.id
       ) {
-        renamedFile = new File([fileToUpload], fileName || "archivo_pago.pdf", {
-          type: fileToUpload.type,
-        });
+        renamedFile = new File(
+          [fileToUpload],
+          `${fileName.endsWith(".pdf") ? fileName : `${fileName}.pdf`}`,
+          { type: fileToUpload.type }
+        );
         const formData = new FormData();
         formData.append("archivo_pago", renamedFile);
         await uploadPaymentFileById(id!, formData, userInfo.id);
-        setIsLoading(false);
       } else if (!regimen && !isPayment && userInfo && userInfo.id) {
         renamedFile = new File([fileToUpload], "archivo_pago.pdf", {
           type: fileToUpload.type,
         });
         const formData = new FormData();
         formData.append("archivo_pago", renamedFile);
-        await uploadPaymentFileById(id!, formData, userInfo?.id);
-        setIsLoading(false);
+        await uploadPaymentFileById(id!, formData, userInfo.id);
       }
-
       Toast.fire({
         icon: "success",
         title: "Archivo subido correctamente",
       });
       if (pathname.includes("prospecto")) {
         navigate("/leads?selected=comprador");
-      }
-      if (!pathname.includes("prospecto")) {
+      } else {
         setTimeout(() => {
           window.location.reload();
         }, 500);
@@ -149,6 +129,8 @@ export default function ModalSubirArchivos({
         icon: "error",
         title: errorMessage,
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 

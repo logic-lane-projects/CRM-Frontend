@@ -1,20 +1,13 @@
 import React, { useState, useEffect } from "react";
-import {
-  BrowserRouter as Router,
-  Route,
-  Routes,
-  useNavigate,
-} from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { useAuthToken } from "./hooks/useAuthToken";
 import Home from "./pages/Home/Home";
 import Login from "./pages/Login/Login";
 import NotFound from "./pages/NotFound/NotFound";
 import Sidebar from "./components/Sidebar/Sidebar";
 import { TopBar1 } from "./components/Topbar/Topbar";
-import Vendedores from "./pages/Vendedores/Vendedores";
 import Leads from "./pages/Leads/All";
 import LeadInfo from "./pages/Leads/Leads[id]";
-import InfoVendedores from "./pages/Vendedores/Vendedores[id]";
 import ClientInfo from "./pages/Clientes/Clients[id]";
 import ProspectInfo from "./pages/Prospect/Prospect[id]";
 import CompradorInfo from "./pages/Buyer/Buyer[id]";
@@ -24,6 +17,9 @@ import InfoCoordinador from "./pages/Coordinadores/Coordinadores[id]";
 import Footer from "./components/Footer/Footer";
 import SinAsignacion from "./pages/SinAsignacion/SinAsignacion";
 import SellerLeads from "./pages/Leads/SellerLeads";
+import Usuarios from "./pages/Usuarios/Usuarios";
+import InfoUsuarios from "./pages/Usuarios/Usuarios[id]";
+import Archivos from "./pages/Archivos/Archivos";
 
 const App: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
@@ -61,26 +57,6 @@ const App: React.FC = () => {
     </>
   );
 
-  const PrivateRoute: React.FC<{ children: React.ReactNode; roles?: string[] }> = ({
-    children,
-    roles,
-  }) => {
-    const navigate = useNavigate();
-
-    useEffect(() => {
-      const email = localStorage.getItem("email");
-
-      if (!email) {
-        navigate("/");
-      } else if (roles && userInfo && !roles.includes(userInfo.role)) {
-        navigate("/");
-      }
-    }, [navigate, roles]);
-
-
-    return <>{children}</>;
-  };
-
   return (
     <Router>
       <Routes>
@@ -88,130 +64,113 @@ const App: React.FC = () => {
         <Route
           path="/inicio"
           element={
-            <PrivateRoute>
-              <AppLayout>
-                <Home />
-              </AppLayout>
-            </PrivateRoute>
+            <AppLayout>
+              <Home />
+            </AppLayout>
           }
         />
         <Route
-          path="/vendedores"
+          path="/usuarios"
           element={
-            <PrivateRoute roles={["administrador"]}>
-              <AppLayout>
-                <Vendedores />
-              </AppLayout>
-            </PrivateRoute>
+            <AppLayout>
+              <Usuarios />
+            </AppLayout>
           }
         />
         <Route
-          path="/vendedor/:id"
+          path="/usuario/:id"
           element={
-            <PrivateRoute roles={["administrador"]}>
-              <AppLayout>
-                <InfoVendedores />
-              </AppLayout>
-            </PrivateRoute>
+            <AppLayout>
+              <InfoUsuarios />
+            </AppLayout>
           }
         />
         <Route
           path="/leads"
           element={
-            <PrivateRoute>
-              <AppLayout>
-                {userInfo && userInfo.role === "vendedor" ? <SellerLeads /> : <Leads />}              </AppLayout>
-            </PrivateRoute>
+            <AppLayout>
+              {userInfo && userInfo.role === "vendedor" ? <SellerLeads /> : <Leads />}
+            </AppLayout>
           }
         />
         <Route
           path="/leads/:id"
           element={
-            <PrivateRoute>
-              <AppLayout>
-                <LeadInfo />
-              </AppLayout>
-            </PrivateRoute>
+            <AppLayout>
+              <LeadInfo />
+            </AppLayout>
           }
         />
         <Route
           path="/cliente/:id"
           element={
-            <PrivateRoute>
-              <AppLayout>
-                <ClientInfo />
-              </AppLayout>
-            </PrivateRoute>
+            <AppLayout>
+              <ClientInfo />
+            </AppLayout>
           }
         />
         <Route
           path="/prospecto/:id"
           element={
-            <PrivateRoute>
-              <AppLayout>
-                <ProspectInfo />
-              </AppLayout>
-            </PrivateRoute>
+            <AppLayout>
+              <ProspectInfo />
+            </AppLayout>
           }
         />
         <Route
           path="/comprador/:id"
           element={
-            <PrivateRoute>
-              <AppLayout>
-                <CompradorInfo />
-              </AppLayout>
-            </PrivateRoute>
+            <AppLayout>
+              <CompradorInfo />
+            </AppLayout>
           }
         />
         <Route
           path="/oficinas"
           element={
-            <PrivateRoute>
-              <AppLayout>
-                <Oficinas />
-              </AppLayout>
-            </PrivateRoute>
+            <AppLayout>
+              <Oficinas />
+            </AppLayout>
           }
         />
         <Route
           path="/coordinadores"
           element={
-            <PrivateRoute roles={["administrador", "coordinador"]}>
-              <AppLayout>
-                <Coordinadores />
-              </AppLayout>
-            </PrivateRoute>
+            <AppLayout>
+              <Coordinadores />
+            </AppLayout>
           }
         />
         <Route
           path="/coordinador/:id"
           element={
-            <PrivateRoute roles={["administrador", "coordinador"]}>
-              <AppLayout>
-                <InfoCoordinador />
-              </AppLayout>
-            </PrivateRoute>
+            <AppLayout>
+              <InfoCoordinador />
+            </AppLayout>
           }
         />
         <Route
           path="/sin-asignacion"
           element={
-            <PrivateRoute roles={["administrador", "coordinador"]}>
-              <AppLayout>
-                <SinAsignacion />
-              </AppLayout>
-            </PrivateRoute>
+            <AppLayout>
+              <SinAsignacion />
+            </AppLayout>
+          }
+        />
+        <Route
+          path="/archivos"
+          element={
+            <AppLayout>
+              <Archivos />
+            </AppLayout>
           }
         />
         <Route
           path="*"
           element={
-            <PrivateRoute>
-              <AppLayout>
-                <NotFound />
-              </AppLayout>
-            </PrivateRoute>
+            <AppLayout>
+              <NotFound />
+            </AppLayout>
           }
         />
       </Routes>

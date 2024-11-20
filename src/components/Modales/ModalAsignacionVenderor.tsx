@@ -9,7 +9,7 @@ import {
   Button,
 } from "@shopify/polaris";
 import { getUsers, getUserById } from "../../services/users";
-import { assignSeller } from "../../services/users";
+import { assignSeller } from "../../services/user";
 import { useAuthToken } from "../../hooks/useAuthToken";
 import type { User } from "../../services/users";
 import { Toast } from "../Toast/toast";
@@ -192,21 +192,25 @@ export default function ModalAsignacionVendedor({
                       items={filteredSellers}
                       renderItem={(seller) => {
                         const { id, name, paternal_surname, email } = seller;
+                        const isSelected = selectedSellerId === id;
                         return (
                           <ResourceItem
                             id={id || ""}
                             onClick={() => setSelectedSellerId(id || null)}
                           >
                             <div
-                              style={{
-                                fontWeight:
-                                  selectedSellerId === id ? "bold" : "normal",
-                              }}
+                              className={`p-2 cursor-pointer ${
+                                isSelected
+                                  ? "bg-gray-200 border border-black"
+                                  : "bg-white"
+                              }`}
                             >
-                              <p>
-                                {name} {paternal_surname}
-                              </p>
-                              <p>{email}</p>
+                              <div className={isSelected ? "font-bold" : "font-normal"}>
+                                <p>
+                                  {name} {paternal_surname}
+                                </p>
+                                <p>{email}</p>
+                              </div>
                             </div>
                           </ResourceItem>
                         );

@@ -1,47 +1,53 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import {
-  getUserById,
-  updateUser,
-  deleteUser,
-  User,
-} from "../../services/users";
+import { getUserById, updateUser, deleteUser, User } from "../../services/user";
 import { Toast } from "../../components/Toast/toast";
 import { Button, Card, TextField, Modal, Select } from "@shopify/polaris";
 import { UserRole } from "../../types/enums";
+import { Ciudades } from "../../utils/estados";
+import PermisosUsuario from "./PermisosUsuario";
+import OficinasPermitidas from "./OficinasPermitidas";
 
-export default function InfoVendedores() {
+export default function InfoUsuarios() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isSaving, setIsSaving] = useState(false); 
+  const [isSaving, setIsSaving] = useState(false);
+  const [estados, setEstados] = useState<string[]>([]);
+  const [ciudades, setCiudades] = useState<string[]>([]);
 
-  // Manejando el estado de cada campo
   const [name, setName] = useState<string>("");
   const [paternalSurname, setPaternalSurname] = useState<string>("");
   const [maternalSurname, setMaternalSurname] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [cellphone, setCellphone] = useState<string>("");
   const [city, setCity] = useState<string>("");
-  const [role, setRole] = useState<string>(UserRole.Vendedor); 
+  const [state, setState] = useState<string>("");
+  const [role, setRole] = useState<string>(UserRole.Vendedor);
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
         setLoading(true);
         if (id) {
-          const fetchedUser = await getUserById(id);
-          setUser(fetchedUser);
-          setName(fetchedUser.name);
-          setPaternalSurname(fetchedUser.paternal_surname);
-          setMaternalSurname(fetchedUser.maternal_surname);
-          setEmail(fetchedUser.email);
-          setCellphone(fetchedUser.cellphone);
-          setCity(fetchedUser.city);
-          setRole(fetchedUser.role); 
+          const response = await getUserById(id);
+
+          if (response.success && response.data) {
+            setUser(response.data);
+            setName(response.data.name);
+            setPaternalSurname(response.data.paternal_surname);
+            setMaternalSurname(response.data.maternal_surname);
+            setEmail(response.data.email);
+            setCellphone(response.data.cellphone);
+            setCity(response.data.city);
+            setState(response.data.state);
+            setRole(response.data.role);
+          } else {
+            setError("No se pudo obtener la información del usuario.");
+          }
         } else {
           setError("ID no proporcionado.");
         }
@@ -60,27 +66,47 @@ export default function InfoVendedores() {
     fetchUser();
   }, [id]);
 
+  useEffect(() => {
+    setEstados(Ciudades.map((item) => item.Estado));
+  }, []);
+
+  useEffect(() => {
+    if (state) {
+      const selectedEstado = Ciudades.find((item) => item.Estado === state);
+      setCiudades(selectedEstado ? selectedEstado.Ciudad : []);
+    }
+  }, [state]);
+
   const handleSave = async () => {
     if (id && user) {
       setIsSaving(true);
       try {
-        const updatedUser = await updateUser(id, {
+        const response = await updateUser(id, {
           name,
           paternal_surname: paternalSurname,
           maternal_surname: maternalSurname,
           email,
           cellphone,
           city,
+          state,
           role,
-          coordinador_asignado: null
         });
 
-        setUser(updatedUser);
-
-        Toast.fire({
-          icon: "success",
-          title: "Usuario actualizado con éxito",
-        });
+        if (response.success && response.data) {
+          setUser(response.data);
+          Toast.fire({
+            icon: "success",
+            title: "Usuario actualizado con éxito",
+          });
+          setTimeout(() => {
+            window.location.reload();
+          }, 500);
+        } else {
+          Toast.fire({
+            icon: "error",
+            title: response.message || "Error al actualizar el usuario",
+          });
+        }
       } catch (error) {
         Toast.fire({
           icon: "error",
@@ -127,6 +153,9 @@ export default function InfoVendedores() {
   const roleOptions = [
     { label: "Vendedor", value: UserRole.Vendedor },
     { label: "Administrador", value: UserRole.Administrador },
+    { label: "Asignador", value: UserRole.Asignador },
+    { label: "Coordinador", value: UserRole.Coordinador },
+    { label: "Marketing", value: UserRole.Marketing },
   ];
 
   return (
@@ -171,6 +200,7 @@ export default function InfoVendedores() {
               label=""
               type="email"
               autoComplete="off"
+              disabled
             />
           </div>
           <div className="p-2 grid grid-cols-3">
@@ -184,12 +214,27 @@ export default function InfoVendedores() {
             />
           </div>
           <div className="p-2 grid grid-cols-3">
+            <p className="font-bold">Estado:</p>
+            <Select
+              label=""
+              options={estados.map((estado) => ({
+                label: estado,
+                value: estado,
+              }))}
+              value={state}
+              onChange={(value) => setState(value)}
+            />
+          </div>
+          <div className="p-2 grid grid-cols-3">
             <p className="font-bold">Ciudad:</p>
-            <TextField
+            <Select
+              label=""
+              options={ciudades.map((ciudad) => ({
+                label: ciudad,
+                value: ciudad,
+              }))}
               value={city}
               onChange={(value) => setCity(value)}
-              label=""
-              autoComplete="off"
             />
           </div>
           <div className="p-2 grid grid-cols-3">
@@ -198,7 +243,7 @@ export default function InfoVendedores() {
               label=""
               options={roleOptions}
               value={role}
-              onChange={(value) => setRole(value)} 
+              onChange={(value) => setRole(value)}
             />
           </div>
           <div className="p-3 flex justify-end">
@@ -214,6 +259,14 @@ export default function InfoVendedores() {
               </Button>
             </div>
           </div>
+          <PermisosUsuario user={{ ...user, _id: user._id ?? "" }} />
+          <OficinasPermitidas
+            user={{
+              ...user,
+              _id: user?._id ?? "",
+              oficinas_permitidas: user?.oficinas_permitidas ?? [],
+            }}
+          />
         </Card>
       ) : (
         <p>No se encontró el vendedor.</p>

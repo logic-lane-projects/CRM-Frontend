@@ -1,11 +1,12 @@
 import { Button, Icon, TextField, Select } from "@shopify/polaris";
 import { PhoneIcon, EmailIcon } from "@shopify/polaris-icons";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ModalRegimenFiscal from "../../components/Modales/ModalRegimenFiscal";
 import { useLocation } from "react-router-dom";
 import { updateClient } from "../../services/leads";
 import { useAuthToken } from "../../hooks/useAuthToken";
 import { Toast } from "../../components/Toast/toast";
+import { Ciudades } from "../../utils/estados";
 
 export interface InfoLeads {
   _id?: string;
@@ -25,7 +26,7 @@ export interface InfoLeads {
   updated_at?: string;
   type_person?: string;
   is_client?: boolean;
-  assigned_to?:string | null;
+  assigned_to?: string | null;
 }
 
 interface InfoLeadProps {
@@ -38,8 +39,6 @@ export default function InfoLead({ lead }: InfoLeadProps) {
   const location = useLocation();
   const pathname = location.pathname;
   const [isLoading, setIsLoading] = useState(false);
-
-  // Estados para los campos editables
   const [names, setNames] = useState(lead.names);
   const [paternalSurname, setPaternalSurname] = useState(lead.paternal_surname);
   const [maternalSurname, setMaternalSurname] = useState(lead.maternal_surname);
@@ -47,14 +46,24 @@ export default function InfoLead({ lead }: InfoLeadProps) {
   const [phoneNumber, setPhoneNumber] = useState(lead.phone_number);
   const [city, setCity] = useState(lead.city || "");
   const [state, setState] = useState(lead.state || "");
-  const [birthdayDate, setBirthdayDate] = useState(lead.birthday_date);
-  const [age, setAge] = useState(lead.age ? lead.age.toString() : "");
+  const [ciudades, setCiudades] = useState<string[]>([]);
+  const [birthdayDate, setBirthdayDate] = useState(lead?.birthday_date);
+  const formattedDate = new Date(birthdayDate).toISOString().split("T")[0];
 
-  // Estado para tipo de lead y género
+  console.log(birthdayDate)
+  const [age, setAge] = useState(lead.age ? lead.age.toString() : "");
   const [typeLead, setTypeLead] = useState(lead.type_lead);
   const [gender, setGender] = useState(lead.gender);
 
-  // Opciones para el campo select
+  useEffect(() => {
+    if (state) {
+      const selectedEstado = Ciudades.find((item) => item.Estado === state);
+      setCiudades(selectedEstado ? selectedEstado.Ciudad : []);
+    } else {
+      setCiudades([]);
+    }
+  }, [state]);
+
   const typeLeadOptions = [
     { label: "Frío", value: "FRIO" },
     { label: "Tibio", value: "TIBIO" },
@@ -66,7 +75,6 @@ export default function InfoLead({ lead }: InfoLeadProps) {
     { label: "Femenino", value: "FEMALE" },
   ];
 
-  // Función para manejar la actualización del cliente
   const handleUpdateClient = async () => {
     setIsLoading(true);
     const updatedLeadData: InfoLeads = {
@@ -83,28 +91,45 @@ export default function InfoLead({ lead }: InfoLeadProps) {
       gender,
       status: typeof lead.status === "boolean" ? lead.status : null,
       is_client: true,
-      assigned_to: lead.assigned_to
+      assigned_to: lead.assigned_to,
     };
 
     try {
       if (userInfo && userInfo.id) {
         await updateClient(lead._id || "", userInfo.id, updatedLeadData);
-        setIsLoading(false);
+        Toast.fire({ icon: "success", title: "Cliente actualizado" });
       }
-      Toast.fire({ icon: "success", title: "Cliente actualizado" });
-    } catch (error) {
-      setIsLoading(true);
-
+    } catch {
       Toast.fire({
         icon: "error",
-        title: error || "Error al actualizar el cliente",
+        title: "Error al actualizar el cliente",
       });
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  const calculateAge = (date: string) => {
+    const today = new Date();
+    const birthDate = new Date(date);
+    let calculatedAge = today.getFullYear() - birthDate.getFullYear();
+    const monthDifference = today.getMonth() - birthDate.getMonth();
+    if (
+      monthDifference < 0 ||
+      (monthDifference === 0 && today.getDate() < birthDate.getDate())
+    ) {
+      calculatedAge--;
+    }
+    return calculatedAge.toString();
+  };
+
+  const handleBirthdayDateChange = (value: string) => {
+    setBirthdayDate(value);
+    setAge(calculateAge(value));
   };
 
   return (
     <div>
-      {/* Foto y Nombre */}
       <div className="flex items-center border-b-2">
         <img src="/images/avatar.png" className="w-20" alt="Avatar" />
         <div>
@@ -121,66 +146,76 @@ export default function InfoLead({ lead }: InfoLeadProps) {
           </div>
         </div>
       </div>
-
-      {/* Detalles Lead */}
       <div className="p-2">
         <TextField
           label="Nombre"
           value={names}
           onChange={(value) => setNames(value)}
-          autoComplete=""
+          autoComplete="off"
         />
         <TextField
           label="Apellido Paterno"
           value={paternalSurname}
           onChange={(value) => setPaternalSurname(value)}
-          autoComplete=""
+          autoComplete="off"
         />
         <TextField
           label="Apellido Materno"
           value={maternalSurname}
           onChange={(value) => setMaternalSurname(value)}
-          autoComplete=""
+          autoComplete="off"
         />
         <TextField
           label="Correo"
           value={email}
           onChange={(value) => setEmail(value)}
+          autoComplete="off"
           type="email"
-          autoComplete="email"
         />
         <TextField
           label="Teléfono"
           value={phoneNumber}
           onChange={(value) => setPhoneNumber(value)}
           type="tel"
-          autoComplete="tel"
+          autoComplete="off"
         />
-        <TextField
-          label="Ciudad"
-          value={city}
-          onChange={(value) => setCity(value)}
-          autoComplete=""
-        />
-        <TextField
+        <Select
           label="Estado"
+          options={[
+            { label: "Selecciona una opción", value: "" },
+            ...Ciudades.map((estado) => ({
+              label: estado.Estado,
+              value: estado.Estado,
+            })),
+          ]}
           value={state}
           onChange={(value) => setState(value)}
-          autoComplete=""
+        />
+        <Select
+          label="Ciudad"
+          options={[
+            { label: "Selecciona una opción", value: "" },
+            ...ciudades.map((ciudad) => ({
+              label: ciudad,
+              value: ciudad,
+            })),
+          ]}
+          value={city}
+          onChange={(value) => setCity(value)}
         />
         <TextField
           label="Fecha de nacimiento"
-          value={birthdayDate}
-          onChange={(value) => setBirthdayDate(value)}
-          autoComplete=""
+          value={formattedDate}
+          onChange={(value) => handleBirthdayDateChange(value)}
           type="date"
+          autoComplete="off"
         />
         <TextField
           label="Edad"
           value={age}
-          onChange={(value) => setAge(value)}
           type="number"
-          autoComplete=""
+          disabled
+          autoComplete="off"
         />
         <Select
           label="Tipo de lead"
@@ -206,12 +241,7 @@ export default function InfoLead({ lead }: InfoLeadProps) {
           <div className="flex items-center gap-3">
             <strong>Regimen fiscal: </strong>
             {lead.type_person ? lead.type_person : "Sin Asignacion"}
-            <Button
-              onClick={() => {
-                setIsRegimenOpen(true);
-              }}
-              variant="primary"
-            >
+            <Button onClick={() => setIsRegimenOpen(true)} variant="primary">
               Cambiar
             </Button>
           </div>

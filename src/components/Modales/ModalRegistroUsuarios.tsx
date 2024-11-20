@@ -10,9 +10,12 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../../firebase";
 import { Toast } from "../Toast/toast";
 import { UserRole } from "../../types/enums";
-import { createUser } from '../../services/users';
+import { createUser } from "../../services/user";
+import { useNavigate } from "react-router-dom";
+import { Ciudades } from "../../utils/estados";
+import { useAuthToken } from "../../hooks/useAuthToken";
 
-interface ModalRegistroVendedoresProps {
+interface ModalRegistroUsuariosProps {
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
 }
@@ -26,7 +29,9 @@ interface FormValues {
   confirmContrasena: string;
   telefono: string;
   ciudad: string;
+  estado: string;
   rol: UserRole;
+  oficinas_permitidas: string[];
 }
 
 const initialFormValues: FormValues = {
@@ -38,57 +43,79 @@ const initialFormValues: FormValues = {
   confirmContrasena: "",
   telefono: "",
   ciudad: "",
+  estado: "",
+  oficinas_permitidas: [],
   rol: UserRole.Vendedor,
 };
 
-export default function ModalRegistroVendedores({
+export default function ModalRegistroUsuarios({
   isOpen,
   setIsOpen,
-}: ModalRegistroVendedoresProps) {
+}: ModalRegistroUsuariosProps) {
+  const navigate = useNavigate();
+  const { permisos } = useAuthToken();
+  const crearVendedores = permisos?.includes("Crear Vendedores");
+  const crearAdministradores = permisos?.includes("Crear Administradores");
+  const crearAsignadores = permisos?.includes("Crear Asignadores");
+  const crearCoordinadores = permisos?.includes("Crear Coordinadores");
+  const crearMarketing = permisos?.includes("Crear Marketing");
   const [formValues, setFormValues] = useState<FormValues>(initialFormValues);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [passwordsMatch, setPasswordsMatch] = useState(true);
+  const [estados, setEstados] = useState<string[]>([]);
+  const [ciudades, setCiudades] = useState<string[]>([]);
 
   const roleOptions = [
-    { label: "Vendedor", value: UserRole.Vendedor },
-    { label: "Administrador", value: UserRole.Administrador },
-    { label: "Asignador", value: UserRole.Asignador },
-  ];
+    { label: "Vendedor", value: UserRole.Vendedor, permiso: crearVendedores },
+    { label: "Administrador", value: UserRole.Administrador, permiso: crearAdministradores },
+    { label: "Asignador", value: UserRole.Asignador, permiso: crearAsignadores },
+    { label: "Coordinador", value: UserRole.Coordinador, permiso: crearCoordinadores },
+    { label: "Marketing", value: UserRole.Marketing, permiso: crearMarketing },
+  ].filter((role) => role.permiso);
+  
+
+  useEffect(() => {
+    setEstados(Ciudades.map((item) => item.Estado));
+  }, []);
 
   const handleFieldChange = (field: keyof FormValues, value: string) => {
     setFormValues((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, [field]: "" }));
-
     if (field === "contrasena" || field === "confirmContrasena") {
       setPasswordsMatch(
         formValues.contrasena === value ||
-        formValues.confirmContrasena === value
+          formValues.confirmContrasena === value
       );
     }
+    if (field === "estado") {
+      const selectedEstado = Ciudades.find((item) => item.Estado === value);
+      setCiudades(selectedEstado ? selectedEstado.Ciudad : []);
+    }
   };
-
-  useEffect(() => {
-    const allFieldsFilled = Object.values(formValues).every(
-      (value) => value.trim() !== ""
-    );
-    const passwordsAreEqual =
-      formValues.contrasena === formValues.confirmContrasena;
-    setIsSubmitDisabled(!(allFieldsFilled && passwordsAreEqual));
-  }, [formValues]);
 
   const handleSubmit = async () => {
     setIsLoading(true);
     const newErrors: { [key: string]: string } = {};
+
+    // Verificación de campos vacíos
     Object.keys(formValues).forEach((key) => {
       if (!formValues[key as keyof FormValues]) {
         newErrors[key] = "Campo obligatorio";
       }
     });
+
+    // Verificación de contraseñas coincidentes
     if (formValues.contrasena !== formValues.confirmContrasena) {
       newErrors.confirmContrasena = "Las contraseñas no coinciden";
     }
+
+    // Verificación de longitud mínima de la contraseña
+    if (formValues.contrasena && formValues.contrasena.length < 6) {
+      newErrors.contrasena = "La contraseña debe tener al menos 6 caracteres";
+    }
+
+    // Si hay errores, no continuar
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       setIsLoading(false);
@@ -97,8 +124,7 @@ export default function ModalRegistroVendedores({
     setErrors({});
 
     try {
-      const newUser = await createUser({
-        id: "",
+      const response = await createUser({
         name: formValues.nombre,
         paternal_surname: formValues.apellidop,
         maternal_surname: formValues.apellidom,
@@ -106,10 +132,21 @@ export default function ModalRegistroVendedores({
         cellphone: formValues.telefono,
         city: formValues.ciudad,
         role: formValues.rol,
-        coordinador_asignado: null
+        oficinas_permitidas: [],
+        permisos: [],
+        state: formValues.estado,
       });
+      if (!response.success) {
+        throw new Error(
+          response.message || "Error desconocido al crear el usuario"
+        );
+      }
 
-      console.log("Usuario creado en la base de datos:", newUser);
+      let userId: string | undefined;
+
+      if (response?.data && response.data.data) {
+        userId = response.data.data._id;
+      }
 
       const userCredential = await createUserWithEmailAndPassword(
         auth,
@@ -117,29 +154,29 @@ export default function ModalRegistroVendedores({
         formValues.contrasena
       );
       const user = userCredential.user;
-      console.log("Usuario registrado con éxito en Firebase:", user);
-      Toast.fire({ icon: "success", title: "Usuario registrado" });
-      setTimeout(() => {
-        window.location.reload();
-      }, 500)
-      setIsOpen(false);
-    } catch (error) {
-      console.error("Error al registrar el usuario:", error);
-      setErrors((prev) => ({
-        ...prev,
-        correo: "Hubo un problema al registrar el usuario",
-      }));
 
-      const errorMessage = typeof error === "string" ? error : String(error);
+      Toast.fire({
+        icon: "success",
+        title: `Usuario ${user.email} registrado`,
+        timer: 5000,
+      });
+
+      setIsOpen(false);
+      setTimeout(() => {
+        navigate(`/usuario/${userId}`);
+      }, 500);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       Toast.fire({
         icon: "error",
         title: errorMessage,
+        timer: 5000,
       });
     } finally {
       setIsLoading(false);
     }
   };
-
 
   return (
     <div>
@@ -147,17 +184,14 @@ export default function ModalRegistroVendedores({
         <Modal
           open={isOpen}
           onClose={() => setIsOpen(false)}
-          title="Registro de vendedores"
+          title="Registro de usuarios"
           primaryAction={{
             content: isLoading ? "Cargando..." : "Registrar",
             onAction: handleSubmit,
-            disabled: isSubmitDisabled || isLoading,
+            disabled: isLoading,
           }}
           secondaryActions={[
-            {
-              content: "Cancelar",
-              onAction: () => setIsOpen(false),
-            },
+            { content: "Cancelar", onAction: () => setIsOpen(false) },
           ]}
         >
           <Modal.Section>
@@ -219,13 +253,33 @@ export default function ModalRegistroVendedores({
                 autoComplete="off"
                 error={errors.telefono}
               />
-              <TextField
+              <Select
+                label="Estado"
+                options={[
+                  { label: "Selecciona una opción", value: "" },
+                  ...estados.map((estado) => ({
+                    label: estado,
+                    value: estado,
+                  })),
+                ]}
+                onChange={(value) => handleFieldChange("estado", value)}
+                value={formValues.estado}
+                error={errors.estado}
+              />
+              <Select
                 label="Ciudad"
-                value={formValues.ciudad}
+                options={[
+                  { label: "Selecciona una opción", value: "" },
+                  ...ciudades.map((ciudad) => ({
+                    label: ciudad,
+                    value: ciudad,
+                  })),
+                ]}
                 onChange={(value) => handleFieldChange("ciudad", value)}
-                autoComplete="off"
+                value={formValues.ciudad}
                 error={errors.ciudad}
               />
+
               <Select
                 label="Rol"
                 options={roleOptions}

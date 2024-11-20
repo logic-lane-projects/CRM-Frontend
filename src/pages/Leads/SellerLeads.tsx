@@ -18,7 +18,6 @@ import {
   deleteLead,
 } from "../../services/leads";
 import { All as Lead } from "../../services/buyer";
-import ModalAsignacionVendedor from "../../components/Modales/ModalAsignacionVenderor";
 import { useAuthToken } from "../../hooks/useAuthToken";
 
 export default function SellerLeads() {
@@ -36,8 +35,6 @@ export default function SellerLeads() {
   const [selectedData, setSelectedData] = useState<Lead[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selected, setSelected] = useState<string>("");
-  const [isOpenAsignacion, setIsOpenAsignacion] = useState(false);
-  const [assignedTo, setAssignedTo] = useState("");
   const [selectedResources, setSelectedResources] = useState<string[]>([]);
   const fetchData = async (clientType: string) => {
     if (userInfo && userInfo.id) {
@@ -67,15 +64,18 @@ export default function SellerLeads() {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const selectedTable = params.get("selected");
-
+  
     if (selectedTable) {
       setSelected(selectedTable);
       fetchData(selectedTable);
     } else {
-      setSelected("");
-      fetchData("");
+      const defaultSelection = "LEAD";
+      setSelected(defaultSelection);
+      fetchData(defaultSelection);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.search]);
+  
 
   const handleTableSelection = (table: string) => {
     setSelected(table);
@@ -210,7 +210,7 @@ export default function SellerLeads() {
 
   const rowMarkup = paginatedLeads.map(
     (
-      { id, names, email, phone_number, city, type_lead, status, assigned_to },
+      { id, names, email, phone_number, city, type_lead, status },
       index
     ) => (
       <IndexTable.Row
@@ -232,29 +232,6 @@ export default function SellerLeads() {
             {status ? "Activo" : "Inactivo"}
           </Badge>
         </IndexTable.Cell>
-        {userInfo && userInfo.role !== "vendedor" && (
-          <IndexTable.Cell>
-            {assigned_to ? (
-              <Button
-                onClick={() => {
-                  setIsOpenAsignacion(true);
-                  setAssignedTo(assigned_to);
-                }}
-              >
-                Ver
-              </Button>
-            ) : (
-              <Button
-                variant="primary"
-                onClick={() => {
-                  setIsOpenAsignacion(true);
-                }}
-              >
-                Asignar
-              </Button>
-            )}
-          </IndexTable.Cell>
-        )}
       </IndexTable.Row>
     )
   );
@@ -408,14 +385,6 @@ export default function SellerLeads() {
           />
         )}
       </div>
-      {isOpenAsignacion && (
-        <ModalAsignacionVendedor
-          leadIds={selectedResources}
-          setIsOpen={setIsOpenAsignacion}
-          isOpen={isOpenAsignacion}
-          assignedTo={assignedTo}
-        />
-      )}
       {isDeleteModalOpen && (
         <Modal
           open={isDeleteModalOpen}

@@ -26,6 +26,7 @@ const Login: React.FC = () => {
     undefined
   );
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingReset, setIsLoadingReset] = useState(false);
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [resetEmailError, setResetEmailError] = useState<string | undefined>(
@@ -106,7 +107,9 @@ const Login: React.FC = () => {
   };
 
   const handlePasswordReset = async () => {
+    setIsLoadingReset(true);
     if (!resetEmail) {
+      setIsLoadingReset(false);
       setResetEmailError(
         "Por favor ingrese su correo electrónico para restablecer la contraseña."
       );
@@ -121,7 +124,9 @@ const Login: React.FC = () => {
       });
       setIsResetModalOpen(false);
       setResetEmail("");
+      setIsLoadingReset(false);
     } catch (error) {
+      setIsLoadingReset(false);
       console.error("Error al enviar el correo de restablecimiento:", error);
       setResetEmailError("No se pudo enviar el correo de restablecimiento.");
     }
@@ -176,7 +181,8 @@ const Login: React.FC = () => {
             onClose={() => setIsResetModalOpen(false)}
             title="Restablecer contraseña"
             primaryAction={{
-              content: "Enviar correo de restablecimiento",
+              disabled: isLoadingReset,
+              content: isLoadingReset ? "Restableciendo..." : "Restablecer",
               onAction: handlePasswordReset,
             }}
             secondaryActions={[

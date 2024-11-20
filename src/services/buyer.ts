@@ -34,7 +34,7 @@ export const getActiveBuyers = async (): Promise<{
 }> => {
   try {
     const response = await fetch(
-      `${API_URL}buyer/active
+      `${API_URL}clientes/custom/all/COMPRADOR
   `,
       {
         method: "GET",
@@ -55,7 +55,7 @@ export const getBuyerById = async (
   id: string
 ): Promise<{ result: boolean; error: string; data: All }> => {
   try {
-    const response = await fetch(`${API_URL}buyer/active/${id}`, {
+    const response = await fetch(`${API_URL}clientes/custom/${id}`, {
       method: "GET",
     });
 

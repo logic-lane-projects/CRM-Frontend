@@ -28,13 +28,13 @@ export const getActiveClient = async (): Promise<{
   data: All[];
 }> => {
   try {
-    const response = await fetch(`${API_URL}client/active`, {
+    const response = await fetch(`${API_URL}clientes/custom/all/CLIENTE`, {
       method: "GET",
     });
     if (!response.ok) {
       throw new Error("Error al obtener los clientes activos");
     }
-    const jsonResponse = await response.json(); 
+    const jsonResponse = await response.json();
     return jsonResponse;
   } catch (error) {
     console.error("Error al obtener los clientes activos:", error);
@@ -46,7 +46,7 @@ export const getClientById = async (
   id: string
 ): Promise<{ result: boolean; error: string; data: Client }> => {
   try {
-    const response = await fetch(`${API_URL}client/active/${id}`, {
+    const response = await fetch(`${API_URL}clientes/custom/${id}`, {
       method: "GET",
     });
 
@@ -55,7 +55,7 @@ export const getClientById = async (
     }
 
     const jsonResponse = await response.json();
-    return jsonResponse; 
+    return jsonResponse;
   } catch (error) {
     console.error("Error al obtener la información del cliente", error);
     throw error;
