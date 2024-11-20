@@ -29,6 +29,7 @@ export default function Usuarios() {
   const [error, setError] = useState<string | null>(null);
   const [selectedResource, setSelectedResource] = useState<string>("");
   const [isOpenCoordinador, setIsOpenCoordinador] = useState(false);
+  const [showWithoutOffices, setShowWithoutOffices] = useState(false);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -74,6 +75,13 @@ export default function Usuarios() {
             return office?.nombre || "";
           })
           .join(", ");
+
+        if (showWithoutOffices) {
+          return (
+            !usuario.oficinas_permitidas ||
+            usuario.oficinas_permitidas.length === 0
+          );
+        }
 
         return (
           usuario.name.toLowerCase().includes(searchValue.toLowerCase()) ||
@@ -173,9 +181,22 @@ export default function Usuarios() {
     <div className="w-full flex flex-col gap-4">
       <div className="flex w-full justify-between items-center">
         <span className="font-semibold text-[20px]">Usuarios</span>
-        <Button onClick={() => setIsOpen(true)} variant="primary">
-          Registro
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={() => setIsOpen(true)} variant="primary">
+            Registro
+          </Button>
+          <Button
+            onClick={() => {
+              setShowWithoutOffices((prev) => !prev);
+              setCurrentPage(1);
+            }}
+            variant="secondary"
+          >
+            {showWithoutOffices
+              ? "Mostrar todos los usuarios"
+              : "Usuarios sin oficinas"}
+          </Button>
+        </div>
       </div>
       <Card>
         <div className="flex flex-col gap-4">
