@@ -64,10 +64,21 @@ const ModalArchivosCarpetas: React.FC<ModalArchivosCarpetasProps> = ({
       });
       return;
     }
-
+  
+    // Limpiar el nombre del archivo
+    const cleanFileName = selectedFile.name
+      .replace(/[^a-zA-Z0-9\s.]/g, "") // Permite solo letras, números, espacios y el punto (.)
+      .replace(/\s+/g, " ") // Reemplaza múltiples espacios por uno solo
+      .trim(); // Elimina espacios al inicio y final
+  
+    // Crear un nuevo archivo con el nombre limpio
+    const cleanFile = new File([selectedFile], cleanFileName, {
+      type: selectedFile.type,
+    });
+  
     setUploading(true);
     try {
-      await uploadFileToFolder(folder.id, selectedFile);
+      await uploadFileToFolder(folder.id, cleanFile);
       Toast.fire({ icon: "success", title: "Archivo subido exitosamente" });
       setSelectedFile(null);
       fetchFolderInfo();
@@ -78,6 +89,7 @@ const ModalArchivosCarpetas: React.FC<ModalArchivosCarpetasProps> = ({
       setUploading(false);
     }
   };
+  
 
   const handleDeleteFile = async (filePath: string) => {
     setDeleting(filePath);
