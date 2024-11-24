@@ -34,10 +34,6 @@ export default function LeadInfo() {
   const [isLoadingChange, setIsLoadingChange] = useState(false);
 
   useEffect(() => {
-    console.log("leadData", leadData);
-  }, [leadData]);
-
-  useEffect(() => {
     const fetchLeadData = async () => {
       try {
         if (id) {

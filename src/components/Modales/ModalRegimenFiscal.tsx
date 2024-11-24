@@ -26,7 +26,7 @@ export default function ModalRegimenFiscal({
       if (userInfo && userInfo.id) {
         await selectTypePerson(id, typePerson, userInfo.id);
       } else {
-        console.log("no hay user id");
+        Toast.fire({icon:"error", title: "User info no disponible"});
       }
       Toast.fire({ icon: "success", title: "Regimen cambiado" });
       setTimeout(() => {

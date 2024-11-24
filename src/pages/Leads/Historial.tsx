@@ -43,7 +43,6 @@ export default function Historial() {
             try {
                 if (id) {
                     const data = await getHistorialById(id);
-                    console.log('Historial obtenido:', data);
                     setHistorial(data);
                 } else {
                     setError("ID no proporcionado.");
