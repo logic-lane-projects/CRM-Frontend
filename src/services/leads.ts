@@ -139,7 +139,7 @@ export const getActiveLeads = async (): Promise<Lead[]> => {
 // Buscar leads activos por email
 export const getLeadsByEmail = async (email: string): Promise<Lead[]> => {
   try {
-    const response = await fetch(`${API_URL}/leads/email/${email}`, {
+    const response = await fetch(`leads/email/${email}`, {
       method: "GET",
     });
     if (!response.ok) {
@@ -159,7 +159,7 @@ export const getLeadsByPhoneNumber = async (
 ): Promise<Lead[]> => {
   try {
     const response = await fetch(
-      `${API_URL}/leads/phone_number/${phoneNumber}`,
+      `${API_URL}leads/phone_number/${phoneNumber}`,
       {
         method: "GET",
       }
@@ -325,6 +325,57 @@ export const getLeadsByOfficeId = async (
     return data;
   } catch (error) {
     console.error("Error al obtener leads por oficina:", error);
+    throw error;
+  }
+};
+
+// buscar por tipo de cliente, trae todos
+export const getClientsByType = async (type_cliente: string) => {
+  try {
+    const response = await fetch(`${API_URL}clientes/custom/all/${type_cliente}`);
+    if (!response.ok) {
+      throw new Error(`Error al obtener datos de ${type_cliente}`);
+    }
+    const { data } = await response.json();
+    return data;
+  } catch (error) {
+    console.error(`Error al obtener datos de ${type_cliente}:`, error);
+    throw error;
+  }
+};
+
+
+// Traer todos los clientes por oficina
+export const getAllClientsByOfficeIdAndType = async (officeId: string, type_cliente: string) => {
+  try {
+    const response = await fetch(
+      `${API_URL}clientes/buscar/por/oficinas/${officeId}?type_cliente=${type_cliente}`
+    );
+
+    if (!response.ok) {
+      throw new Error(`Error al obtener clientes: ${response.statusText}`);
+    }
+
+    const { data } = await response.json();
+    return data;
+  } catch (error) {
+    console.error(`Error al obtener clientes por oficina: ${error}`);
+    throw error;
+  }
+};
+
+export const getAllClientesByOfficeId = async (officeId: string) => {
+  try {
+    const response = await fetch(
+      `${API_URL}clientes/buscar/por/oficinas/${officeId}`
+    );
+    if (!response.ok) {
+      throw new Error(`Error al obtener clientes: ${response.statusText}`);
+    }
+    const { data } = await response.json();
+    return data;
+  } catch (error) {
+    console.error(`Error al obtener clientes por oficina: ${error}`);
     throw error;
   }
 };

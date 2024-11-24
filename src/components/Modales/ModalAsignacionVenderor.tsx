@@ -109,7 +109,7 @@ export default function ModalAsignacionVendedor({
       setIsOpen(false);
       setIsChangingSeller(false);
       setTimeout(() => {
-        // window.location.reload();
+        window.location.reload();
       }, 500);
     } catch (error) {
       Toast.fire({

@@ -3,6 +3,7 @@ const Permissions = {
   CrearLeads: "Crear Leads",
   ModificarLeads: "Modificar Leads",
   EliminarLeads: "Eliminar Leads",
+  ClientesPorOficina: "Clientes por Oficina",	
 
   // Administradores
   CrearAdministradores: "Crear Administradores",

@@ -71,7 +71,7 @@ export interface GetAllFilesResponse {
 
 export async function getAllFiles(): Promise<GetAllFilesResponse> {
   try {
-    const response = await fetch(`${API_URL}/users/buscar/archivos/generales`, {
+    const response = await fetch(`${API_URL}users/buscar/archivos/generales`, {
       method: "GET",
     });
 
