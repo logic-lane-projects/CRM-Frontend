@@ -82,34 +82,42 @@ export default function PermisosUsuario({ user }: PermisosUsuarioProps) {
   };
 
   return (
-    <div className="flex flex-col justify-center mt-10">
-      <span className="font-bold text-[20px]">Permisos del usuario</span>
-      <ul className="mt-4">
-        {Object.values(Permissions).map((permiso, index) => (
-          <li key={index} className="text-lg flex items-center">
-            <input
-              type="checkbox"
-              id={permiso}
-              value={permiso}
-              checked={selectedPermissions.includes(permiso)}
-              onChange={() => handleCheckboxChange(permiso)}
-              className="mr-2"
-            />
-            <label htmlFor={permiso}>{permiso}</label>
-          </li>
-        ))}
-      </ul>
+    <>
+      {userInfo?.permisos?.includes("Modificar permisos") ? (
+        <div className="flex flex-col justify-center mt-10">
+          <span className="font-bold text-[20px]">Permisos del usuario</span>
+          <ul className="mt-4">
+            {Object.values(Permissions).map((permiso, index) => (
+              <li key={index} className="text-lg flex items-center">
+                <input
+                  type="checkbox"
+                  id={permiso}
+                  value={permiso}
+                  checked={selectedPermissions.includes(permiso)}
+                  onChange={() => handleCheckboxChange(permiso)}
+                  className="mr-2"
+                />
+                <label htmlFor={permiso}>{permiso}</label>
+              </li>
+            ))}
+          </ul>
 
-      <div className="flex justify-end mt-4">
-        <Button
-          variant="primary"
-          onClick={handleUpdatePermissions}
-          loading={loadingUpdate}
-          disabled={loadingUpdate}
-        >
-          {loadingUpdate ? "Actualizando..." : "Actualizar permisos"}
-        </Button>
-      </div>
-    </div>
+          <div className="flex justify-end mt-4">
+            <Button
+              variant="primary"
+              onClick={handleUpdatePermissions}
+              loading={loadingUpdate}
+              disabled={loadingUpdate}
+            >
+              {loadingUpdate ? "Actualizando..." : "Actualizar permisos"}
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div>
+          <span>No tienes permisos para modificacion de permisos</span>
+        </div>
+      )}
+    </>
   );
 }

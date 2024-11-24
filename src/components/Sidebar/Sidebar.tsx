@@ -63,7 +63,7 @@ export default function Sidebar({ isOpen }: SidebarProps) {
     "/leads": [],
     "/usuarios": ["Usuarios"],
     "/oficinas": ["Oficinas"],
-    "/sin-asignacion": ["SinAsignacion"],
+    "/sin-asignacion": ["Sin Asignación"],
     "/archivos": ["Archivos"],
   };
 

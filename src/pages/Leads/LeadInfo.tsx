@@ -1,9 +1,9 @@
-import { Button, Icon, TextField, Select } from "@shopify/polaris";
+import { Button, Icon, TextField, Select, Modal } from "@shopify/polaris";
 import { PhoneIcon, EmailIcon } from "@shopify/polaris-icons";
 import { useState, useEffect } from "react";
 import ModalRegimenFiscal from "../../components/Modales/ModalRegimenFiscal";
 import { useLocation } from "react-router-dom";
-import { updateClient } from "../../services/leads";
+import { updateClient, deleteLead } from "../../services/leads";
 import { useAuthToken } from "../../hooks/useAuthToken";
 import { Toast } from "../../components/Toast/toast";
 import { Ciudades } from "../../utils/estados";
@@ -34,11 +34,15 @@ interface InfoLeadProps {
 }
 
 export default function InfoLead({ lead }: InfoLeadProps) {
-  const { userInfo } = useAuthToken();
+  const { userInfo, permisos } = useAuthToken();
+  const modificarLeads = permisos?.includes("Modificar Leads") ?? false;
+  const eliminarLeads = permisos?.includes("Eliminar Leads") ?? false;
   const [isRegimenOpen, setIsRegimenOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const location = useLocation();
   const pathname = location.pathname;
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingDelete, setIsLoadingDelete] = useState(false);
   const [names, setNames] = useState(lead.names);
   const [paternalSurname, setPaternalSurname] = useState(lead.paternal_surname);
   const [maternalSurname, setMaternalSurname] = useState(lead.maternal_surname);
@@ -49,8 +53,6 @@ export default function InfoLead({ lead }: InfoLeadProps) {
   const [ciudades, setCiudades] = useState<string[]>([]);
   const [birthdayDate, setBirthdayDate] = useState(lead?.birthday_date);
   const formattedDate = new Date(birthdayDate).toISOString().split("T")[0];
-
-  console.log(birthdayDate)
   const [age, setAge] = useState(lead.age ? lead.age.toString() : "");
   const [typeLead, setTypeLead] = useState(lead.type_lead);
   const [gender, setGender] = useState(lead.gender);
@@ -126,6 +128,21 @@ export default function InfoLead({ lead }: InfoLeadProps) {
   const handleBirthdayDateChange = (value: string) => {
     setBirthdayDate(value);
     setAge(calculateAge(value));
+  };
+
+  const deleteLeadHandler = async (id: string) => {
+    setIsLoadingDelete(true);
+    try {
+      await deleteLead(id);
+      Toast.fire({ icon: "success", title: "Lead eliminado correctamente" });
+    } catch (error) {
+      Toast.fire({
+        icon: "error",
+        title: error || "Error al eliminar el lead",
+      });
+    } finally {
+      setIsLoadingDelete(false);
+    }
   };
 
   return (
@@ -246,14 +263,24 @@ export default function InfoLead({ lead }: InfoLeadProps) {
             </Button>
           </div>
         )}
-        <div className="mt-3">
-          <Button
-            disabled={isLoading}
-            onClick={handleUpdateClient}
-            variant="primary"
-          >
-            {isLoading ? "Actualizando..." : "Actualizar"}
-          </Button>
+        <div className="mt-3 flex gap-2">
+          {modificarLeads && (
+            <Button
+              disabled={isLoading}
+              onClick={handleUpdateClient}
+              variant="primary"
+            >
+              {isLoading ? "Actualizando..." : "Actualizar"}
+            </Button>
+          )}
+          {eliminarLeads && (
+            <Button
+              disabled={isLoadingDelete}
+              onClick={() => setIsModalOpen(true)}
+            >
+              {isLoadingDelete ? "Eliminando..." : "Eliminar"}
+            </Button>
+          )}
         </div>
       </div>
       {isRegimenOpen && (
@@ -262,6 +289,34 @@ export default function InfoLead({ lead }: InfoLeadProps) {
           setIsOpen={setIsRegimenOpen}
           id={lead._id || ""}
         />
+      )}
+      {isModalOpen && (
+        <Modal
+          open={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          title="Confirmar eliminación"
+          primaryAction={{
+            content: "Eliminar",
+            onAction: async () => {
+              await deleteLeadHandler(lead._id || "");
+              setIsModalOpen(false);
+            },
+            destructive: true,
+          }}
+          secondaryActions={[
+            {
+              content: "Cancelar",
+              onAction: () => setIsModalOpen(false),
+            },
+          ]}
+        >
+          <Modal.Section>
+            <p>
+              ¿Estás seguro de que deseas eliminar este lead? Esta acción no se
+              puede deshacer.
+            </p>
+          </Modal.Section>
+        </Modal>
       )}
     </div>
   );
