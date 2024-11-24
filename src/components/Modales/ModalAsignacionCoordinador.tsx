@@ -51,7 +51,6 @@ export default function ModalAsignacionCoordinador({
       if (assignedTo) {
         try {
           const coordinator = await findCoordinatorById(assignedTo);
-          console.log("info coordinador", coordinator);
           setAssignedCoordinatorInfo(coordinator);
         } catch (error) {
           console.error("Error fetching assigned coordinator info:", error);

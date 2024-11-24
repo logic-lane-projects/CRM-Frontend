@@ -76,7 +76,7 @@ export default function Archivos({
         setDeletingFile(null);
       } else {
         setDeletingFile(null);
-        console.log("no existe id del usuario");
+        Toast.fire({icon:"error", title: "User info no disponible"});
       }
       Toast.fire({
         icon: "success",

@@ -1,4 +1,3 @@
-// components/Sidebar.tsx
 import { Frame, Navigation, Select, Spinner } from "@shopify/polaris";
 import { HomeIcon, PersonIcon, WorkIcon } from "@shopify/polaris-icons";
 import { useLocation } from "react-router-dom";
@@ -13,28 +12,32 @@ interface SidebarProps {
 interface NavigationItem {
   url: string;
   label: string;
-  icon: typeof HomeIcon,
+  icon: typeof HomeIcon;
   selected: boolean;
 }
 
 export default function Sidebar({ isOpen }: SidebarProps) {
   const location = useLocation();
   const currentPath = location.pathname;
-
   const { userInfo } = useAuthToken();
   const [officeOptions, setOfficeOptions] = useState<
-    { label: string; value: string }[]
+    { label: string; value: string; telefono: string }[]
   >([]);
   const [selectedOffice, setSelectedOffice] = useState<string | undefined>();
   const [loading, setLoading] = useState(true);
 
-  // Define navigation items
   const navigationItems: NavigationItem[] = [
     {
       url: "/leads",
-      label: "Inicio",
+      label: "Clientes",
       icon: HomeIcon,
       selected: currentPath === "/leads",
+    },
+    {
+      url: "/clientes-por-oficina",
+      label: "Clientes por oficina",
+      icon: HomeIcon,
+      selected: currentPath === "/clientes-por-oficina",
     },
     {
       url: "/usuarios",
@@ -62,13 +65,13 @@ export default function Sidebar({ isOpen }: SidebarProps) {
     },
   ];
 
-  // Define permissions for navigation
   const navigationPermissions: Record<string, string[]> = {
-    "/leads": [], // No permisos necesarios
+    "/leads": [],
     "/usuarios": ["Usuarios"],
     "/oficinas": ["Oficinas"],
-    "/sin-asignacion": ["SinAsignacion"],
+    "/sin-asignacion": ["Sin Asignación"],
     "/archivos": ["Archivos"],
+    "/clientes-por-oficina": ["Clientes por Oficina"],
   };
 
   useEffect(() => {
@@ -87,6 +90,7 @@ export default function Sidebar({ isOpen }: SidebarProps) {
           const options = permittedOffices.map((office) => ({
             label: `${office.nombre} (${office.ciudad})`,
             value: office._id,
+            telefono: office.numero_telefonico,
           }));
 
           setOfficeOptions(options);
@@ -97,9 +101,19 @@ export default function Sidebar({ isOpen }: SidebarProps) {
             permittedOffices.some((o) => o._id === storedOffice)
           ) {
             setSelectedOffice(storedOffice);
+            const officePhone = permittedOffices.find(
+              (o) => o._id === storedOffice
+            )?.numero_telefonico;
+            if (officePhone) {
+              localStorage.setItem("telefonoOficinaActual", officePhone);
+            }
           } else if (permittedOffices.length === 1) {
             setSelectedOffice(permittedOffices[0]._id);
             localStorage.setItem("oficinaActual", permittedOffices[0]._id);
+            localStorage.setItem(
+              "telefonoOficinaActual",
+              permittedOffices[0].numero_telefonico || ""
+            );
           }
         } else {
           setOfficeOptions([]);
@@ -122,10 +136,18 @@ export default function Sidebar({ isOpen }: SidebarProps) {
   const handleOfficeChange = (value: string) => {
     setSelectedOffice(value);
     localStorage.setItem("oficinaActual", value);
+    const selectedOfficeDetails = officeOptions.find(
+      (office) => office.value === value
+    );
+    if (selectedOfficeDetails) {
+      localStorage.setItem(
+        "telefonoOficinaActual",
+        selectedOfficeDetails.telefono
+      );
+    }
     window.location.reload();
   };
 
-  // Filter navigation items based on user permissions
   const filteredNavigationItems = navigationItems.filter((item) => {
     const requiredPermissions = navigationPermissions[item.url] || [];
     return (
@@ -148,12 +170,29 @@ export default function Sidebar({ isOpen }: SidebarProps) {
               officeOptions.length > 1 && (
                 <Select
                   label="Oficinas Permitidas"
-                  options={officeOptions}
+                  options={officeOptions.map(({ label, value }) => ({
+                    label,
+                    value,
+                  }))}
                   onChange={handleOfficeChange}
                   value={selectedOffice}
                   placeholder="Selecciona una oficina"
                 />
               )
+            )}
+          </div>
+          <div className="px-5">
+            {selectedOffice && (
+              <div className="flex flex-col">
+                <span>Teléfono oficina:</span>
+                <span className="font-bold text-[15px]">
+                  {
+                    officeOptions.find(
+                      (office) => office.value === selectedOffice
+                    )?.telefono || "No disponible"
+                  }
+                </span>
+              </div>
             )}
           </div>
         </Navigation>

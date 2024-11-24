@@ -7,10 +7,12 @@ import {
   Button,
   Card,
   Select,
+  Modal,
 } from "@shopify/polaris";
-import { getAllOffices } from "../../services/oficinas";
+import { getAllOffices, deleteOffice } from "../../services/oficinas";
 import { Toast } from "../../components/Toast/toast";
 import ModalRegistroOficinas from "../../components/Modales/ModalOficinas";
+import { useAuthToken } from "../../hooks/useAuthToken";
 import { OfficeData } from "../../services/oficinas";
 
 export default function Oficinas() {
@@ -22,6 +24,9 @@ export default function Oficinas() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [registrar, setRegistrar] = useState(false);
+  const [isModalConfirmOpen, setIsModalConfirmOpen] = useState(false);
+  const [officeToDelete, setOfficeToDelete] = useState<string | null>(null);
+  const { userInfo } = useAuthToken();
 
   useEffect(() => {
     const fetchOffices = async () => {
@@ -86,18 +91,34 @@ export default function Oficinas() {
   const { selectedResources, allResourcesSelected, handleSelectionChange } =
     useIndexResourceState(resourceOficinas);
 
+  const handleDeleteOffice = async () => {
+    if (!officeToDelete || !userInfo?.id) return;
+    try {
+      const response = await deleteOffice(officeToDelete, userInfo.id);
+      if (response.result) {
+        Toast.fire({ icon: "success", title: "Oficina eliminada correctamente" });
+        setOficinas((prev) => prev.filter((oficina) => oficina._id !== officeToDelete));
+      } else {
+        Toast.fire({ icon: "error", title: response.error });
+      }
+    } catch (error) {
+      Toast.fire({ icon: "error", title: error || "Error al eliminar la oficina" });
+    } finally {
+      setIsModalConfirmOpen(false);
+      setOfficeToDelete(null);
+    }
+  };
+
   const promotedBulkActions = [
-    {
-      content: "Ver Oficina",
-      onAction: () => {
-        setIsOpen(true);
-        setRegistrar(false);
-      },
-    },
     {
       content: "Eliminar",
       onAction: () => {
-        console.log("Eliminar Oficina", selectedResources);
+        if (selectedResources.length === 1) {
+          setOfficeToDelete(selectedResources[0]);
+          setIsModalConfirmOpen(true);
+        } else {
+          Toast.fire({ icon: "error", title: "Seleccione una sola oficina para eliminar" });
+        }
       },
     },
   ];
@@ -209,6 +230,34 @@ export default function Oficinas() {
           idOficina={selectedResources[0] ?? null}
           registrar={registrar}
         />
+      )}
+      {isModalConfirmOpen && (
+        <Modal
+          open={isModalConfirmOpen}
+          onClose={() => {
+            setIsModalConfirmOpen(false);
+            setOfficeToDelete(null);
+          }}
+          title="Confirmar eliminación"
+          primaryAction={{
+            content: "Eliminar",
+            destructive: true,
+            onAction: handleDeleteOffice,
+          }}
+          secondaryActions={[
+            {
+              content: "Cancelar",
+              onAction: () => {
+                setIsModalConfirmOpen(false);
+                setOfficeToDelete(null);
+              },
+            },
+          ]}
+        >
+          <Modal.Section>
+            <p>¿Estás seguro de que deseas eliminar esta oficina? Esta acción no se puede deshacer.</p>
+          </Modal.Section>
+        </Modal>
       )}
     </div>
   );

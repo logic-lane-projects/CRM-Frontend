@@ -315,7 +315,7 @@ export const Ciudades = [
         ]
     },
     {
-        "Estado": "Distrito_Federal",
+        "Estado": "Ciudad de M\u00e9xico",
         "Ciudad": [
             "Cuauht\u00e9moc",
             "Iztacalco",

@@ -25,7 +25,7 @@ const handleFetchError = <T>(error: unknown, emptyData: T): ApiResponse<T> => ({
 
 export const getAllOffices = async (): Promise<ApiResponse<OfficeData[]>> => {
   try {
-    const response = await fetch(`${APP_URL}/oficinas/find_all`);
+    const response = await fetch(`${APP_URL}oficinas/find_all`);
     if (!response.ok) {
       const error = await response.json();
       return { result: false, error: error.message, data: [] };
@@ -41,7 +41,7 @@ export const createOffice = async (
   officeData: Omit<OfficeData, "_id" | "created_at" | "updated_at" | "status">
 ): Promise<ApiResponse<OfficeData | null>> => {
   try {
-    const response = await fetch(`${APP_URL}/oficinas/create/${userId}`, {
+    const response = await fetch(`${APP_URL}oficinas/create/${userId}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -63,7 +63,7 @@ export const createOffice = async (
 
 export const getOfficeById = async (officeId: string): Promise<ApiResponse<OfficeData | null>> => {
   try {
-    const response = await fetch(`${APP_URL}/oficinas/find/${officeId}`);
+    const response = await fetch(`${APP_URL}oficinas/find/${officeId}`);
     if (!response.ok) {
       const error = await response.json();
       return { result: false, error: error.message, data: null };
@@ -80,7 +80,7 @@ export const updateOffice = async (
   officeData: Partial<Omit<OfficeData, "_id" | "created_at" | "updated_at">>
 ): Promise<ApiResponse<OfficeData | null>> => {
   try {
-    const response = await fetch(`${APP_URL}/oficinas/update/${officeId}/${userId}`, {
+    const response = await fetch(`${APP_URL}oficinas/update/${officeId}/${userId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -103,7 +103,7 @@ export const updateOffice = async (
 
 export const deleteOffice = async (officeId: string, userId: string): Promise<ApiResponse<null>> => {
   try {
-    const response = await fetch(`${APP_URL}/oficinas/delete/${officeId}/${userId}`, {
+    const response = await fetch(`${APP_URL}oficinas/delete/${officeId}/${userId}`, {
       method: 'DELETE',
     });
     if (!response.ok) {
@@ -118,7 +118,7 @@ export const deleteOffice = async (officeId: string, userId: string): Promise<Ap
 
 export const getOfficesByCity = async (city: string): Promise<ApiResponse<OfficeData[]>> => {
   try {
-    const response = await fetch(`${APP_URL}/oficinas/find/all/city/${city}`);
+    const response = await fetch(`${APP_URL}oficinas/find/all/city/${city}`);
     return response.json();
   } catch (error) {
     return { result: false, error: error as string, data: [] };

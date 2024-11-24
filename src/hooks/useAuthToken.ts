@@ -7,6 +7,7 @@ interface UserInfo {
   role: string;
   permisos?: string[];
   oficinas_permitidas?: string[];
+  numero_telefonico?: string;
 }
 
 export const useAuthToken = () => {

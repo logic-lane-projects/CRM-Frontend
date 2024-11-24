@@ -129,7 +129,7 @@ export const assignSeller = async (
   leadIds: string[]
 ) => {
   try {
-    const response = await fetch(`${API_URL}/change/assigned_to/${userId}`, {
+    const response = await fetch(`${API_URL}change/assigned_to/${userId}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",

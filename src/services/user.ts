@@ -65,7 +65,7 @@ export const createUser = async (userData: User): Promise<ApiResponse<User>> => 
 // Obtener todos los usuarios
 export const getAllUsers = async (): Promise<ApiResponse<User[]>> => {
   try {
-    const response = await fetch(`${API_URL}/users`);
+    const response = await fetch(`${API_URL}users`);
     const data = await response.json();
     return { success: response.ok, data };
   } catch (error) {
@@ -77,7 +77,7 @@ export const getUsersByOffice = async (
   officeId: string
 ): Promise<ApiResponse<PaginatedResponse<User>>> => {
   try {
-    const response = await fetch(`${API_URL}/users/buscar/por/oficina/${officeId}`);
+    const response = await fetch(`${API_URL}users/buscar/por/oficina/${officeId}`);
     const data = await response.json();
     return { success: response.ok, data };
   } catch (error) {

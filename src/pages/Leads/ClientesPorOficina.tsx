@@ -1,4 +1,4 @@
-import { useState, useEffect, SetStateAction } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import ModalRegistroLeads from "../../components/Modales/ModalRegistroLeads";
 import {
@@ -17,10 +17,11 @@ import { getAllLeads, deleteLead } from "../../services/leads";
 import { All as Lead } from "../../services/buyer";
 import ModalAsignacionVendedor from "../../components/Modales/ModalAsignacionVenderor";
 import { useAuthToken } from "../../hooks/useAuthToken";
-import { getClientsByType } from "./../../services/leads";
+import { getAllClientesByOfficeId } from "../../services/leads";
 
-export default function Leads() {
+export default function ClientesPorOficina() {
   const navigate = useNavigate();
+  const storedOffice = localStorage.getItem("oficinaActual");
   const location = useLocation();
   const { userInfo, permisos } = useAuthToken();
   const crearLeads = permisos?.includes("Crear Leads") ?? false;
@@ -39,18 +40,18 @@ export default function Leads() {
   const [assignedTo, setAssignedTo] = useState("");
   const [selectedResources, setSelectedResources] = useState<string[]>([]);
 
-  const handleTableSelection = (table: SetStateAction<string>) => {
-    setSelected(table);
-    navigate(`?selected=${table}`);
-  };
+  //   const handleTableSelection = (table: SetStateAction<string>) => {
+  //     setSelected(table);
+  //     navigate(`?selected=${table}`);
+  //   };
 
   const fetchLeads = async () => {
     setSelected("lead");
     setIsLoading(true);
     setSelectedData([]);
     try {
-      const leads = await getClientsByType("LEAD");
-      setSelectedData(leads);
+      const leads = await getAllClientesByOfficeId(storedOffice ?? "");
+      setSelectedData(leads?.data);
     } catch (error) {
       setSelectedData([]);
       console.error("Error al obtener leads:", error);
@@ -64,8 +65,8 @@ export default function Leads() {
     setIsLoading(true);
     setSelectedData([]);
     try {
-      const clients = await getClientsByType("CLIENTE");
-      setSelectedData(clients);
+      const clients = await getAllClientesByOfficeId(storedOffice ?? "");
+      setSelectedData(clients?.data);
     } catch (error) {
       setSelectedData([]);
       console.error("Error al obtener clientes:", error);
@@ -79,7 +80,7 @@ export default function Leads() {
     setIsLoading(true);
     setSelectedData([]);
     try {
-      const preClients = await getClientsByType("PROSPECTO_CLIENTE");
+      const preClients = await getAllClientesByOfficeId(storedOffice ?? "");
       setSelectedData(preClients);
     } catch (error) {
       setSelectedData([]);
@@ -94,7 +95,7 @@ export default function Leads() {
     setIsLoading(true);
     setSelectedData([]);
     try {
-      const compradores = await getClientsByType("COMPRADOR");
+      const compradores = await getAllClientesByOfficeId(storedOffice ?? "");
       setSelectedData(compradores);
     } catch (error) {
       setSelectedData([]);
@@ -130,18 +131,34 @@ export default function Leads() {
       setSelected("lead");
       fetchLeads();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.search, selected]);
 
-  const leadsForIndexTable = selectedData.map((lead) => ({
-    id: lead._id,
-    names: lead.names,
-    email: lead.email,
-    phone_number: lead.phone_number,
-    city: lead.city,
-    type_lead: lead.type_lead,
-    status: lead.status,
-    assigned_to: lead.assigned_to,
-  }));
+  const leadsForIndexTable = Array.isArray(selectedData)
+    ? selectedData.map(
+        ({
+          _id,
+          names,
+          email,
+          phone_number,
+          city,
+          type_lead,
+          status,
+          assigned_to,
+          type_client,
+        }: Lead) => ({
+          id: _id,
+          names,
+          email,
+          phone_number,
+          city,
+          type_lead,
+          status,
+          assigned_to,
+          type_client,
+        })
+      )
+    : [];
 
   // Filtro de búsqueda
   const filteredLeads = leadsForIndexTable.filter(
@@ -257,7 +274,17 @@ export default function Leads() {
 
   const rowMarkup = paginatedLeads.map(
     (
-      { id, names, email, phone_number, city, type_lead, status, assigned_to },
+      {
+        id,
+        names,
+        email,
+        phone_number,
+        city,
+        type_lead,
+        status,
+        assigned_to,
+        type_client,
+      },
       index
     ) => (
       <IndexTable.Row
@@ -279,6 +306,18 @@ export default function Leads() {
             {status ? "Activo" : "Inactivo"}
           </Badge>
         </IndexTable.Cell>
+        <IndexTable.Cell>
+          {type_client === "CLIENTE"
+            ? "Cliente"
+            : type_client === "PROSPECTO_CLIENTE"
+            ? "Prospecto"
+            : type_client === "COMPRADOR"
+            ? "Comprador"
+            : type_client === "LEAD"
+            ? "Lead"
+            : "No especificado"}
+        </IndexTable.Cell>
+
         {userInfo && userInfo.role !== "vendedor" && (
           <IndexTable.Cell>
             {assigned_to ? (
@@ -312,13 +351,13 @@ export default function Leads() {
         <div className="flex w-full justify-between items-center">
           <span className="font-semibold text-[20px]">
             {selected === "lead"
-              ? "Leads"
+              ? "Clientes por Oficina"
               : selected === "client"
-              ? "Clientes"
+              ? "Clientes por Oficina"
               : selected === "prospecto"
-              ? "Prospecto"
+              ? "Prospecto por Oficina"
               : selected === "comprador"
-              ? "Comprador"
+              ? "Comprador por Oficina"
               : ""}
           </span>
           {selected === "lead" && crearLeads && (
@@ -335,7 +374,7 @@ export default function Leads() {
         </div>
         <Card>
           <div className="flex flex-col gap-4">
-            <div className="flex gap-2">
+            {/* <div className="flex gap-2">
               <Button
                 onClick={() => handleTableSelection("lead")}
                 variant={selected === "lead" ? "primary" : "secondary"}
@@ -360,7 +399,7 @@ export default function Leads() {
               >
                 Clientes
               </Button>
-            </div>
+            </div> */}
             <TextField
               label=""
               value={searchValue}
