@@ -8,12 +8,17 @@ import {
   Card,
   Badge,
   Select,
+  Filters,
 } from "@shopify/polaris";
 import { getAllUsers, getUsersByOffice, User } from "../../services/user";
 import { Toast } from "../../components/Toast/toast";
 import { useNavigate } from "react-router-dom";
 import { getAllOffices } from "../../services/oficinas";
 import { useAuthToken } from "../../hooks/useAuthToken";
+
+import {
+  PersonAddIcon
+} from '@shopify/polaris-icons';
 
 export default function Usuarios() {
   const { userInfo, permisos } = useAuthToken();
@@ -218,7 +223,7 @@ export default function Usuarios() {
             crearAsignadores ||
             crearCoordinadores ||
             crearMarketing) && (
-            <Button onClick={() => setIsOpen(true)} variant="primary">
+            <Button onClick={() => setIsOpen(true)} variant="primary" icon={PersonAddIcon}>
               Registro
             </Button>
           )}
@@ -235,19 +240,18 @@ export default function Usuarios() {
           </Button>
         </div>
       </div>
-      <Card>
-        <div className="flex flex-col gap-4">
-          <TextField
-            label="Buscar Usuarios"
-            value={searchValue}
-            onChange={(value) => {
+      <Card padding={'0'}>
+        <div className="flex flex-col gap-0">
+          <Filters
+            queryValue={searchValue}
+            onQueryChange={(value) => {
               setSearchValue(value);
               setCurrentPage(1);
             }}
-            placeholder="Buscar por nombre, correo, ciudad u oficina"
-            clearButton
-            onClearButtonClick={() => setSearchValue("")}
-            autoComplete="off"
+            queryPlaceholder="Buscar por nombre, correo, ciudad u oficina"
+            onQueryClear={() => setSearchValue("")}
+            onClearAll={() => setSearchValue("")}
+            filters={[]}
           />
 
           <IndexTable
@@ -267,7 +271,7 @@ export default function Usuarios() {
           >
             {rowMarkup}
           </IndexTable>
-          <div className="flex flex-row-reverse items-center w-full justify-between">
+          <div className="flex flex-row-reverse items-center w-full justify-between px-2 py-2 bg-[#f3f3f3] border-t">
             <Pagination
               hasPrevious={currentPage > 1}
               onPrevious={() => handlePagination("previous")}

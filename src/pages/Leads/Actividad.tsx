@@ -1,115 +1,115 @@
-import { Button } from "@shopify/polaris";
+import type { CallsHistorial, HistorialCalls } from "../../services/historial";
+import { 
+  Button, 
+  ResourceList, 
+  ResourceItem, 
+  Text, 
+  Icon, 
+  Bleed, 
+  Modal,
+  Badge,
+} from "@shopify/polaris";
+import { SplitDateTime, FormatDate, FormatDateHistory } from "../../utils/functions";
+import { PhoneIcon } from "@shopify/polaris-icons";
+import { useState } from "react";
 
-interface Call {
-  client_number: string;
-  date_call: string;
-  durantions_in_seconds: string;
-  status_calls: string;
-  twilio_number: string;
-}
+export default function Actividad({ historial }: { historial: CallsHistorial|null }) {
+  const [seleted, setSelected] = useState<HistorialCalls|null>(null);
+  const [open, setOpen] = useState<boolean>(false);
 
-export default function Actividad() {
-  const history_calls: { calls: Call[]; day: string }[] = [
-    {
-        "calls": [
-            {
-                "client_number": "+525951129872",
-                "date_call": "Wed, 13 Nov 2024 23:13:34 GMT",
-                "durantions_in_seconds": "27",
-                "status_calls": "completed",
-                "twilio_number": "+14695356917"
-            },
-            {
-                "client_number": "+525951129872",
-                "date_call": "Wed, 13 Nov 2024 22:44:28 GMT",
-                "durantions_in_seconds": "8",
-                "status_calls": "completed",
-                "twilio_number": "+14695356917"
-            },
-            {
-                "client_number": "+525951129872",
-                "date_call": "Wed, 13 Nov 2024 05:33:19 GMT",
-                "durantions_in_seconds": "0",
-                "status_calls": "no-answer",
-                "twilio_number": "+14695356917"
-            },
-            {
-                "client_number": "+525951129872",
-                "date_call": "Wed, 13 Nov 2024 01:55:59 GMT",
-                "durantions_in_seconds": "0",
-                "status_calls": "busy",
-                "twilio_number": "+14695356917"
-            }
-        ],
-        "day": "Wed, 13 Nov 2024 00:00:00 GMT"
-    },
-    {
-        "calls": [
-            {
-                "client_number": "+525951129872",
-                "date_call": "Tue, 12 Nov 2024 23:42:12 GMT",
-                "durantions_in_seconds": "0",
-                "status_calls": "busy",
-                "twilio_number": "+14695356917"
-            },
-            {
-                "client_number": "+525951129872",
-                "date_call": "Tue, 12 Nov 2024 23:40:58 GMT",
-                "durantions_in_seconds": "7",
-                "status_calls": "completed",
-                "twilio_number": "+14695356917"
-            },
-            {
-                "client_number": "+525951129872",
-                "date_call": "Tue, 12 Nov 2024 23:40:02 GMT",
-                "durantions_in_seconds": "21",
-                "status_calls": "completed",
-                "twilio_number": "+14695356917"
-            }
-        ],
-        "day": "Tue, 12 Nov 2024 00:00:00 GMT"
-    },
-    {
-        "calls": [
-            {
-                "client_number": "+525951129872",
-                "date_call": "Thu, 07 Nov 2024 02:55:55 GMT",
-                "durantions_in_seconds": "80",
-                "status_calls": "completed",
-                "twilio_number": "+14695356917"
-            }
-        ],
-        "day": "Thu, 07 Nov 2024 00:00:00 GMT"
-    },
-    {
-        "calls": [
-            {
-                "client_number": "+525951129872",
-                "date_call": "Fri, 25 Oct 2024 03:56:48 GMT",
-                "durantions_in_seconds": "33",
-                "status_calls": "completed",
-                "twilio_number": "+14695356917"
-            }
-        ],
-        "day": "Fri, 25 Oct 2024 00:00:00 GMT"
-    }
-]
+  const handleClose = () => {
+    setOpen(false);
+    setSelected(null);
+  }
+
   return (
-    <div>
+    <Bleed marginInline="0">
+      {open && (
+        <Modal
+          title="Detalle de la llamadas"
+          open={open}
+          onClose={handleClose}
+        >
+          <Modal.Section>
+            {seleted !== null && (
+              <div className="w-full flex flex-col gap-2">
+                <Text variant="headingMd" as="h3">
+                  Fecha: {seleted.day}
+                </Text>
+                <div className="w-full relative flex flex-col py-2">
+                {seleted.calls.map((item, idx) => {
+                  const { date, time } = SplitDateTime(item.date_call);
+                  return(
+                  <div key={`llamada-${idx}`} className="flex w-full items-start gap-3 relative -mt-0.5">
+                    <span className="font-bold text-md text-[#656463]">
+                      {FormatDateHistory(date)}
+                    </span>
+                    <div className="w-3 h-3 rounded-full bg-[#656463] border-2 border-[#E9E9E9] mt-1 z-[1]" />
+                    <div className="w-1 h-full bg-[#E9E9E9] absolute left-[97px] top-1 rounded-full"/>
+                    <div className="w-fit flex flex-col gap-0 pb-2">
+                      <p className="text-[12px] font-bold text-[#656463]">
+                        Número: {item.client_number}
+                      </p>
+                      <p className="text-[11px] font-normal">
+                        {time} hrs. 
+                      </p>
+                      <p className="text-[11px] font-normal">
+                        <b>Duración: </b>{item.durantions_in_seconds}s
+                      </p>
+                      <p className="text-[11px] font-normal">
+                        <b>Estatus: </b><Badge tone="success">{String(item.status_calls)}</Badge>
+                      </p>
+                    </div>
+                  </div>
+                  )}
+                )}
+                </div>
+              </div>
+            )}
+          </Modal.Section>
+        </Modal>
+      )}
       <div className="flex flex-col justify-between">
-        <div className="flex justify-between">
+        <div className="flex justify-between px-3 py-2">
           <div className="font-semibold text-[15px]">Actividad Reciente</div>
           <Button variant="primary">Crear</Button>
         </div>
-        {
-          history_calls.map((item, index) => (
-            <div key={index} className="flex flex-col justify-between mt-2">
-              <div className="font-semibold text-[15px]">{item.day}</div>
-              <div className="text-[15px]">{item.calls.length} llamadas</div>
-            </div>
-          ))
-        }
+        { historial != null && (
+          <ResourceList
+          resourceName={{singular: 'customer', plural: 'customers'}}
+          items={historial.history_calls}
+          pagination={{
+            hasNext: false,
+            onNext: () => {},
+          }}
+          renderItem={(item, idx) => {
+            const { calls } = item;
+            const media = <Icon source={PhoneIcon} />;
+            const { date } = SplitDateTime(item.day);
+
+            return (
+              <ResourceItem
+                id={idx}
+                media={media}
+                url="#"
+                accessibilityLabel={`View details for ${date}`}
+                shortcutActions={[
+                  { content: "Ver llamadas", onAction: () => {
+                    setSelected(item);
+                    setOpen(true);
+                  }, accessibilityLabel: `View`, variant: "tertiary"},
+                ]}
+              >
+                <Text variant="bodyMd" fontWeight="bold" as="h3">
+                  {FormatDate(date)}
+                </Text>
+                <span className="text-[15px]">{calls.length} llamadas</span>
+              </ResourceItem>
+            );
+          }}
+        />
+        )}
       </div>
-    </div>
+    </Bleed>
   );
 }

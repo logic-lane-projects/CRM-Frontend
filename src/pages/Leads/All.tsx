@@ -11,6 +11,8 @@ import {
   Modal,
   Frame,
   Badge,
+  Tabs,
+  Filters,
 } from "@shopify/polaris";
 import { Toast } from "../../components/Toast/toast";
 import { getAllLeads, deleteLead } from "../../services/leads";
@@ -318,6 +320,40 @@ export default function Leads() {
     )
   );
 
+  const [tabsIndex, setTabsIndex] = useState(0);
+
+  const tabs = [
+    {
+      id: 'lead',
+      content: 'Leads',
+      accessibilityLabel: 'Leads',
+      panelID: 'leads',
+    },
+    {
+      id: 'prospecto',
+      content: 'Prospectos',
+      accessibilityLabel: 'Prospectos',
+      panelID: 'prospectos',
+    },
+    {
+      id: 'comprador',
+      content: 'Compradores',
+      accessibilityLabel: 'Compradores',
+      panelID: 'compradores',
+    },
+    {
+      id: 'client',
+      content: 'Clientes',
+      accessibilityLabel: 'Clientes',
+      panelID: 'clientes',
+    },
+  ];
+
+  const handleTabChange = (selectedTabIndex: number) => {
+    setTabsIndex(selectedTabIndex);
+    handleTableSelection(tabs[selectedTabIndex].id);
+  };
+
   return (
     <Frame>
       <div className="w-full flex flex-col gap-4">
@@ -345,45 +381,19 @@ export default function Leads() {
             </Button>
           )}
         </div>
-        <Card>
-          <div className="flex flex-col gap-4">
-            <div className="flex gap-2">
-              <Button
-                onClick={() => handleTableSelection("lead")}
-                variant={selected === "lead" ? "primary" : "secondary"}
-              >
-                Leads
-              </Button>
-              <Button
-                onClick={() => handleTableSelection("prospecto")}
-                variant={selected === "prospecto" ? "primary" : "secondary"}
-              >
-                Prospectos
-              </Button>
-              <Button
-                onClick={() => handleTableSelection("comprador")}
-                variant={selected === "comprador" ? "primary" : "secondary"}
-              >
-                Compradores
-              </Button>
-              <Button
-                onClick={() => handleTableSelection("client")}
-                variant={selected === "client" ? "primary" : "secondary"}
-              >
-                Clientes
-              </Button>
-            </div>
-            <TextField
-              label=""
-              value={searchValue}
-              onChange={(value) => {
+        <Card padding={'0'}>
+          <div className="flex flex-col gap-0">
+            <Tabs tabs={tabs} selected={tabsIndex} onSelect={handleTabChange}/>
+            <Filters
+              filters={[]}
+              queryValue={searchValue}
+              onQueryChange={(value) => {
                 setSearchValue(value);
                 setCurrentPage(1);
               }}
-              placeholder="Buscar por nombre o correo"
-              clearButton
-              onClearButtonClick={() => setSearchValue("")}
-              autoComplete="off"
+              queryPlaceholder="Buscar por nombre o correo"
+              onQueryClear={() => setSearchValue("")}
+              onClearAll={() => setSearchValue("")}
             />
 
             {isLoading ? (
@@ -430,7 +440,7 @@ export default function Leads() {
                 >
                   {rowMarkup}
                 </IndexTable>
-                <div className="flex flex-row-reverse items-center w-full justify-between">
+                <div className="flex flex-row-reverse items-center w-full justify-between px-2 py-2 bg-[#f3f3f3] border-t">
                   <Pagination
                     hasPrevious={currentPage > 1}
                     onPrevious={() => handlePagination("previous")}

@@ -2,16 +2,21 @@ import { useState, useEffect } from "react";
 import {
   IndexTable,
   useIndexResourceState,
-  TextField,
+  Badge,
   Pagination,
   Button,
   Card,
   Select,
+  Filters,
 } from "@shopify/polaris";
 import { getAllOffices } from "../../services/oficinas";
 import { Toast } from "../../components/Toast/toast";
 import ModalRegistroOficinas from "../../components/Modales/ModalOficinas";
 import { OfficeData } from "../../services/oficinas";
+
+import {
+  OrganizationIcon
+} from '@shopify/polaris-icons';
 
 export default function Oficinas() {
   const [isOpen, setIsOpen] = useState(false);
@@ -113,7 +118,11 @@ export default function Oficinas() {
         <IndexTable.Cell>{nombre}</IndexTable.Cell>
         <IndexTable.Cell>{ciudad}</IndexTable.Cell>
         <IndexTable.Cell>{estado}</IndexTable.Cell>
-        <IndexTable.Cell>{status ? "Activo" : "Inactivo"}</IndexTable.Cell>
+        <IndexTable.Cell>
+          <Badge tone={status ? "success" : "attention"}>
+            {status ? "Activo" : "Inactivo"}
+          </Badge>
+        </IndexTable.Cell>
       </IndexTable.Row>
     )
   );
@@ -136,23 +145,23 @@ export default function Oficinas() {
             setRegistrar(true);
           }}
           variant="primary"
+          icon={OrganizationIcon}
         >
           Registrar Oficina
         </Button>
       </div>
-      <Card>
-        <div className="flex flex-col gap-4">
-          <TextField
-            label=""
-            value={searchValue}
-            onChange={(value) => {
+      <Card padding={'0'}>
+        <div className="flex flex-col gap-0">
+          <Filters
+            queryValue={searchValue}
+            onQueryChange={(value) => {
               setSearchValue(value);
               setCurrentPage(1);
             }}
-            placeholder="Buscar por nombre, ciudad o estado"
-            clearButton
-            onClearButtonClick={() => setSearchValue("")}
-            autoComplete="off"
+            queryPlaceholder="Buscar por nombre, ciudad o estado"
+            onQueryClear={() => setSearchValue("")}
+            onClearAll={() => setSearchValue("")}
+            filters={[]}
           />
 
           <IndexTable
@@ -173,14 +182,16 @@ export default function Oficinas() {
           >
             {rowMarkup}
           </IndexTable>
-          <div className="flex flex-row-reverse items-center w-full justify-between">
+          <div className="flex flex-row-reverse items-center w-full justify-between px-2 py-2 bg-[#f3f3f3] border-t">
             <Pagination
               hasPrevious={currentPage > 1}
               onPrevious={() => handlePagination("previous")}
               hasNext={currentPage < totalPages}
               onNext={() => handlePagination("next")}
             />
-
+            <span>
+              Página {currentPage} de {totalPages}
+            </span>
             <Select
               label=""
               options={[
@@ -194,11 +205,6 @@ export default function Oficinas() {
                 setCurrentPage(1);
               }}
             />
-          </div>
-          <div className="flex justify-center mt-2">
-            <span>
-              Página {currentPage} de {totalPages}
-            </span>
           </div>
         </div>
       </Card>
