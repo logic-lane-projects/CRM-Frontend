@@ -22,6 +22,20 @@ export default function Actividad({ historial }: { historial: CallsHistorial|nul
     setSelected(null);
   }
 
+  const handleToneBadge = (status: string) => {
+    if(status == "completed") return "success";
+    if(status == "no-answer") return "attention";
+    if(status == "busy") return "warning";
+    return "info"
+  }
+
+  const handleTranslateStatus = (status: string) => {
+    if(status == "completed") return "Finalizada";
+    if(status == "no-answer") return "No respondió";
+    if(status == "busy") return "Ocupado";
+    return status
+  }
+
   return (
     <Bleed marginInline="0">
       {open && (
@@ -40,24 +54,30 @@ export default function Actividad({ historial }: { historial: CallsHistorial|nul
                 {seleted.calls.map((item, idx) => {
                   const { date, time } = SplitDateTime(item.date_call);
                   return(
-                  <div key={`llamada-${idx}`} className="flex w-full items-start gap-3 relative -mt-0.5">
-                    <span className="font-bold text-md text-[#656463]">
+                  <div key={`llamada-${idx}`} className="flex w-full h-full items-start gap-2 relative -mt-0.5">
+                    <span className="font-bold text-md text-[#656463] w-full max-w-[90px]">
                       {FormatDateHistory(date)}
                     </span>
                     <div className="w-3 h-3 rounded-full bg-[#656463] border-2 border-[#E9E9E9] mt-1 z-[1]" />
-                    <div className="w-1 h-full bg-[#E9E9E9] absolute left-[97px] top-1 rounded-full"/>
+                    <div className="w-1 h-full bg-[#E9E9E9] rounded-full absolute left-[102px] top-1"/>
                     <div className="w-fit flex flex-col gap-0 pb-2">
                       <p className="text-[12px] font-bold text-[#656463]">
                         Número: {item.client_number}
                       </p>
                       <p className="text-[11px] font-normal">
-                        {time} hrs. 
+                      <b>Hora: </b>{time} hrs. 
                       </p>
                       <p className="text-[11px] font-normal">
                         <b>Duración: </b>{item.durantions_in_seconds}s
                       </p>
                       <p className="text-[11px] font-normal">
-                        <b>Estatus: </b><Badge tone="success">{String(item.status_calls)}</Badge>
+                        <b>Estatus: </b>
+                        <Badge 
+                          tone={handleToneBadge(String(item.status_calls))}
+                          size="small"
+                        >
+                          {handleTranslateStatus(String(item.status_calls))}
+                        </Badge>
                       </p>
                     </div>
                   </div>
@@ -76,38 +96,39 @@ export default function Actividad({ historial }: { historial: CallsHistorial|nul
         </div>
         { historial != null && (
           <ResourceList
-          resourceName={{singular: 'customer', plural: 'customers'}}
-          items={historial.history_calls}
-          pagination={{
-            hasNext: false,
-            onNext: () => {},
-          }}
-          renderItem={(item, idx) => {
-            const { calls } = item;
-            const media = <Icon source={PhoneIcon} />;
-            const { date } = SplitDateTime(item.day);
+            resourceName={{singular: 'customer', plural: 'customers'}}
+            items={historial.history_calls}
+            pagination={{
+              hasNext: false,
+              onNext: () => {},
+            }}
+            emptyState={<p className="px-2 py-3">Aún no hay historial</p>}
+            renderItem={(item, idx) => {
+              const { calls } = item;
+              const media = <Icon source={PhoneIcon} />;
+              const { date } = SplitDateTime(item.day);
 
-            return (
-              <ResourceItem
-                id={idx}
-                media={media}
-                url="#"
-                accessibilityLabel={`View details for ${date}`}
-                shortcutActions={[
-                  { content: "Ver llamadas", onAction: () => {
-                    setSelected(item);
-                    setOpen(true);
-                  }, accessibilityLabel: `View`, variant: "tertiary"},
-                ]}
-              >
-                <Text variant="bodyMd" fontWeight="bold" as="h3">
-                  {FormatDate(date)}
-                </Text>
-                <span className="text-[15px]">{calls.length} llamadas</span>
-              </ResourceItem>
-            );
-          }}
-        />
+              return (
+                <ResourceItem
+                  id={idx}
+                  media={media}
+                  url="#"
+                  accessibilityLabel={`Ver detalles del ${date}`}
+                  shortcutActions={[
+                    { content: "Ver llamadas", onAction: () => {
+                      setSelected(item);
+                      setOpen(true);
+                    }, accessibilityLabel: `Ver detalles del ${date}`},
+                  ]}
+                >
+                  <Text variant="bodyMd" fontWeight="bold" as="h3">
+                    {FormatDate(date)}
+                  </Text>
+                  <span className="text-[15px]">{calls.length} llamadas</span>
+                </ResourceItem>
+              );
+            }}
+          />
         )}
       </div>
     </Bleed>

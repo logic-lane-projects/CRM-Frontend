@@ -119,7 +119,8 @@ export default function LeadInfo() {
 
   return (
     <Page
-      title={`${leadData?.names} ${leadData?.maternal_surname} ${leadData?.paternal_surname}`}
+      backAction={{content: 'Regresar', onAction: () => navigate(-1)}}
+      title={`${leadData?.names} ${leadData?.paternal_surname} ${leadData?.maternal_surname}`}
       titleMetadata={<Badge>Leads</Badge>}
       primaryAction={{ 
         content: "Pasar a Prospecto",
@@ -144,7 +145,7 @@ export default function LeadInfo() {
         </div>
       )}
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
         <div className="w-full col-span-2">
           <Card padding={'0'}>
             <div className="flex flex-col gap-3 w-full">

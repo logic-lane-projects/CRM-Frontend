@@ -40,7 +40,7 @@ function Llamadas({phone}: {phone? : string}) {
   }, []);
   
   return (
-    <div className='flex flex-col'>
+    <div className='flex flex-col p-2'>
       <button className='bg-gray-300 p-3 rounded-md hover:bg-gray-400'>Llamar</button>
       <div>Llamada:</div>
       <div>{phone}</div>

@@ -47,7 +47,7 @@ export default function InfoLead({ lead }: InfoLeadProps) {
   const [city, setCity] = useState(lead.city || "");
   const [state, setState] = useState(lead.state || "");
   const [ciudades, setCiudades] = useState<string[]>([]);
-  const [birthdayDate, setBirthdayDate] = useState(lead?.birthday_date);
+  const [birthdayDate, setBirthdayDate] = useState("2024-01-01");
   const formattedDate = new Date(birthdayDate).toISOString().split("T")[0];
 
   console.log(birthdayDate)
@@ -63,6 +63,12 @@ export default function InfoLead({ lead }: InfoLeadProps) {
       setCiudades([]);
     }
   }, [state]);
+
+  useEffect(() => {
+    if(lead?.birthday_date){
+      setBirthdayDate(lead?.birthday_date)
+    }
+  }, [lead])
 
   const typeLeadOptions = [
     { label: "Frío", value: "FRIO" },
