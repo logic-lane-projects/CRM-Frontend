@@ -1,5 +1,6 @@
 // src/services/leads.ts
 import type { InfoLeads } from "../pages/Leads/LeadInfo";
+import type { LeadResponse } from "./../pages/SinAsignacion/SinAsignacion";
 export interface Lead {
   _id?: string;
   names: string;
@@ -24,6 +25,12 @@ export interface Lead {
   created_at?: string;
   updated_at?: string;
 }
+export interface ApiResponse<T> {
+  result: boolean;
+  error: string;
+  data: T;
+}
+
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -45,7 +52,10 @@ export const createLead = async (
   };
 
   try {
-    const response = await fetch(`${API_URL}clientes/leads/${userId}`, requestOptions);
+    const response = await fetch(
+      `${API_URL}clientes/leads/${userId}`,
+      requestOptions
+    );
 
     if (!response.ok) {
       const errorResponse = await response.json();
@@ -265,7 +275,9 @@ export const updateClient = async (
 
 export const getAllLeadsNoSeller = async (city: string): Promise<Lead[]> => {
   try {
-    const response = await fetch(`${API_URL}client/find_leads_without_vendedor_by_city/all/${city}`);
+    const response = await fetch(
+      `${API_URL}client/find_leads_without_vendedor_by_city/all/${city}`
+    );
     if (!response.ok) {
       throw new Error(`Error fetching leads: ${response.statusText}`);
     }
@@ -277,16 +289,42 @@ export const getAllLeadsNoSeller = async (city: string): Promise<Lead[]> => {
   }
 };
 
-export const getAllLeadsBySellerIdAndType = async (id: string, clientType: string): Promise<Lead[]> => {
+export const getAllLeadsBySellerIdAndType = async (
+  id: string,
+  clientType: string
+): Promise<Lead[]> => {
   try {
-    const response = await fetch(`${API_URL}client/buscar_leads_por_vendedor_y_tipo_client/all/${id}/${clientType}`);
+    const response = await fetch(
+      `${API_URL}client/buscar_leads_por_vendedor_y_tipo_client/all/${id}/${clientType}`
+    );
     if (!response.ok) {
       throw new Error(`Error fetching leads: ${response.statusText}`);
     }
     const data = await response.json();
     return data.data;
   } catch (error) {
-    console.error("Error al obtener leads por vendedor y tipo de cliente:", error);
+    console.error(
+      "Error al obtener leads por vendedor y tipo de cliente:",
+      error
+    );
+    throw error;
+  }
+};
+
+export const getLeadsByOfficeId = async (
+  officeId: string
+): Promise<ApiResponse<LeadResponse[]>> => {
+  try {
+    const response = await fetch(
+      `${API_URL}clientes/buscar/por/oficinas/${officeId}`
+    );
+    if (!response.ok) {
+      throw new Error(`Error fetching leads: ${response.statusText}`);
+    }
+    const { data } = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error al obtener leads por oficina:", error);
     throw error;
   }
 };
