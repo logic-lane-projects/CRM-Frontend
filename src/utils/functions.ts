@@ -45,3 +45,15 @@ export function FormatDateHistory(inputDate: string): string {
 
     return formattedDate;
 }
+
+export function FormatTime(inputTime: string): string {
+    const [hour, minute, secounds] = inputTime.split(":").map(String);
+
+    if (!hour || !minute || !secounds) {
+        console.log(`Eror: ${hour},${minute},${secounds}`)
+    }
+
+    const format = `${hour.padStart(2, '0')}:${minute.padStart(2, '0')}`;
+
+    return format;
+}

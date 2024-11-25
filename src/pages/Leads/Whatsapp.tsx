@@ -1,4 +1,7 @@
-import { useState, useEffect } from "react";
+import { PageDownIcon, AttachmentFilledIcon } from "@shopify/polaris-icons";
+import { SplitDateTime, FormatTime } from "../../utils/functions";
+import { Box, Button, Tooltip, Modal } from "@shopify/polaris";
+import { useState, useEffect, useRef } from "react";
 
 export default function Whatsapp({ phone }: { phone: string }) {
   type Message = {
@@ -17,6 +20,8 @@ export default function Whatsapp({ phone }: { phone: string }) {
   const [input, setInput] = useState("");
   const [uploadStatus, setUploadStatus] = useState("");
   const [, setFileUrl] = useState("");
+
+  const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const handleGetMessages = async () => {
     try {
@@ -101,11 +106,22 @@ export default function Whatsapp({ phone }: { phone: string }) {
     handleGetMessages();
   }, []);
 
+  useEffect(() => {
+    if(messages && messages.length > 0){
+      if(messagesEndRef.current){
+        const scrollContainer = messagesEndRef.current;
+        if (scrollContainer) {
+          scrollContainer.scrollTop = scrollContainer.scrollHeight;
+        }
+      }
+    }
+  }, [messagesEndRef, messages]);
+
   return (
-    <div className="flex flex-col h-[400px] w-full border border-gray-300 rounded-lg p-4">
-      <div className="flex items-center justify-between mb-2">
-        <h2 className="font-semibold text-[15px] mb-2">Whatsapp Chat</h2>
-        <button
+    <div className="flex flex-col w-full rounded-lg gap-0">
+      <div className="flex items-center justify-between px-3 py-2">
+        <h2 className="font-semibold text-[15px]">Whatsapp Chat</h2>
+        <Button
           onClick={() => {
             const blob = new Blob([JSON.stringify(messages)], {
               type: "application/json",
@@ -116,60 +132,83 @@ export default function Whatsapp({ phone }: { phone: string }) {
             a.download = "message_history.json";
             a.click();
           }}
-          className="bg-gray-200 hover:bg-gray-300 p-2 rounded cursor-pointer"
+          variant="primary"
+          icon={PageDownIcon}
         >
           Descargar Chat
-        </button>
+        </Button>
       </div>
 
-      <div className="flex-1 overflow-y-auto mb-2 bg-gray-100 p-2 rounded">
-        {messages.length > 0 ? (
-          messages.map((msg, index) => (
-            <div
-              key={index}
-              className={`p-2 my-1 rounded ${
-                msg.from.includes(PHONE_NUMBER)
-                  ? "bg-gray-300 mr-4"
-                  : "bg-green-500 text-white ml-4"
-              }`}
-            >
-              <p>{msg.body}</p>
-              {msg.media && msg.media.length > 0 && (
-                <div className="mt-2">
-                  {msg.media.map((mediaUrl, mediaIndex) => (
-                    <a
-                      key={mediaIndex}
-                      href={`${APP_TWILIO_URL}${mediaUrl}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-500 underline"
-                    >
-                      Ver archivo
-                    </a>
-                  ))}
+      <Box background="bg-surface-secondary" paddingInline={'0'} paddingBlock={'400'}>
+        <div className="px-4 flex flex-col gap-2">
+          <div className="flex flex-col gap-1 overflow-y-scroll h-[300px] px-2 py-2 relative" ref={messagesEndRef}>
+            {messages.length > 0 ? (
+              messages.map((msg, index) => {
+                const { time } = SplitDateTime(msg.date_sent)
+                return(
+                <div
+                  key={index}
+                  className={`w-full flex flex-col ${
+                    msg.from.includes(PHONE_NUMBER)
+                      ? "justify-start items-start"
+                      : "justify-end items-end"
+                  }`}
+                >
+                  <div
+                    className={`p-2 w-fit max-w-[80%] ${
+                      msg.from.includes(PHONE_NUMBER)
+                        ? "bg-gray-300 left-0 rounded-r-lg rounded-t-lg"
+                        : "bg-green-500 text-white right-0 rounded-l-lg rounded-t-lg"
+                    }`}
+                  >
+                    {msg.media && msg.media.length > 0 && (
+                      <div className={`w-full grid ${msg.media.length > 3 ? 'grid-cols-4' : 'grid-cols-1'}`}>
+                        {msg.media.map((mediaUrl, mediaIndex) => (
+                          <img
+                            key={mediaIndex}
+                            src={`${APP_TWILIO_URL}${mediaUrl}`}
+                            alt={`media chat ${mediaIndex}`}
+                            className="w-full h-auto object-cover rounded-md"
+                          />
+                        ))}
+                      </div>
+                    )}
+                    <p>{msg.body}</p>
+                  </div>
+                  <span className="text-[11px] font-normal">{FormatTime(time)} hrs.</span>
                 </div>
-              )}
-            </div>
-          ))
-        ) : (
-          <p>No hay mensajes disponibles.</p>
-        )}
-      </div>
+              )})
+            ) : (
+              <p>No hay mensajes disponibles.</p>
+            )}
+          </div>
+          <div className="bg-white w-full flex items-center gap-2 rounded-lg border border-[#E9E9E9] px-2 py-1">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Escribe un mensaje"
+              className="flex-1 w-full p-2 bg-transparent"
+            />
+            <Tooltip content="Agregar archivo">
+              <div className="[&_button]:bg-[#E9E9E9] flex justify-center items-center">
+                <Button
+                  icon={AttachmentFilledIcon}
+                  variant="tertiary"
+                />
+              </div>
+            </Tooltip>
+            <button
+              onClick={() => handleSendMessage(input)}
+              className="px-4 py-1 bg-green-500 text-white transition-all duration-200 rounded-md hover:bg-green-600"
+            >
+              Enviar
+            </button>
+          </div>
+        </div>
+      </Box>
 
-      <div className="flex gap-2 items-center">
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Escribe un mensaje"
-          className="flex-1 p-2 border rounded"
-        />
-        <button
-          onClick={() => handleSendMessage(input)}
-          className="p-2 bg-green-500 text-white rounded hover:bg-green-600"
-        >
-          Enviar
-        </button>
+      {/* <div className="flex gap-2 items-center px-3 py-2">
         <div>
           <label className="block">Selecciona un archivo:</label>
           <input type="file" onChange={handleFileChange} className="mb-1" />
@@ -181,7 +220,7 @@ export default function Whatsapp({ phone }: { phone: string }) {
           </button>
           <p>{uploadStatus}</p>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }

@@ -213,6 +213,7 @@ const Archivos: React.FC = () => {
                 loading={loadingCreate}
                 variant="primary"
                 icon={FolderIcon}
+                disabled={folderName === ""}
               >
                 Crear carpeta
               </Button>

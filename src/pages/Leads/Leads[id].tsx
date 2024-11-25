@@ -10,7 +10,7 @@ import {
   ClockIcon,
 } from "@shopify/polaris-icons";
 import { getLeadById, changeLeadToProspect } from "../../services/leads";
-import { getHistorialCallsByNumber } from "../../services/historial";
+import { getHistorialCallsByNumber, getHistorialById } from "../../services/historial";
 import Actividad from "./Actividad";
 import Correos from "./Correos";
 import Llamadas from "./Llamadas";
@@ -64,6 +64,8 @@ export default function LeadInfo() {
         if (id) {
           const response = await getLeadById(id);
           setLeadData(response);
+          const respuesta = await getHistorialById(id);
+          console.log(respuesta)
         }
       } catch (error) {
         const errorMessage = typeof error === "string" ? error : String(error);
@@ -224,7 +226,7 @@ export default function LeadInfo() {
               <div className="w-full">
                 {selectedTab === "Actividad" && <Actividad historial={historialCalls}/>}
                 {selectedTab === "Correos" && <Correos />}
-                {selectedTab === "Llamadas" && <Llamadas phone={leadData.phone_number} />}
+                {selectedTab === "Llamadas" && <Llamadas phone={leadData.phone_number} historial={historialCalls}/>}
                 {selectedTab === "Tareas" && <Tareas />}
                 {selectedTab === "Notas" && (
                   <Notas idCliente={leadData._id ?? ""} />
