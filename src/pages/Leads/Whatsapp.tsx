@@ -1,7 +1,17 @@
 import { PageDownIcon, AttachmentFilledIcon } from "@shopify/polaris-icons";
 import { SplitDateTime, FormatTime } from "../../utils/functions";
 import { Box, Button, Tooltip, Modal } from "@shopify/polaris";
+import { getAllFiles } from "../../services/newFiles";
+import { Toast } from "../../components/Toast/toast";
 import { useState, useEffect, useRef } from "react";
+
+interface FolderData {
+  _id: string;
+  nombre_carpeta: string;
+  status: boolean;
+  created_at: string;
+  updated_at: string;
+}
 
 export default function Whatsapp({ phone }: { phone: string }) {
   type Message = {
@@ -21,7 +31,10 @@ export default function Whatsapp({ phone }: { phone: string }) {
   const [uploadStatus, setUploadStatus] = useState("");
   const [, setFileUrl] = useState("");
 
-  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [openArchivos, setOpenArchivos] = useState<boolean>(false);
+  const [loadingFolders, setLoadingFolders] = useState<boolean>(false);
+  const [folders, setFolders] = useState<FolderData[]>([]);
 
   const handleGetMessages = async () => {
     try {
@@ -116,6 +129,37 @@ export default function Whatsapp({ phone }: { phone: string }) {
       }
     }
   }, [messagesEndRef, messages]);
+
+  const fetchAllFolders = async () => {
+    setLoadingFolders(true);
+    try {
+      const response = await getAllFiles();
+      if (response.result && Array.isArray(response.data)) {
+        setFolders(response.data);
+      } else {
+        Toast.fire({
+          icon: "error",
+          title: "No se encontraron carpetas",
+        });
+      }
+    } catch (error) {
+      Toast.fire({
+        icon: "error",
+        title:
+          error instanceof Error
+            ? error.message
+            : "Error al obtener las carpetas",
+      });
+    } finally {
+      setLoadingFolders(false);
+    }
+  };
+
+  useEffect(() => {
+    if(openArchivos){
+      fetchAllFolders();
+    }
+  }, [openArchivos]);
 
   return (
     <div className="flex flex-col w-full rounded-lg gap-0">
@@ -221,6 +265,20 @@ export default function Whatsapp({ phone }: { phone: string }) {
           <p>{uploadStatus}</p>
         </div>
       </div> */}
+
+      {openArchivos && (
+        <Modal
+          open={openArchivos}
+          onClose={() => setOpenArchivos}
+          title="Carpetas de archivos"
+        >
+          <Modal.Section>
+            <div>
+              Archivos
+            </div>
+          </Modal.Section>
+        </Modal>
+      )}
     </div>
   );
 }
