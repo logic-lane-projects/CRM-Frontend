@@ -21,7 +21,7 @@ const Permissions = {
 
   // Archivos
   Archivos: "Archivos",
-  VisualizarArchivos: "Visualizar archivos",
+  ModificarArchivos: "Modificar Archivos",
 
   // Otros
   SinAsignacion: "Sin Asignación",

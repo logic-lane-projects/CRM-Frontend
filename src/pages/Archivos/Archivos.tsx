@@ -13,6 +13,7 @@ import {
   TextContainer,
 } from "@shopify/polaris";
 import ModalArchivosCarpetas from "../../components/Modales/ModalArchivosCarpetas";
+import { useAuthToken } from "../../hooks/useAuthToken";
 
 interface FolderData {
   _id: string;
@@ -23,6 +24,8 @@ interface FolderData {
 }
 
 const Archivos: React.FC = () => {
+  const { permisos } = useAuthToken();
+  const archivos = permisos?.includes("Archivos");
   const [folders, setFolders] = useState<FolderData[]>([]);
   const [folderName, setFolderName] = useState<string>("");
   const [loadingFolders, setLoadingFolders] = useState<boolean>(false);
@@ -157,92 +160,100 @@ const Archivos: React.FC = () => {
   };
 
   return (
-    <div>
-      <Card>
-        <div className="mb-4">
-          <TextField
-            label="Nombre de la carpeta"
-            value={folderName}
-            onChange={handleFolderNameChange}
-            placeholder="Escribe el nombre de la carpeta"
-            autoComplete="off"
-          />
-          <Button
-            onClick={handleCreateFolder}
-            loading={loadingCreate}
-            variant="primary"
-          >
-            Crear carpeta
-          </Button>
-        </div>
-
+    <>
+      {archivos ? (
         <div>
-          {loadingFolders ? (
-            <p>Cargando carpetas...</p>
-          ) : folders.length > 0 ? (
-            folders.map((folder) => (
-              <div
-                key={folder._id}
-                className="p-2 flex justify-between items-center border-b"
+          <Card>
+            <div className="mb-4">
+              <TextField
+                label="Nombre de la carpeta"
+                value={folderName}
+                onChange={handleFolderNameChange}
+                placeholder="Escribe el nombre de la carpeta"
+                autoComplete="off"
+              />
+              <Button
+                onClick={handleCreateFolder}
+                loading={loadingCreate}
+                variant="primary"
               >
-                <span>{folder.nombre_carpeta}</span>
-                <div className="flex gap-3">
-                  <Button onClick={() => handleViewFolder(folder)}>
-                    Ver carpeta
-                  </Button>
-                  <Button
-                    onClick={() => confirmDeleteFolder(folder)}
-                    loading={loadingDeleteFolderId === folder._id}
+                Crear carpeta
+              </Button>
+            </div>
+
+            <div>
+              {loadingFolders ? (
+                <p>Cargando carpetas...</p>
+              ) : folders.length > 0 ? (
+                folders.map((folder) => (
+                  <div
+                    key={folder._id}
+                    className="p-2 flex justify-between items-center border-b"
                   >
-                    Eliminar carpeta
-                  </Button>
-                </div>
-              </div>
-            ))
-          ) : (
-            <p>No hay carpetas disponibles</p>
+                    <span>{folder.nombre_carpeta}</span>
+                    <div className="flex gap-3">
+                      <Button onClick={() => handleViewFolder(folder)}>
+                        Ver carpeta
+                      </Button>
+                      <Button
+                        onClick={() => confirmDeleteFolder(folder)}
+                        loading={loadingDeleteFolderId === folder._id}
+                      >
+                        Eliminar carpeta
+                      </Button>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p>No hay carpetas disponibles</p>
+              )}
+            </div>
+          </Card>
+
+          {isOpen && selectedFolder && (
+            <ModalArchivosCarpetas
+              isOpen={isOpen}
+              setIsOpen={setIsOpen}
+              folder={selectedFolder}
+            />
+          )}
+
+          {isDeleteModalOpen && folderToDelete && (
+            <Modal
+              open={isDeleteModalOpen}
+              onClose={() => setIsDeleteModalOpen(false)}
+              title="Eliminar carpeta"
+              primaryAction={{
+                content: "Eliminar",
+                onAction: handleDeleteFolder,
+                destructive: true,
+                loading: loadingDeleteFolderId === folderToDelete._id,
+              }}
+              secondaryActions={[
+                {
+                  content: "Cancelar",
+                  onAction: () => setIsDeleteModalOpen(false),
+                },
+              ]}
+            >
+              <Modal.Section>
+                <TextContainer>
+                  <p>
+                    ¿Estás seguro que deseas eliminar la carpeta{" "}
+                    <strong>{folderToDelete.nombre_carpeta}</strong>? Todos los
+                    archivos internos serán eliminados permanentemente.
+                  </p>
+                </TextContainer>
+              </Modal.Section>
+            </Modal>
           )}
         </div>
-      </Card>
-
-      {isOpen && selectedFolder && (
-        <ModalArchivosCarpetas
-          isOpen={isOpen}
-          setIsOpen={setIsOpen}
-          folder={selectedFolder}
-        />
+      ) : (
+        <div>
+          <span>No tienes permiso para esta seccion</span>
+        </div>
       )}
-
-      {isDeleteModalOpen && folderToDelete && (
-        <Modal
-          open={isDeleteModalOpen}
-          onClose={() => setIsDeleteModalOpen(false)}
-          title="Eliminar carpeta"
-          primaryAction={{
-            content: "Eliminar",
-            onAction: handleDeleteFolder,
-            destructive: true,
-            loading: loadingDeleteFolderId === folderToDelete._id,
-          }}
-          secondaryActions={[
-            {
-              content: "Cancelar",
-              onAction: () => setIsDeleteModalOpen(false),
-            },
-          ]}
-        >
-          <Modal.Section>
-            <TextContainer>
-              <p>
-                ¿Estás seguro que deseas eliminar la carpeta{" "}
-                <strong>{folderToDelete.nombre_carpeta}</strong>? Todos los
-                archivos internos serán eliminados permanentemente.
-              </p>
-            </TextContainer>
-          </Modal.Section>
-        </Modal>
-      )}
-    </div>
+    </>
   );
 };
 
