@@ -10,9 +10,10 @@ import {
   Select,
 } from "@shopify/polaris";
 import { Toast } from "../../components/Toast/toast";
-import ModalAsignacionVendedor from "../../components/Modales/ModalAsignacionVenderor";
 import { useAuthToken } from "../../hooks/useAuthToken";
-import { getLeadsByOfficeId } from "../../services/leads";
+// import { getLeadsByOfficeId } from "../../services/leads";
+import { getAllClientsNoOffice } from "../../services/leads";
+import ModalAsignarOficinas from "../../components/Modales/ModalAsignarOficinas";
 
 // src/types/types.ts
 export interface LeadResponse {
@@ -45,13 +46,14 @@ export interface LeadResponse {
 export default function SinAsignacion() {
   const { userInfo, permisos } = useAuthToken();
   const nagivate = useNavigate();
-  const oficinaActual = localStorage.getItem("oficinaActual");
+  // const oficinaActual = localStorage.getItem("oficinaActual");
   const isSinAsignacion = permisos?.includes("Sin Asignación");
   const [isOpen, setIsOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState("10");
   const [leads, setLeads] = useState<LeadResponse[]>([]);
+  console.log(leads);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -59,14 +61,14 @@ export default function SinAsignacion() {
     if (userInfo && userInfo?.city) {
       fetchLeads();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userInfo]);
 
   const fetchLeads = async () => {
     setLoading(true);
     try {
-      const response = await getLeadsByOfficeId(oficinaActual ?? "");
-      const leadsData = response.data || [];
+      const response = await getAllClientsNoOffice();
+      console.log(response)
+      const leadsData = response || [];
       setLeads(leadsData);
     } catch (error) {
       setError("Error al cargar los leads");
@@ -127,7 +129,10 @@ export default function SinAsignacion() {
   };
 
   const rowMarkup = paginatedLeads.map(
-    ({ _id, names, email, phone_number, city }: LeadResponse, index: number) => (
+    (
+      { _id, names, email, phone_number, city }: LeadResponse,
+      index: number
+    ) => (
       <IndexTable.Row
         id={_id ?? "unknown-id"}
         key={_id ?? index}
@@ -141,7 +146,7 @@ export default function SinAsignacion() {
         </IndexTable.Cell>
         <IndexTable.Cell>{city ?? "Ciudad desconocida"}</IndexTable.Cell>
         <IndexTable.Cell>
-          <Button onClick={() => setIsOpen(true)}>Asignar Vendedor</Button>
+          <Button onClick={() => setIsOpen(true)}>Asignar Oficina</Button>
         </IndexTable.Cell>
       </IndexTable.Row>
     )
@@ -160,7 +165,7 @@ export default function SinAsignacion() {
       {isSinAsignacion ? (
         <div className="w-full flex flex-col gap-4">
           <span className="font-semibold text-[20px]">
-            Leads sin asignación
+            Clientes sin oficinas
           </span>
           <Card>
             <div className="flex flex-col gap-4">
@@ -219,11 +224,10 @@ export default function SinAsignacion() {
             </div>
           </Card>
           {isOpen && (
-            <ModalAsignacionVendedor
+            <ModalAsignarOficinas
               leadIds={selectedResources}
               setIsOpen={setIsOpen}
               isOpen={isOpen}
-              assignedTo={null}
             />
           )}
         </div>
