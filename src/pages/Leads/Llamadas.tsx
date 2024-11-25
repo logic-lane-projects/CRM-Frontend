@@ -13,7 +13,7 @@ import {
 } from "@shopify/polaris";
 import { SplitDateTime, FormatDate, FormatDateHistory } from "../../utils/functions";
 
-function Llamadas({phone, historial}: {phone? : string, historial: CallsHistorial|null}) {
+function Llamadas({phone, historial}: {phone? : string, historial?: CallsHistorial|null}) {
   const [seleted, setSelected] = useState<HistorialCalls|null>(null);
   const [open, setOpen] = useState<boolean>(false);
 
@@ -101,7 +101,7 @@ function Llamadas({phone, historial}: {phone? : string, historial: CallsHistoria
             Llamar
           </Button>
         </div>
-        { historial != null && (
+        { (historial && historial != null) && (
           <ResourceList
             resourceName={{singular: 'customer', plural: 'customers'}}
             items={historial.history_calls}

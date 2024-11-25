@@ -13,7 +13,7 @@ import { SplitDateTime, FormatDate, FormatDateHistory } from "../../utils/functi
 import { PhoneIcon } from "@shopify/polaris-icons";
 import { useState } from "react";
 
-export default function Actividad({ historial }: { historial: CallsHistorial|null }) {
+export default function Actividad({ historial }: { historial?: CallsHistorial|null }) {
   const [seleted, setSelected] = useState<HistorialCalls|null>(null);
   const [open, setOpen] = useState<boolean>(false);
 
@@ -94,7 +94,7 @@ export default function Actividad({ historial }: { historial: CallsHistorial|nul
           <div className="font-semibold text-[15px]">Actividad Reciente</div>
           <Button variant="primary">Crear</Button>
         </div>
-        { historial != null && (
+        { (historial && historial != null) && (
           <ResourceList
             resourceName={{singular: 'customer', plural: 'customers'}}
             items={historial.history_calls}

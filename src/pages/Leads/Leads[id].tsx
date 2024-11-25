@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { Button, Card, Icon, Spinner, Page, Badge } from "@shopify/polaris";
+import { Button, Card, Spinner, Page, Badge } from "@shopify/polaris";
 import {
   NotificationIcon,
   // EmailIcon,

@@ -26,6 +26,8 @@ import Archivos from "../Leads/Archivos";
 import Historial from "../Leads/Historial";
 import { Toast } from "../../components/Toast/toast";
 import { useNavigate } from "react-router-dom";
+import { getHistorialCallsByNumber } from "../../services/historial";
+import type { CallsHistorial } from "../../services/historial";
 
 export default function ProspectInfo() {
   const navigate = useNavigate();
@@ -37,6 +39,7 @@ export default function ProspectInfo() {
   const [isLoadingChange, setIsLoadingChange] = useState(false);
   const [isPayment, setIsPayment] = useState(false);
   const [finishLoading, setFinishLoading] = useState(false);
+  const [historialCalls, setHistorialCalls] = useState<CallsHistorial | null>(null);
 
   useEffect(() => {
     const fetchLeadData = async () => {
@@ -109,6 +112,28 @@ export default function ProspectInfo() {
       setIsLoadingChange(false);
     }
   };
+
+  const fetchHistorial = async (number: string|number) => {
+    try{
+      if(number){
+        const response = await getHistorialCallsByNumber(number);
+        setHistorialCalls(response);
+      }
+    } catch(error){
+      const errorMessage = typeof error === "string" ? error : String(error);
+      setError(errorMessage);
+      Toast.fire({
+        icon: "error",
+        title: errorMessage,
+      });
+    }
+  }
+
+  useEffect(() => {
+    if(leadData && leadData.phone_number){
+      fetchHistorial(leadData.phone_number);
+    }
+  }, [leadData]);
 
   return (
     <Card>
@@ -248,9 +273,9 @@ export default function ProspectInfo() {
             </div>
           </div>
           <div className="border-[1px] border-gray-300 p-2">
-            {selectedTab === "Actividad" && <Actividad />}
+            {selectedTab === "Actividad" && <Actividad historial={historialCalls}/>}
             {selectedTab === "Correos" && <Correos />}
-            {selectedTab === "Llamadas" && <Llamadas />}
+            {selectedTab === "Llamadas" && <Llamadas phone={leadData.phone_number} />}
             {selectedTab === "Tareas" && <Tareas />}
             {selectedTab === "Notas" && (
               <Notas idCliente={leadData._id ?? ""} />

@@ -2,7 +2,7 @@ import { useState, useEffect, SetStateAction } from "react";
 import ModalRegistroUsuarios from "../../components/Modales/ModalRegistroUsuarios";
 import {
   IndexTable,
-  TextField,
+  // TextField,
   Pagination,
   Button,
   Card,

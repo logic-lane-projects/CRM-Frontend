@@ -26,10 +26,10 @@ export default function Whatsapp({ phone }: { phone: string }) {
   const PHONE_NUMBER = phone || "15951129872";
 
   const [messages, setMessages] = useState<Message[]>([]);
-  const [file, setFile] = useState<File | null>(null);
+  // const [file, setFile] = useState<File | null>(null);
   const [input, setInput] = useState("");
-  const [uploadStatus, setUploadStatus] = useState("");
-  const [, setFileUrl] = useState("");
+  // const [uploadStatus, setUploadStatus] = useState("");
+  // const [fileUrl, setFileUrl] = useState("");
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [openArchivos, setOpenArchivos] = useState<boolean>(false);
@@ -79,41 +79,41 @@ export default function Whatsapp({ phone }: { phone: string }) {
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setFile(e.target.files[0]);
-    }
-  };
+  // const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   if (e.target.files && e.target.files.length > 0) {
+  //     setFile(e.target.files[0]);
+  //   }
+  // };
 
-  const handleUpload = async () => {
-    if (!file) {
-      setUploadStatus("Selecciona un archivo para subir.");
-      return;
-    }
+  // const handleUpload = async () => {
+  //   if (!file) {
+  //     setUploadStatus("Selecciona un archivo para subir.");
+  //     return;
+  //   }
 
-    setUploadStatus("Subiendo archivo...");
-    const formData = new FormData();
-    formData.append("file", file);
+  //   setUploadStatus("Subiendo archivo...");
+  //   const formData = new FormData();
+  //   formData.append("file", file);
 
-    try {
-      const response = await fetch(`${APP_TWILIO_URL}upload_file`, {
-        method: "POST",
-        body: formData,
-      });
+  //   try {
+  //     const response = await fetch(`${APP_TWILIO_URL}upload_file`, {
+  //       method: "POST",
+  //       body: formData,
+  //     });
 
-      if (!response.ok) throw new Error("Error al subir el archivo");
+  //     if (!response.ok) throw new Error("Error al subir el archivo");
 
-      const data = await response.json();
-      setFileUrl(data.file_url);
-      setUploadStatus("Archivo subido exitosamente.");
+  //     const data = await response.json();
+  //     setFileUrl(data.file_url);
+  //     setUploadStatus("Archivo subido exitosamente.");
 
-      // Enviar el archivo como mensaje después de subirlo
-      handleSendMessage(`Te envío un archivo: ${data.file_url}`, [data.file_url]);
-    } catch (error) {
-      setUploadStatus("Error al subir el archivo.");
-      console.error("Error uploading file:", error);
-    }
-  };
+  //     // Enviar el archivo como mensaje después de subirlo
+  //     handleSendMessage(`Te envío un archivo: ${data.file_url}`, [data.file_url]);
+  //   } catch (error) {
+  //     setUploadStatus("Error al subir el archivo.");
+  //     console.error("Error uploading file:", error);
+  //   }
+  // };
 
   useEffect(() => {
     handleGetMessages();
@@ -158,6 +158,7 @@ export default function Whatsapp({ phone }: { phone: string }) {
   useEffect(() => {
     if(openArchivos){
       fetchAllFolders();
+      console.log(loadingFolders, folders)
     }
   }, [openArchivos]);
 
