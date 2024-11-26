@@ -7,6 +7,7 @@ import {
 } from "../../services/newFiles";
 import { Toast } from "../Toast/toast";
 import type { FolderInfo } from "../../services/newFiles";
+import { useAuthToken } from "../../hooks/useAuthToken";
 
 interface ModalArchivosCarpetasProps {
   isOpen: boolean;
@@ -19,6 +20,8 @@ const ModalArchivosCarpetas: React.FC<ModalArchivosCarpetasProps> = ({
   setIsOpen,
   folder,
 }) => {
+  const { permisos } = useAuthToken();
+  const modificarArchivos = permisos?.includes("Modificar Archivos") ?? false;
   const API_URL = import.meta.env.VITE_API_URL;
   const [folderInfo, setFolderInfo] = useState<FolderInfo | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -37,12 +40,14 @@ const ModalArchivosCarpetas: React.FC<ModalArchivosCarpetasProps> = ({
       setFolderInfo(folderData);
     } catch (error) {
       console.error("Error al obtener la información de la carpeta", error);
-      Toast.fire({ icon: "error", title: "Error al obtener la información de la carpeta" });
+      Toast.fire({
+        icon: "error",
+        title: "Error al obtener la información de la carpeta",
+      });
     } finally {
       setLoading(false);
     }
   };
-  
 
   useEffect(() => {
     if (isOpen) {
@@ -64,18 +69,18 @@ const ModalArchivosCarpetas: React.FC<ModalArchivosCarpetasProps> = ({
       });
       return;
     }
-  
+
     // Limpiar el nombre del archivo
     const cleanFileName = selectedFile.name
       .replace(/[^a-zA-Z0-9\s.]/g, "") // Permite solo letras, números, espacios y el punto (.)
       .replace(/\s+/g, " ") // Reemplaza múltiples espacios por uno solo
       .trim(); // Elimina espacios al inicio y final
-  
+
     // Crear un nuevo archivo con el nombre limpio
     const cleanFile = new File([selectedFile], cleanFileName, {
       type: selectedFile.type,
     });
-  
+
     setUploading(true);
     try {
       await uploadFileToFolder(folder.id, cleanFile);
@@ -89,7 +94,6 @@ const ModalArchivosCarpetas: React.FC<ModalArchivosCarpetasProps> = ({
       setUploading(false);
     }
   };
-  
 
   const handleDeleteFile = async (filePath: string) => {
     setDeleting(filePath);
@@ -127,34 +131,36 @@ const ModalArchivosCarpetas: React.FC<ModalArchivosCarpetasProps> = ({
                 {folderInfo?.nombre_carpeta}
               </p>
             </div>
-
-            <div className="mb-4">
-              <label
-                htmlFor="file-upload"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Selecciona un archivo para subir (imágenes o PDF):
-              </label>
-              <input
-                id="file-upload"
-                type="file"
-                accept="image/*,application/pdf"
-                onChange={handleFileChange}
-                className="mt-2 p-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <button
-                onClick={handleUpload}
-                disabled={uploading}
-                className={`mt-2 px-4 py-2 rounded-md text-white ${
-                  uploading
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-blue-600 hover:bg-blue-700"
-                }`}
-              >
-                {uploading ? "Subiendo..." : "Subir archivo"}
-              </button>
-            </div>
-
+            {modificarArchivos && (
+              <div className="mb-4">
+                <label
+                  htmlFor="file-upload"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Selecciona un archivo para subir (imágenes o PDF):
+                </label>
+                <input
+                  id="file-upload"
+                  type="file"
+                  accept="image/*,application/pdf"
+                  onChange={handleFileChange}
+                  className="mt-2 p-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                {modificarArchivos && (
+                  <button
+                    onClick={handleUpload}
+                    disabled={uploading}
+                    className={`mt-2 px-4 py-2 rounded-md text-white ${
+                      uploading
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-blue-600 hover:bg-blue-700"
+                    }`}
+                  >
+                    {uploading ? "Subiendo..." : "Subir archivo"}
+                  </button>
+                )}
+              </div>
+            )}
             <div className="mt-4">
               {loading ? (
                 <div className="flex justify-center">
@@ -198,17 +204,21 @@ const ModalArchivosCarpetas: React.FC<ModalArchivosCarpetasProps> = ({
                         >
                           Descargar
                         </a>
-                        <button
-                          onClick={() => handleDeleteFile(fileUrl)}
-                          disabled={deleting === fileUrl}
-                          className={`text-sm px-2 py-1 rounded-md text-white ${
-                            deleting === fileUrl
-                              ? "bg-gray-400 cursor-not-allowed"
-                              : "bg-red-600 hover:bg-red-700"
-                          }`}
-                        >
-                          {deleting === fileUrl ? "Eliminando..." : "Eliminar"}
-                        </button>
+                        {modificarArchivos && (
+                          <button
+                            onClick={() => handleDeleteFile(fileUrl)}
+                            disabled={deleting === fileUrl}
+                            className={`text-sm px-2 py-1 rounded-md text-white ${
+                              deleting === fileUrl
+                                ? "bg-gray-400 cursor-not-allowed"
+                                : "bg-red-600 hover:bg-red-700"
+                            }`}
+                          >
+                            {deleting === fileUrl
+                              ? "Eliminando..."
+                              : "Eliminar"}
+                          </button>
+                        )}
                       </div>
                     </div>
                   ))}

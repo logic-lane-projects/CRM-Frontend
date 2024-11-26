@@ -22,11 +22,6 @@ import {
 
 export default function Usuarios() {
   const { userInfo, permisos } = useAuthToken();
-  const crearVendedores = permisos?.includes("Crear Vendedores");
-  const crearAdministradores = permisos?.includes("Crear Administradores");
-  const crearAsignadores = permisos?.includes("Crear Asignadores");
-  const crearCoordinadores = permisos?.includes("Crear Coordinadores");
-  const crearMarketing = permisos?.includes("Crear Marketing");
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
@@ -212,91 +207,93 @@ export default function Usuarios() {
   if (error) {
     return <p>{error}</p>;
   }
-  console.log(crearVendedores);
   return (
-    <div className="w-full flex flex-col gap-4">
-      <div className="flex w-full justify-between items-center">
-        <span className="font-semibold text-[20px]">Usuarios</span>
-        <div className="flex gap-2">
-          {(crearVendedores ||
-            crearAdministradores ||
-            crearAsignadores ||
-            crearCoordinadores ||
-            crearMarketing) && (
-            <Button onClick={() => setIsOpen(true)} variant="primary" icon={PersonAddIcon}>
-              Registro
-            </Button>
-          )}
-          <Button
-            onClick={() => {
-              setShowWithoutOffices((prev) => !prev);
-              setCurrentPage(1);
-            }}
-            variant="secondary"
-          >
-            {showWithoutOffices
-              ? "Mostrar todos los usuarios"
-              : "Usuarios sin oficinas"}
-          </Button>
-        </div>
-      </div>
-      <Card padding={'0'}>
-        <div className="flex flex-col gap-0">
-          <Filters
-            queryValue={searchValue}
-            onQueryChange={(value) => {
-              setSearchValue(value);
-              setCurrentPage(1);
-            }}
-            queryPlaceholder="Buscar por nombre, correo, ciudad u oficina"
-            onQueryClear={() => setSearchValue("")}
-            onClearAll={() => setSearchValue("")}
-            filters={[]}
-          />
-
-          <IndexTable
-            resourceName={{ singular: "usuario", plural: "usuarios" }}
-            itemCount={filteredUsuarios.length}
-            selectedItemsCount={selectedResource ? 1 : 0}
-            onSelectionChange={() => {}}
-            headings={[
-              { title: "Nombre" },
-              { title: "Correo Electrónico" },
-              { title: "Ciudad" },
-              { title: "Oficinas" },
-              { title: "Rol" },
-            ]}
-            promotedBulkActions={promotedBulkActions}
-            emptyState="No se encontraron resultados"
-          >
-            {rowMarkup}
-          </IndexTable>
-          <div className="flex flex-row-reverse items-center w-full justify-between px-2 py-2 bg-[#f3f3f3] border-t">
-            <Pagination
-              hasPrevious={currentPage > 1}
-              onPrevious={() => handlePagination("previous")}
-              hasNext={currentPage < totalPages}
-              onNext={() => handlePagination("next")}
-            />
-            <Select
-              label=""
-              options={[
-                { label: "10", value: "10" },
-                { label: "20", value: "20" },
-                { label: "Todos", value: "todos" },
-              ]}
-              value={itemsPerPage}
-              onChange={(value: SetStateAction<string>) => {
-                setItemsPerPage(value);
-                setCurrentPage(1);
-              }}
-            />
+    <>
+      {permisos?.includes("Usuarios") ? (
+        <div className="w-full flex flex-col gap-4">
+          <div className="flex w-full justify-between items-center">
+            <span className="font-semibold text-[20px]">Usuarios</span>
+            <div className="flex gap-2">
+              <Button onClick={() => setIsOpen(true)} variant="primary">
+                Registro
+              </Button>
+              <Button
+                onClick={() => {
+                  setShowWithoutOffices((prev) => !prev);
+                  setCurrentPage(1);
+                }}
+                variant="secondary"
+              >
+                {showWithoutOffices
+                  ? "Mostrar todos los usuarios"
+                  : "Usuarios sin oficinas"}
+              </Button>
+            </div>
           </div>
+          <Card>
+            <div className="flex flex-col gap-4">
+              <TextField
+                label="Buscar Usuarios"
+                value={searchValue}
+                onChange={(value) => {
+                  setSearchValue(value);
+                  setCurrentPage(1);
+                }}
+                placeholder="Buscar por nombre, correo, ciudad u oficina"
+                clearButton
+                onClearButtonClick={() => setSearchValue("")}
+                autoComplete="off"
+              />
+
+              <IndexTable
+                resourceName={{ singular: "usuario", plural: "usuarios" }}
+                itemCount={filteredUsuarios.length}
+                selectedItemsCount={selectedResource ? 1 : 0}
+                onSelectionChange={() => {}}
+                headings={[
+                  { title: "Nombre" },
+                  { title: "Correo Electrónico" },
+                  { title: "Ciudad" },
+                  { title: "Oficinas" },
+                  { title: "Rol" },
+                ]}
+                promotedBulkActions={promotedBulkActions}
+                emptyState="No se encontraron resultados"
+              >
+                {rowMarkup}
+              </IndexTable>
+              <div className="flex flex-row-reverse items-center w-full justify-between">
+                <Pagination
+                  hasPrevious={currentPage > 1}
+                  onPrevious={() => handlePagination("previous")}
+                  hasNext={currentPage < totalPages}
+                  onNext={() => handlePagination("next")}
+                />
+                <Select
+                  label=""
+                  options={[
+                    { label: "10", value: "10" },
+                    { label: "20", value: "20" },
+                    { label: "Todos", value: "todos" },
+                  ]}
+                  value={itemsPerPage}
+                  onChange={(value: SetStateAction<string>) => {
+                    setItemsPerPage(value);
+                    setCurrentPage(1);
+                  }}
+                />
+              </div>
+            </div>
+          </Card>
+          {isOpen && (
+            <ModalRegistroUsuarios isOpen={isOpen} setIsOpen={setIsOpen} />
+          )}
         </div>
-      </Card>
-      {isOpen && (
-        <ModalRegistroUsuarios isOpen={isOpen} setIsOpen={setIsOpen} />
+      ) : (
+        <div>
+          <span>No tienes permiso para ver los usuarios</span>
+        </div>
       )}
-    </div>
+    </>
   );
 }

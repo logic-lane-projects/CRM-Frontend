@@ -100,7 +100,7 @@ export default function BuyerInfo() {
       if (userInfo && userInfo.id) {
         await changeProspectToClient(id, userInfo.id);
       } else {
-        console.log("no hay id del usuario");
+        Toast.fire({ icon: "error", title: "User info no disponible" });
       }
       Toast.fire({ icon: "success", title: "Prospecto pasado a Cliente" });
       navigate("/leads?selected=client");

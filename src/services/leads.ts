@@ -1,5 +1,6 @@
 // src/services/leads.ts
 import type { InfoLeads } from "../pages/Leads/LeadInfo";
+import type { LeadResponse } from "./../pages/SinAsignacion/SinAsignacion";
 export interface Lead {
   _id?: string;
   names: string;
@@ -24,6 +25,11 @@ export interface Lead {
   created_at?: string;
   updated_at?: string;
 }
+export interface ApiResponse<T> {
+  result: boolean;
+  error: string;
+  data: T;
+}
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -45,7 +51,10 @@ export const createLead = async (
   };
 
   try {
-    const response = await fetch(`${API_URL}clientes/leads/${userId}`, requestOptions);
+    const response = await fetch(
+      `${API_URL}clientes/leads/${userId}`,
+      requestOptions
+    );
 
     if (!response.ok) {
       const errorResponse = await response.json();
@@ -129,7 +138,7 @@ export const getActiveLeads = async (): Promise<Lead[]> => {
 // Buscar leads activos por email
 export const getLeadsByEmail = async (email: string): Promise<Lead[]> => {
   try {
-    const response = await fetch(`${API_URL}/leads/email/${email}`, {
+    const response = await fetch(`leads/email/${email}`, {
       method: "GET",
     });
     if (!response.ok) {
@@ -149,7 +158,7 @@ export const getLeadsByPhoneNumber = async (
 ): Promise<Lead[]> => {
   try {
     const response = await fetch(
-      `${API_URL}/leads/phone_number/${phoneNumber}`,
+      `${API_URL}leads/phone_number/${phoneNumber}`,
       {
         method: "GET",
       }
@@ -265,7 +274,9 @@ export const updateClient = async (
 
 export const getAllLeadsNoSeller = async (city: string): Promise<Lead[]> => {
   try {
-    const response = await fetch(`${API_URL}client/find_leads_without_vendedor_by_city/all/${city}`);
+    const response = await fetch(
+      `${API_URL}client/find_leads_without_vendedor_by_city/all/${city}`
+    );
     if (!response.ok) {
       throw new Error(`Error fetching leads: ${response.statusText}`);
     }
@@ -277,17 +288,136 @@ export const getAllLeadsNoSeller = async (city: string): Promise<Lead[]> => {
   }
 };
 
-export const getAllLeadsBySellerIdAndType = async (id: string, clientType: string): Promise<Lead[]> => {
+export const getAllLeadsBySellerIdAndType = async (
+  id: string,
+  clientType: string
+): Promise<Lead[]> => {
   try {
-    const response = await fetch(`${API_URL}client/buscar_leads_por_vendedor_y_tipo_client/all/${id}/${clientType}`);
+    const response = await fetch(
+      `${API_URL}client/buscar_leads_por_vendedor_y_tipo_client/all/${id}/${clientType}`
+    );
     if (!response.ok) {
       throw new Error(`Error fetching leads: ${response.statusText}`);
     }
     const data = await response.json();
     return data.data;
   } catch (error) {
-    console.error("Error al obtener leads por vendedor y tipo de cliente:", error);
+    console.error(
+      "Error al obtener leads por vendedor y tipo de cliente:",
+      error
+    );
     throw error;
   }
 };
 
+export const getLeadsByOfficeId = async (
+  officeId: string
+): Promise<ApiResponse<LeadResponse[]>> => {
+  try {
+    const response = await fetch(
+      `${API_URL}clientes/buscar/por/oficinas/${officeId}`
+    );
+    if (!response.ok) {
+      throw new Error(`Error fetching leads: ${response.statusText}`);
+    }
+    const { data } = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error al obtener leads por oficina:", error);
+    throw error;
+  }
+};
+
+// buscar por tipo de cliente, trae todos
+export const getClientsByType = async (type_cliente: string) => {
+  try {
+    const response = await fetch(
+      `${API_URL}clientes/custom/all/${type_cliente}`
+    );
+    if (!response.ok) {
+      throw new Error(`Error al obtener datos de ${type_cliente}`);
+    }
+    const { data } = await response.json();
+    return data;
+  } catch (error) {
+    console.error(`Error al obtener datos de ${type_cliente}:`, error);
+    throw error;
+  }
+};
+
+// Traer todos los clientes por oficina
+export const getAllClientsByOfficeIdAndType = async (
+  officeId: string,
+  type_cliente: string
+) => {
+  try {
+    const response = await fetch(
+      `${API_URL}clientes/buscar/por/oficinas/${officeId}?type_cliente=${type_cliente}`
+    );
+
+    if (!response.ok) {
+      throw new Error(`Error al obtener clientes: ${response.statusText}`);
+    }
+
+    const { data } = await response.json();
+    return data;
+  } catch (error) {
+    console.error(`Error al obtener clientes por oficina: ${error}`);
+    throw error;
+  }
+};
+
+export const getAllClientesByOfficeId = async (officeId: string) => {
+  try {
+    const response = await fetch(
+      `${API_URL}clientes/buscar/por/oficinas/${officeId}`
+    );
+    if (!response.ok) {
+      throw new Error(`Error al obtener clientes: ${response.statusText}`);
+    }
+    const { data } = await response.json();
+    return data;
+  } catch (error) {
+    console.error(`Error al obtener clientes por oficina: ${error}`);
+    throw error;
+  }
+};
+
+export const getAllClientsNoOffice = async () => {
+  try {
+    const response = await fetch(`${API_URL}clientes/buscar/all/sin/oficina`);
+    if (!response.ok) {
+      throw new Error(`Error al obtener clientes: ${response.statusText}`);
+    }
+    const { data } = await response.json();
+    return data;
+  } catch (error) {
+    console.error(`Error al obtener clientes por oficina: ${error}`);
+    throw error;
+  }
+};
+
+export const asignOffice = async (adminId: string, id_oficina: string, clientes: string[]) => {
+  try {
+    const response = await fetch(`${API_URL}clientes/asignar/oficina/${adminId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json', 
+      },
+      body: JSON.stringify({
+        id_oficina,
+        clientes,
+      }), 
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error al asignar oficina: ${response.statusText}`);
+    }
+
+    const { data } = await response.json();
+    return data;
+  } catch (error) {
+    console.error(`Error al asignar oficina: ${error}`);
+    throw error;
+  }
+};

@@ -20,6 +20,7 @@ import SellerLeads from "./pages/Leads/SellerLeads";
 import Usuarios from "./pages/Usuarios/Usuarios";
 import InfoUsuarios from "./pages/Usuarios/Usuarios[id]";
 import Archivos from "./pages/Archivos/Archivos";
+import ClientesPorOficina from "./pages/Leads/ClientesPorOficina";
 
 const App: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
@@ -89,7 +90,19 @@ const App: React.FC = () => {
           path="/leads"
           element={
             <AppLayout>
-              {userInfo && userInfo.role === "vendedor" ? <SellerLeads /> : <Leads />}
+              {userInfo && userInfo.role === "vendedor" ? (
+                <SellerLeads />
+              ) : (
+                <Leads />
+              )}
+            </AppLayout>
+          }
+        />
+        <Route
+          path="/clientes-por-oficina"
+          element={
+            <AppLayout>
+              <ClientesPorOficina />
             </AppLayout>
           }
         />

@@ -54,11 +54,7 @@ export default function ModalRegistroUsuarios({
 }: ModalRegistroUsuariosProps) {
   const navigate = useNavigate();
   const { permisos } = useAuthToken();
-  const crearVendedores = permisos?.includes("Crear Vendedores");
   const crearAdministradores = permisos?.includes("Crear Administradores");
-  const crearAsignadores = permisos?.includes("Crear Asignadores");
-  const crearCoordinadores = permisos?.includes("Crear Coordinadores");
-  const crearMarketing = permisos?.includes("Crear Marketing");
   const [formValues, setFormValues] = useState<FormValues>(initialFormValues);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isLoading, setIsLoading] = useState(false);
@@ -67,11 +63,11 @@ export default function ModalRegistroUsuarios({
   const [ciudades, setCiudades] = useState<string[]>([]);
 
   const roleOptions = [
-    { label: "Vendedor", value: UserRole.Vendedor, permiso: crearVendedores },
+    { label: "Vendedor", value: UserRole.Vendedor, permiso: true },
     { label: "Administrador", value: UserRole.Administrador, permiso: crearAdministradores },
-    { label: "Asignador", value: UserRole.Asignador, permiso: crearAsignadores },
-    { label: "Coordinador", value: UserRole.Coordinador, permiso: crearCoordinadores },
-    { label: "Marketing", value: UserRole.Marketing, permiso: crearMarketing },
+    { label: "Asignador", value: UserRole.Asignador, permiso: true },
+    { label: "Coordinador", value: UserRole.Coordinador, permiso: true },
+    { label: "Marketing", value: UserRole.Marketing, permiso: true },
   ].filter((role) => role.permiso);
   
 

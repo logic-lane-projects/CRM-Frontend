@@ -132,7 +132,6 @@ export default function Coordinadores() {
       return prevPage;
     });
   };
-  console.log(paginatedCoordinators);
   const rowMarkup = paginatedCoordinators.map(
     ({ _id, name, email, city, status }: RawCoordinatorData, index: number) => (
       <IndexTable.Row

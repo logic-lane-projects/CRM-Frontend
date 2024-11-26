@@ -29,9 +29,15 @@ export default function Sidebar({ isOpen }: SidebarProps) {
   const navigationItems: NavigationItem[] = [
     {
       url: "/leads",
-      label: "Inicio",
+      label: "Clientes",
       icon: HomeIcon,
       selected: currentPath === "/leads",
+    },
+    {
+      url: "/clientes-por-oficina",
+      label: "Clientes por oficina",
+      icon: HomeIcon,
+      selected: currentPath === "/clientes-por-oficina",
     },
     {
       url: "/usuarios",
@@ -47,7 +53,7 @@ export default function Sidebar({ isOpen }: SidebarProps) {
     },
     {
       url: "/sin-asignacion",
-      label: "Sin Asignación",
+      label: "Sin Oficinas",
       icon: WorkIcon,
       selected: currentPath === "/sin-asignacion",
     },
@@ -63,8 +69,9 @@ export default function Sidebar({ isOpen }: SidebarProps) {
     "/leads": [],
     "/usuarios": ["Usuarios"],
     "/oficinas": ["Oficinas"],
-    "/sin-asignacion": ["SinAsignacion"],
+    "/sin-asignacion": ["Sin Asignación"],
     "/archivos": ["Archivos"],
+    "/clientes-por-oficina": ["Clientes por Oficina"],
   };
 
   useEffect(() => {
