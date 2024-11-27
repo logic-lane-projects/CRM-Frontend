@@ -111,6 +111,7 @@ export default function Whatsapp({ phone }: { phone: string }) {
 
   useEffect(() => {
     handleGetMessages();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -182,6 +183,7 @@ export default function Whatsapp({ phone }: { phone: string }) {
       socket.disconnect();
       socket.close();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
