@@ -169,9 +169,6 @@ export default function Whatsapp({ phone }: { phone: string }) {
   useEffect(() => {
     // socket.connect();
     if(socket){
-      const message = {
-        client_number: PHONE_NUMBER,
-      };
       // Enviar un nuevo mensaje
       socket.emit('message', JSON.parse(`{ "client_number":"${PHONE_NUMBER}"}`));
     }
