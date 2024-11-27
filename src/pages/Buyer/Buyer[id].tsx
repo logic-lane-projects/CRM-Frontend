@@ -40,6 +40,28 @@ export default function BuyerInfo() {
   const [isPayment, setIsPayment] = useState(false);
   const [historialCalls, setHistorialCalls] = useState<CallsHistorial | null>(null);
 
+  const fetchHistorial = async (number: string|number) => {
+    try{
+      if(number){
+        const response = await getHistorialCallsByNumber(number);
+        setHistorialCalls(response);
+      }
+    } catch(error){
+      const errorMessage = typeof error === "string" ? error : String(error);
+      setError(errorMessage);
+      Toast.fire({
+        icon: "error",
+        title: errorMessage,
+      });
+    }
+  }
+
+  useEffect(() => {
+    if(leadData && leadData.phone_number){
+      fetchHistorial(leadData.phone_number);
+    }
+  }, [leadData]);
+
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const tabFromUrl = searchParams.get("selected") || "Actividad";
@@ -115,27 +137,6 @@ export default function BuyerInfo() {
     }
   };
 
-  const fetchHistorial = async (number: string|number) => {
-    try{
-      if(number){
-        const response = await getHistorialCallsByNumber(number);
-        setHistorialCalls(response);
-      }
-    } catch(error){
-      const errorMessage = typeof error === "string" ? error : String(error);
-      setError(errorMessage);
-      Toast.fire({
-        icon: "error",
-        title: errorMessage,
-      });
-    }
-  }
-
-  useEffect(() => {
-    if(leadData && leadData.phone_number){
-      fetchHistorial(leadData.phone_number);
-    }
-  }, [leadData]);
 
   return (
     <Card>

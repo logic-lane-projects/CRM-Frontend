@@ -114,7 +114,7 @@ return (
                                             <span className="text-gray-700">{activity.activity_description}</span>
                                         </p>
                                         <p>
-                                            <span className="font-semibold">Vendedor:  </span> 
+                                            <span className="font-semibold">Realizado por:  </span> 
                                             <span className="text-gray-700">{activity.name_vendedor}</span>
                                         </p>
                                     </TextContainer>

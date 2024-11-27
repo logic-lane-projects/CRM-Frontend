@@ -75,10 +75,10 @@ export default function InfoLead({ lead }: InfoLeadProps) {
   }, [state]);
 
   useEffect(() => {
-    if(lead?.birthday_date){
-      setBirthdayDate(lead?.birthday_date)
+    if (lead?.birthday_date) {
+      setBirthdayDate(lead?.birthday_date);
     }
-  }, [lead])
+  }, [lead]);
 
   const typeLeadOptions = [
     { label: "Selecciona una opcion", value: "" },
@@ -110,8 +110,8 @@ export default function InfoLead({ lead }: InfoLeadProps) {
       status: typeof lead.status === "boolean" ? lead.status : null,
       is_client: true,
       assigned_to: lead.assigned_to,
-      profesion: lead?.profesion,
-      especialidad: lead?.especialidad,
+      profesion: profesion,
+      especialidad: especialidad,
     };
 
     try {
@@ -189,19 +189,23 @@ export default function InfoLead({ lead }: InfoLeadProps) {
         <TextField
           label="Nombre"
           value={names}
-          onChange={(value) => setNames(value)}
+          onChange={(value) => /^[a-zA-Z\s]*$/.test(value) && setNames(value)}
           autoComplete="off"
         />
         <TextField
           label="Apellido Paterno"
           value={paternalSurname}
-          onChange={(value) => setPaternalSurname(value)}
+          onChange={(value) =>
+            /^[a-zA-Z\s]*$/.test(value) && setPaternalSurname(value)
+          }
           autoComplete="off"
         />
         <TextField
           label="Apellido Materno"
           value={maternalSurname}
-          onChange={(value) => setMaternalSurname(value)}
+          onChange={(value) =>
+            /^[a-zA-Z\s]*$/.test(value) && setMaternalSurname(value)
+          }
           autoComplete="off"
         />
         <TextField
