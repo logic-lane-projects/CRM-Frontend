@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Frame, Modal, Spinner } from "@shopify/polaris";
 import {
   getFolderInfo,
@@ -28,6 +28,7 @@ const ModalArchivosCarpetas: React.FC<ModalArchivosCarpetasProps> = ({
   const [uploading, setUploading] = useState<boolean>(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleClose = () => {
     setIsOpen(false);
@@ -39,10 +40,9 @@ const ModalArchivosCarpetas: React.FC<ModalArchivosCarpetasProps> = ({
       const folderData = await getFolderInfo(folder.id);
       setFolderInfo(folderData);
     } catch (error) {
-      console.error("Error al obtener la información de la carpeta", error);
       Toast.fire({
         icon: "error",
-        title: "Error al obtener la información de la carpeta",
+        title: error || "Error al obtener la información de la carpeta",
       });
     } finally {
       setLoading(false);
@@ -53,12 +53,19 @@ const ModalArchivosCarpetas: React.FC<ModalArchivosCarpetasProps> = ({
     if (isOpen) {
       fetchFolderInfo();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, folder.id]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files ? event.target.files[0] : null;
     setSelectedFile(file);
+  };
+
+  const resetFileInput = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+    setSelectedFile(null);
   };
 
   const handleUpload = async () => {
@@ -70,13 +77,11 @@ const ModalArchivosCarpetas: React.FC<ModalArchivosCarpetasProps> = ({
       return;
     }
 
-    // Limpiar el nombre del archivo
     const cleanFileName = selectedFile.name
-      .replace(/[^a-zA-Z0-9\s.]/g, "") // Permite solo letras, números, espacios y el punto (.)
-      .replace(/\s+/g, " ") // Reemplaza múltiples espacios por uno solo
-      .trim(); // Elimina espacios al inicio y final
+      .replace(/[^a-zA-Z0-9\s.]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
 
-    // Crear un nuevo archivo con el nombre limpio
     const cleanFile = new File([selectedFile], cleanFileName, {
       type: selectedFile.type,
     });
@@ -85,11 +90,13 @@ const ModalArchivosCarpetas: React.FC<ModalArchivosCarpetasProps> = ({
     try {
       await uploadFileToFolder(folder.id, cleanFile);
       Toast.fire({ icon: "success", title: "Archivo subido exitosamente" });
-      setSelectedFile(null);
       fetchFolderInfo();
+      resetFileInput();
     } catch (error) {
-      console.error("Error al subir el archivo", error);
-      Toast.fire({ icon: "error", title: "Error al subir el archivo" });
+      Toast.fire({
+        icon: "error",
+        title: error || "Error al subir el archivo",
+      });
     } finally {
       setUploading(false);
     }
@@ -101,9 +108,12 @@ const ModalArchivosCarpetas: React.FC<ModalArchivosCarpetasProps> = ({
       await deleteFileByPath(filePath);
       Toast.fire({ icon: "success", title: "Archivo eliminado exitosamente" });
       fetchFolderInfo();
+      resetFileInput();
     } catch (error) {
-      console.error("Error al eliminar el archivo", error);
-      Toast.fire({ icon: "error", title: "Error al eliminar el archivo" });
+      Toast.fire({
+        icon: "error",
+        title: error || "Error al eliminar el archivo",
+      });
     } finally {
       setDeleting(null);
     }
@@ -140,25 +150,24 @@ const ModalArchivosCarpetas: React.FC<ModalArchivosCarpetasProps> = ({
                   Selecciona un archivo para subir (imágenes o PDF):
                 </label>
                 <input
+                  ref={fileInputRef}
                   id="file-upload"
                   type="file"
                   accept="image/*,application/pdf"
                   onChange={handleFileChange}
                   className="mt-2 p-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-                {modificarArchivos && (
-                  <button
-                    onClick={handleUpload}
-                    disabled={uploading}
-                    className={`mt-2 px-4 py-2 rounded-md text-white ${
-                      uploading
-                        ? "bg-gray-400 cursor-not-allowed"
-                        : "bg-blue-600 hover:bg-blue-700"
-                    }`}
-                  >
-                    {uploading ? "Subiendo..." : "Subir archivo"}
-                  </button>
-                )}
+                <button
+                  onClick={handleUpload}
+                  disabled={uploading}
+                  className={`mt-2 px-4 py-2 rounded-md text-white ${
+                    uploading
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-blue-600 hover:bg-blue-700"
+                  }`}
+                >
+                  {uploading ? "Subiendo..." : "Subir archivo"}
+                </button>
               </div>
             )}
             <div className="mt-4">

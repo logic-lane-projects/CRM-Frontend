@@ -41,6 +41,8 @@ export interface LeadResponse {
   oficina: string;
   assigned_to: string;
   type_person?: string;
+  profesion?: string;
+  especialidad?: string;
 }
 
 export default function SinAsignacion() {

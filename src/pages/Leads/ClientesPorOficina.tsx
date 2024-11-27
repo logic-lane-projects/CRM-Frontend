@@ -198,7 +198,7 @@ export default function ClientesPorOficina() {
     if (!selectedLead) return;
 
     try {
-      await deleteLead(selectedLead);
+      await deleteLead(selectedLead, userInfo?.id || "");
       Toast.fire({ icon: "success", title: "Lead eliminado correctamente" });
 
       // Refetch de los leads después de eliminar

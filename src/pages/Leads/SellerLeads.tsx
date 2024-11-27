@@ -13,10 +13,7 @@ import {
   Badge,
 } from "@shopify/polaris";
 import { Toast } from "../../components/Toast/toast";
-import {
-  getAllLeadsBySellerIdAndType,
-  deleteLead,
-} from "../../services/leads";
+import { getAllLeadsBySellerIdAndType, deleteLead } from "../../services/leads";
 import { All as Lead } from "../../services/buyer";
 import { useAuthToken } from "../../hooks/useAuthToken";
 
@@ -64,7 +61,7 @@ export default function SellerLeads() {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const selectedTable = params.get("selected");
-  
+
     if (selectedTable) {
       setSelected(selectedTable);
       fetchData(selectedTable);
@@ -73,17 +70,14 @@ export default function SellerLeads() {
       setSelected(defaultSelection);
       fetchData(defaultSelection);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.search]);
-  
 
   const handleTableSelection = (table: string) => {
     setSelected(table);
     navigate(`?selected=${table}`);
     fetchData(table);
   };
-
-
 
   const leadsForIndexTable = selectedData.map((lead) => ({
     id: lead._id,
@@ -117,7 +111,9 @@ export default function SellerLeads() {
   const handleSelectionChangeSingle = (selection: string | undefined) => {
     if (selection !== undefined) {
       if (selectedResources.includes(selection)) {
-        setSelectedResources(selectedResources.filter((id) => id !== selection));
+        setSelectedResources(
+          selectedResources.filter((id) => id !== selection)
+        );
       } else {
         setSelectedResources([selection]);
       }
@@ -130,7 +126,7 @@ export default function SellerLeads() {
     if (!selectedLead) return;
 
     try {
-      await deleteLead(selectedLead);
+      await deleteLead(selectedLead, userInfo?.id || "");
       Toast.fire({ icon: "success", title: "Lead eliminado correctamente" });
 
       await fetchData(selected);
@@ -151,24 +147,24 @@ export default function SellerLeads() {
         selected === "LEAD"
           ? "Ver Lead"
           : selected === "CLIENTE"
-            ? "Ver Cliente"
-            : selected === "PROSPECTO_CLIENTE"
-              ? "Ver Prospecto"
-              : selected === "COMPRADOR"
-                ? "Ver Comprador"
-                : "",
+          ? "Ver Cliente"
+          : selected === "PROSPECTO_CLIENTE"
+          ? "Ver Prospecto"
+          : selected === "COMPRADOR"
+          ? "Ver Comprador"
+          : "",
       onAction: () => {
         if (selectedResources.length === 1) {
           const path =
             selected === "LEAD"
               ? "leads"
               : selected === "CLIENTE"
-                ? "cliente"
-                : selected === "PROSPECTO_CLIENTE"
-                  ? "prospecto"
-                  : selected === "COMPRADOR"
-                    ? "comprador"
-                    : "";
+              ? "cliente"
+              : selected === "PROSPECTO_CLIENTE"
+              ? "prospecto"
+              : selected === "COMPRADOR"
+              ? "comprador"
+              : "";
 
           if (path) {
             navigate(`/${path}/${selectedResources[0]}`);
@@ -180,20 +176,20 @@ export default function SellerLeads() {
     },
     ...(userInfo && userInfo.role !== "vendedor"
       ? [
-        {
-          content: "Eliminar",
-          onAction: () => {
-            if (selectedResources.length === 1) {
-              setSelectedLead(selectedResources[0]);
-              setIsDeleteModalOpen(true);
-            } else {
-              console.warn(
-                "Por favor selecciona solo un elemento para eliminar"
-              );
-            }
+          {
+            content: "Eliminar",
+            onAction: () => {
+              if (selectedResources.length === 1) {
+                setSelectedLead(selectedResources[0]);
+                setIsDeleteModalOpen(true);
+              } else {
+                console.warn(
+                  "Por favor selecciona solo un elemento para eliminar"
+                );
+              }
+            },
           },
-        },
-      ]
+        ]
       : []),
   ];
 
@@ -209,10 +205,7 @@ export default function SellerLeads() {
   };
 
   const rowMarkup = paginatedLeads.map(
-    (
-      { id, names, email, phone_number, city, type_lead, status },
-      index
-    ) => (
+    ({ id, names, email, phone_number, city, type_lead, status }, index) => (
       <IndexTable.Row
         id={id ?? ""}
         key={id ?? index}
@@ -244,12 +237,12 @@ export default function SellerLeads() {
             {selected === "LEAD"
               ? "Leads"
               : selected === "CLIENTE"
-                ? "Clientes"
-                : selected === "PROSPECTO_CLIENTE"
-                  ? "Prospectos"
-                  : selected === "COMPRADOR"
-                    ? "Compradores"
-                    : ""}
+              ? "Clientes"
+              : selected === "PROSPECTO_CLIENTE"
+              ? "Prospectos"
+              : selected === "COMPRADOR"
+              ? "Compradores"
+              : ""}
           </span>
           {selected === "LEAD" && (
             <Button
@@ -274,7 +267,9 @@ export default function SellerLeads() {
               </Button>
               <Button
                 onClick={() => handleTableSelection("PROSPECTO_CLIENTE")}
-                variant={selected === "PROSPECTO_CLIENTE" ? "primary" : "secondary"}
+                variant={
+                  selected === "PROSPECTO_CLIENTE" ? "primary" : "secondary"
+                }
               >
                 Prospectos
               </Button>
@@ -291,7 +286,6 @@ export default function SellerLeads() {
                 Clientes
               </Button>
             </div>
-
 
             <TextField
               label=""
@@ -316,22 +310,22 @@ export default function SellerLeads() {
                       selected === "LEAD"
                         ? "Lead"
                         : selected === "PROSPECTO_CLIENTE"
-                          ? "Prospecto"
-                          : selected === "COMPRADOR"
-                            ? "Comprador"
-                            : selected === "CLIENTE"
-                              ? "Cliente"
-                              : "",
+                        ? "Prospecto"
+                        : selected === "COMPRADOR"
+                        ? "Comprador"
+                        : selected === "CLIENTE"
+                        ? "Cliente"
+                        : "",
                     plural:
                       selected === "LEAD"
                         ? "Leads"
                         : selected === "PROSPECTO_CLIENTE"
-                          ? "Prospectos"
-                          : selected === "COMPRADOR"
-                            ? "Compradores"
-                            : selected === "CLIENTE"
-                              ? "Clientes"
-                              : "",
+                        ? "Prospectos"
+                        : selected === "COMPRADOR"
+                        ? "Compradores"
+                        : selected === "CLIENTE"
+                        ? "Clientes"
+                        : "",
                   }}
                   itemCount={filteredLeads.length}
                   selectedItemsCount={selectedResources.length}
