@@ -22,6 +22,8 @@ export interface All {
   files_legal_moral?: string[];
   created_at?: string;
   updated_at?: string;
+  profesion?: string;	
+  especialidad?:string;
 }
 
 const API_URL = import.meta.env.VITE_API_URL;

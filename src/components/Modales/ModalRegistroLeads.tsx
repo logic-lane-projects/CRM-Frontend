@@ -1,4 +1,10 @@
-import { Frame, Modal, TextContainer, TextField, Select } from "@shopify/polaris";
+import {
+  Frame,
+  Modal,
+  TextContainer,
+  TextField,
+  Select,
+} from "@shopify/polaris";
 import { useState, useEffect } from "react";
 import { Toast } from "../Toast/toast";
 import { createLead, updateLead } from "../../services/leads";
@@ -24,6 +30,8 @@ interface FormValues {
   age: number;
   type_lead: string;
   gender: "MALE" | "FEMALE" | null;
+  profesion: string;
+  especialidad: string;
 }
 
 const initialFormValues: FormValues = {
@@ -38,6 +46,8 @@ const initialFormValues: FormValues = {
   age: 0,
   type_lead: "TIBIO",
   gender: "MALE",
+  profesion: "",
+  especialidad: "",
 };
 
 export default function ModalRegistroLeads({
@@ -47,7 +57,6 @@ export default function ModalRegistroLeads({
 }: ModalRegistroLeadsProps) {
   const { userInfo } = useAuthToken();
   const [formValues, setFormValues] = useState<FormValues>(initialFormValues);
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -75,6 +84,8 @@ export default function ModalRegistroLeads({
         age: leadInfo.age || 0,
         type_lead: leadInfo.type_lead || "TIBIO",
         gender: leadInfo.gender || "MALE",
+        profesion: leadInfo.profesion || "",
+        especialidad: leadInfo.especialidad || "",
       });
       const selectedState = leadInfo.state || "";
       updateCities(selectedState);
@@ -101,8 +112,6 @@ export default function ModalRegistroLeads({
     value: string | number
   ) => {
     setFormValues((prev) => ({ ...prev, [field]: value }));
-    setErrors((prev) => ({ ...prev, [field]: "" }));
-
     if (field === "state") {
       updateCities(value as string);
     }
@@ -113,17 +122,27 @@ export default function ModalRegistroLeads({
     const birth = new Date(birthDate);
     let age = today.getFullYear() - birth.getFullYear();
     const monthDiff = today.getMonth() - birth.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birth.getDate())
+    ) {
       age--;
     }
     return age;
   };
 
   useEffect(() => {
-    const allFieldsFilled = Object.values(formValues).every(
-      (value) => value !== "" && value !== null
+    const requiredFields = [
+      "nombre",
+      "correo",
+      "telefono",
+      "especialidad",
+      "type_lead",
+    ];
+    const allRequiredFieldsFilled = requiredFields.every(
+      (field) => formValues[field as keyof FormValues] !== ""
     );
-    setIsSubmitDisabled(!allFieldsFilled);
+    setIsSubmitDisabled(!allRequiredFieldsFilled);
   }, [formValues]);
 
   useEffect(() => {
@@ -138,7 +157,7 @@ export default function ModalRegistroLeads({
       Toast.fire({
         icon: "error",
         title: "No se ha podido obtener la información del usuario",
-        timer: 5000
+        timer: 5000,
       });
       return;
     }
@@ -158,17 +177,23 @@ export default function ModalRegistroLeads({
         age: formValues.age,
         birthday_date: formValues.birthday_date,
         is_client: false,
+        profesion: formValues.profesion,
+        especialidad: formValues.especialidad,
       };
 
       if (leadInfo && leadInfo._id) {
         await updateLead(leadInfo._id, leadData);
         Toast.fire({
-          icon: "success", title: "Lead actualizado con éxito", timer: 5000
+          icon: "success",
+          title: "Lead actualizado con éxito",
+          timer: 5000,
         });
       } else {
         await createLead(leadData, userInfo.id);
         Toast.fire({
-          icon: "success", title: "Lead registrado con éxito", timer: 5000
+          icon: "success",
+          title: "Lead registrado con éxito",
+          timer: 5000,
         });
         setTimeout(() => {
           window.location.reload();
@@ -199,8 +224,8 @@ export default function ModalRegistroLeads({
             content: isLoading
               ? "Cargando..."
               : leadInfo
-                ? "Actualizar"
-                : "Registrar",
+              ? "Actualizar"
+              : "Registrar",
             onAction: handleSubmit,
             disabled: isSubmitDisabled || isLoading,
           }}
@@ -214,57 +239,69 @@ export default function ModalRegistroLeads({
           <Modal.Section>
             <TextContainer>
               <TextField
-                label="Nombre"
+                label="Nombre*"
                 value={formValues.nombre}
-                onChange={(value) => handleFieldChange("nombre", value)}
+                onChange={(value) =>
+                  /^[a-zA-Z\s]*$/.test(value) &&
+                  handleFieldChange("nombre", value)
+                }
                 autoComplete="off"
-                error={errors.nombre}
+                error={!formValues.nombre && "Ingresa el nombre"}
               />
+
               <TextField
                 label="Apellido Paterno"
                 value={formValues.apellidop}
-                onChange={(value) => handleFieldChange("apellidop", value)}
+                onChange={(value) =>
+                  /^[a-zA-Z\s]*$/.test(value) &&
+                  handleFieldChange("apellidop", value)
+                }
                 autoComplete="off"
-                error={errors.apellidop}
               />
               <TextField
                 label="Apellido Materno"
                 value={formValues.apellidom}
-                onChange={(value) => handleFieldChange("apellidom", value)}
+                onChange={(value) =>
+                  /^[a-zA-Z\s]*$/.test(value) &&
+                  handleFieldChange("apellidom", value)
+                }
                 autoComplete="off"
-                error={errors.apellidom}
               />
               <TextField
-                label="Correo electrónico"
+                label="Correo electrónico*"
                 value={formValues.correo}
                 onChange={(value) => handleFieldChange("correo", value)}
                 autoComplete="off"
-                error={errors.correo}
+                error={!formValues.correo && "Ingresa el correo"}
               />
               <TextField
-                label="Teléfono"
+                label="Teléfono*"
                 value={formValues.telefono}
-                onChange={(value) => handleFieldChange("telefono", value)}
+                onChange={(value) =>
+                  /^[0-9]*$/.test(value) && handleFieldChange("telefono", value)
+                }
                 autoComplete="off"
-                error={errors.telefono}
+                error={!formValues.telefono && "Ingresa el Teléfono"}
               />
               <Select
-                label="Estado"
+                label="Estado*"
                 options={[
                   { label: "Selecciona una opción", value: "" },
                   ...states,
                 ]}
                 value={formValues.state || ""}
                 onChange={(value) => handleFieldChange("state", value)}
+                error={!formValues.state && "Selecciona un estado"}
               />
               <Select
-                label="Ciudad"
+                label="Ciudad*"
                 options={[
                   { label: "Selecciona una opción", value: "" },
                   ...cities,
                 ]}
                 value={formValues.ciudad || ""}
                 onChange={(value) => handleFieldChange("ciudad", value)}
+                error={!formValues.ciudad && "Selecciona una ciudad"}
               />
 
               <TextField
@@ -280,7 +317,6 @@ export default function ModalRegistroLeads({
                 value={formValues.age.toString()}
                 onChange={(value) => handleFieldChange("age", Number(value))}
                 autoComplete="off"
-                error={errors.age}
                 disabled
               />
               <Select
@@ -289,11 +325,26 @@ export default function ModalRegistroLeads({
                   { label: "Masculino", value: "MALE" },
                   { label: "Femenino", value: "FEMALE" },
                 ]}
-                onChange={(value) => handleFieldChange("gender", value as "MALE" | "FEMALE")}
+                onChange={(value) =>
+                  handleFieldChange("gender", value as "MALE" | "FEMALE")
+                }
                 value={formValues.gender || ""}
               />
+              <TextField
+                label="Profesion"
+                value={formValues.profesion}
+                onChange={(value) => handleFieldChange("profesion", value)}
+                autoComplete="off"
+              />
+              <TextField
+                label="Especialidad*"
+                value={formValues.especialidad}
+                onChange={(value) => handleFieldChange("especialidad", value)}
+                autoComplete="off"
+                error={!formValues.especialidad && "Ingresa la especialidad"}
+              />
               <Select
-                label="Tipo de Lead"
+                label="Tipo de Lead*"
                 options={[
                   { label: "Tibio", value: "TIBIO" },
                   { label: "Frío", value: "FRIO" },
@@ -301,6 +352,7 @@ export default function ModalRegistroLeads({
                 ]}
                 onChange={(value) => handleFieldChange("type_lead", value)}
                 value={formValues.type_lead || ""}
+                error={!formValues.type_lead && "Selecciona un tipo de lead"}
               />
             </TextContainer>
           </Modal.Section>

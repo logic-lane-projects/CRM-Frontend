@@ -24,6 +24,8 @@ export interface Lead {
   files_legal_moral?: string[];
   created_at?: string;
   updated_at?: string;
+  profesion?:string;
+  especialidad?:string
 }
 export interface ApiResponse<T> {
   result: boolean;
@@ -206,9 +208,9 @@ export const updateLead = async (id: string, leadData: Lead): Promise<Lead> => {
 };
 
 // Eliminar lead
-export const deleteLead = async (id: string): Promise<void> => {
+export const deleteLead = async (id: string, userId: string): Promise<void> => {
   try {
-    const response = await fetch(`${API_URL}leads/${id}`, {
+    const response = await fetch(`${API_URL}clientes/custom/${id}/${userId}`, {
       method: "DELETE",
     });
     if (!response.ok) {
