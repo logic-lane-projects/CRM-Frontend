@@ -16,6 +16,10 @@ import {
 } from '@shopify/polaris-icons';
 import { PDFFileIcon } from "../../components/icons";
 
+import { io } from "socket.io-client";
+
+const socket = io("https://fiftydoctorsback.com/");
+
 interface FolderData {
   _id: string;
   nombre_carpeta: string;
@@ -69,6 +73,12 @@ export default function Whatsapp({ phone }: { phone: string }) {
   const handleSendMessage = async (messageBody: string, mediaUrl?: string[]) => {
     if (!PHONE_NUMBER || !messageBody.trim()) return;
 
+    if(socket){
+
+      // Enviar un nuevo mensaje
+      socket.emit('message', JSON.parse(`{ "client_number":"${PHONE_NUMBER}"}`));
+    }
+
     try {
       const response = await fetch(`${APP_TWILIO_URL}send_message`, {
         method: "POST",
@@ -92,7 +102,7 @@ export default function Whatsapp({ phone }: { phone: string }) {
         setFileSelected([]);
         setOpenArchivos(false);
       }
-      handleGetMessages();
+      // handleGetMessages();
     } catch (error) {
       console.error("Error al enviar el mensaje:", error);
     }
@@ -149,25 +159,31 @@ export default function Whatsapp({ phone }: { phone: string }) {
     setIsOpen(true);
   };
 
-  // useEffect(() => {
-  //   if (socket) {
-  //     // Escuchar un evento para el número específico
-  //     socket.on(PHONE_NUMBER, (data: any) => {
-  //       console.log('Número recibido:', data);
+  function listenPhone (data: any) {
+    // console.log('Número recibido:', data);
+    if(data.messages && data.messages.length > 0){
+      setMessages(data.messages as Message[]);
+    }
+  }
 
-  //       // Verificar si el número coincide con el deseado
-  //       if (data === '2212239742') {
-  //         const message = {
-  //           client_number: '2212239742',
-  //         };
+  useEffect(() => {
+    // socket.connect();
+    if(socket){
+      const message = {
+        client_number: PHONE_NUMBER,
+      };
+      // Enviar un nuevo mensaje
+      socket.emit('message', JSON.parse(`{ "client_number":"${PHONE_NUMBER}"}`));
+    }
 
-  //         // Enviar un nuevo mensaje
-  //         socket.emit('newMessageEvent', message);
-  //         console.log('Mensaje enviado:', message);
-  //       }
-  //     });
-  //   }
-  // }, [socket]);
+    socket.on(PHONE_NUMBER, listenPhone);
+
+    return () => {
+      socket.off(PHONE_NUMBER);
+      socket.disconnect();
+      socket.close();
+    }
+  }, []);
 
   return (
     <div className="flex flex-col w-full rounded-lg gap-0">
