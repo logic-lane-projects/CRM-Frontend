@@ -74,6 +74,12 @@ export default function InfoLead({ lead }: InfoLeadProps) {
     }
   }, [state]);
 
+  useEffect(() => {
+    if(lead?.birthday_date){
+      setBirthdayDate(lead?.birthday_date)
+    }
+  }, [lead])
+
   const typeLeadOptions = [
     { label: "Selecciona una opcion", value: "" },
     { label: "Frío", value: "FRIO" },

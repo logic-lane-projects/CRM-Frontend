@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { Button, Card, Icon, Spinner } from "@shopify/polaris";
+import { Button, Card, Spinner, Page, Badge } from "@shopify/polaris";
 import {
   NotificationIcon,
   // EmailIcon,
@@ -10,6 +10,7 @@ import {
   ClockIcon,
 } from "@shopify/polaris-icons";
 import { getLeadById, changeLeadToProspect } from "../../services/leads";
+import { getHistorialCallsByNumber, getHistorialById } from "../../services/historial";
 import Actividad from "./Actividad";
 import Correos from "./Correos";
 import Llamadas from "./Llamadas";
@@ -20,6 +21,7 @@ import Whatsapp from "./Whatsapp";
 import Historial from "./Historial";
 import { Toast } from "../../components/Toast/toast";
 import type { Lead } from "../../services/leads";
+import type { CallsHistorial } from "../../services/historial";
 import { useNavigate } from "react-router-dom";
 import { useAuthToken } from "../../hooks/useAuthToken";
 
@@ -28,10 +30,33 @@ export default function LeadInfo() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [leadData, setLeadData] = useState<Lead | null>(null);
+  const [historialCalls, setHistorialCalls] = useState<CallsHistorial | null>(null);
   const [selectedTab, setSelectedTab] = useState<string>("Actividad");
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isLoadingChange, setIsLoadingChange] = useState(false);
+
+  const fetchHistorial = async (number: string|number) => {
+    try{
+      if(number){
+        const response = await getHistorialCallsByNumber(number);
+        setHistorialCalls(response);
+      }
+    } catch(error){
+      const errorMessage = typeof error === "string" ? error : String(error);
+      setError(errorMessage);
+      Toast.fire({
+        icon: "error",
+        title: errorMessage,
+      });
+    }
+  }
+
+  useEffect(() => {
+    if(leadData && leadData.phone_number){
+      fetchHistorial(leadData.phone_number);
+    }
+  }, [leadData]);
 
   useEffect(() => {
     const fetchLeadData = async () => {
@@ -39,6 +64,8 @@ export default function LeadInfo() {
         if (id) {
           const response = await getLeadById(id);
           setLeadData(response);
+          const respuesta = await getHistorialById(id);
+          console.log(respuesta)
         }
       } catch (error) {
         const errorMessage = typeof error === "string" ? error : String(error);
@@ -93,172 +120,148 @@ export default function LeadInfo() {
   };
 
   return (
-    <Card>
+    <Page
+      backAction={{content: 'Regresar', onAction: () => navigate(-1)}}
+      title={`${leadData?.names} ${leadData?.paternal_surname} ${leadData?.maternal_surname}`}
+      titleMetadata={<Badge>Leads</Badge>}
+      primaryAction={{ 
+        content: "Pasar a Prospecto",
+        onAction: () => {
+          if (leadData?.assigned_to) {
+            handlePreClient();
+          } else {
+            Toast.fire({
+              icon: "error",
+              title:
+                "El Lead no tiene un asesor asignado, por favor asignale uno",
+              timer: 3000,
+            });
+          }
+        }
+      }}
+    >
       {/* Topbar */}
-      <div className="flex justify-between items-center bg-white w-full px-2 py-3">
-        <div>
-          <span className="font-semibold text-lg">Leads/</span>
-          <span className="ml-1 text-[15px]">
-            {`${leadData?.names} ${leadData?.maternal_surname} ${leadData?.paternal_surname}`}
-          </span>
+      {isLoadingChange && (
+        <div className="w-full">
+          <Spinner size="small" />
         </div>
-        {isLoadingChange ? (
-          <div>
-            <Spinner size="small" />
-          </div>
-        ) : (
-          <Button
-            variant="primary"
-            onClick={() => {
-              if (leadData?.assigned_to) {
-                handlePreClient();
-              } else {
-                Toast.fire({
-                  icon: "error",
-                  title:
-                    "El Lead no tiene un asesor asignado, por favor asignale uno",
-                  timer: 3000,
-                });
-              }
-            }}
-          >
-            Pasar a Prospecto
-          </Button>
-        )}
-      </div>
+      )}
 
-      <div className="grid grid-cols-3">
-        <div className="flex flex-col gap-3 col-span-2">
-          <div className="flex gap-4 bg-white border-gray-300 border-[1px] p-2">
-            <div
-              className={`cursor-pointer overflow-hidden ${
-                selectedTab === "Actividad"
-                  ? "border-b-2 border-b-black"
-                  : "hover:border-b-2 hover:border-b-black"
-              }`}
-              onClick={() => handleTabClick("Actividad")}
-            >
-              <div className="flex gap-1">
-                <Icon source={NotificationIcon} />
-                <span>Actividad</span>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+        <div className="w-full col-span-2">
+          <Card padding={'0'}>
+            <div className="flex flex-col gap-3 w-full">
+              <div className="flex gap-4 items-center pt-3 px-3">
+                <Button 
+                  variant="tertiary"
+                  icon={NotificationIcon}
+                  onClick={() => handleTabClick("Actividad")}
+                  pressed={selectedTab === "Actividad"}
+                >
+                  Actividad
+                </Button>
+                {/* <div
+                  className={`cursor-pointer overflow-hidden ${
+                    selectedTab === "Correos"
+                      ? "border-b-2 border-b-black"
+                      : "hover:border-b-2 hover:border-b-black"
+                  }`}
+                  onClick={() => handleTabClick("Correos")}
+                >
+                  <div className="flex gap-1">
+                    <Icon source={EmailIcon} />
+                    <span>Correos</span>
+                  </div>
+                </div> */}
+                <Button 
+                  variant="tertiary"
+                  icon={PhoneIcon}
+                  onClick={() => handleTabClick("Llamadas")}
+                  pressed={selectedTab === "Llamadas"}
+                >
+                  Llamadas
+                </Button>
+                <Button 
+                  variant="tertiary"
+                  icon={<img
+                    className="w-4 h-4"
+                    src="/images/whatsapp.png"
+                    alt="Whatsapp"
+                  />}
+                  onClick={() => handleTabClick("Whatsapp")}
+                  pressed={selectedTab === "Whatsapp"}
+                >
+                  Whatsapp
+                </Button>
+                {/* <div
+                  className={`cursor-pointer overflow-hidden ${
+                    selectedTab === "Tareas"
+                      ? "border-b-2 border-b-black"
+                      : "hover-border-b-2 hover-border-b-black"
+                  }`}
+                  onClick={() => handleTabClick("Tareas")}
+                >
+                  <div className="flex gap-1">
+                    <Icon source={ListBulletedFilledIcon} />
+                    <span>Tareas</span>
+                  </div>
+                </div> */}
+                <Button 
+                  variant="tertiary"
+                  icon={NoteIcon}
+                  onClick={() => handleTabClick("Notas")}
+                  pressed={selectedTab === "Notas"}
+                >
+                  Notas
+                </Button>
+                <Button 
+                  variant="tertiary"
+                  icon={ClockIcon}
+                  onClick={() => handleTabClick("Historial")}
+                  pressed={selectedTab === "Historial"}
+                >
+                  Historial
+                </Button>
+              </div>
+              <div className="w-full">
+                {selectedTab === "Actividad" && <Actividad historial={historialCalls}/>}
+                {selectedTab === "Correos" && <Correos />}
+                {selectedTab === "Llamadas" && <Llamadas phone={leadData.phone_number} historial={historialCalls}/>}
+                {selectedTab === "Tareas" && <Tareas />}
+                {selectedTab === "Notas" && (
+                  <Notas idCliente={leadData._id ?? ""} />
+                )}
+                {selectedTab === "Whatsapp" && (
+                  <Whatsapp phone={leadData.phone_number} />
+                )}
+                {selectedTab === "Historial" && <Historial />}
               </div>
             </div>
-            {/* <div
-              className={`cursor-pointer overflow-hidden ${
-                selectedTab === "Correos"
-                  ? "border-b-2 border-b-black"
-                  : "hover:border-b-2 hover:border-b-black"
-              }`}
-              onClick={() => handleTabClick("Correos")}
-            >
-              <div className="flex gap-1">
-                <Icon source={EmailIcon} />
-                <span>Correos</span>
-              </div>
-            </div> */}
-            <div
-              className={`cursor-pointer overflow-hidden ${
-                selectedTab === "Llamadas"
-                  ? "border-b-2 border-b-black"
-                  : "hover:border-b-2 hover-border-b-black"
-              }`}
-              onClick={() => handleTabClick("Llamadas")}
-            >
-              <div className="flex gap-1">
-                <Icon source={PhoneIcon} />
-                <span>Llamadas</span>
-              </div>
-            </div>
-            <div
-              className={`cursor-pointer overflow-hidden ${
-                selectedTab === "Whatsapp"
-                  ? "border-b-2 border-b-black"
-                  : "hover:border-b-2 hover-border-b-black"
-              }`}
-              onClick={() => handleTabClick("Whatsapp")}
-            >
-              <div className="flex gap-1 items-center">
-                <img
-                  className="w-3 h-3"
-                  src="/images/whatsapp.png"
-                  alt="Whatsapp"
-                />
-                <span>Whatsapp</span>
-              </div>
-            </div>
-            {/* <div
-              className={`cursor-pointer overflow-hidden ${
-                selectedTab === "Tareas"
-                  ? "border-b-2 border-b-black"
-                  : "hover-border-b-2 hover-border-b-black"
-              }`}
-              onClick={() => handleTabClick("Tareas")}
-            >
-              <div className="flex gap-1">
-                <Icon source={ListBulletedFilledIcon} />
-                <span>Tareas</span>
-              </div>
-            </div> */}
-            <div
-              className={`cursor-pointer overflow-hidden ${
-                selectedTab === "Notas"
-                  ? "border-b-2 border-b-black"
-                  : "hover-border-b-2 hover-border-b-black"
-              }`}
-              onClick={() => handleTabClick("Notas")}
-            >
-              <div className="flex gap-1">
-                <Icon source={NoteIcon} />
-                <span>Notas</span>
-              </div>
-            </div>
-            <div
-              className={`cursor-pointer overflow-hidden ${
-                selectedTab === "Historial"
-                  ? "border-b-2 border-b-black"
-                  : "hover-border-b-2 hover-border-b-black"
-              }`}
-              onClick={() => handleTabClick("Historial")}
-            >
-              <div className="flex gap-1">
-                <Icon source={ClockIcon} />
-                <span>Historial</span>
-              </div>
-            </div>
-          </div>
-          <div className="border-[1px] border-gray-300 p-2">
-            {selectedTab === "Actividad" && <Actividad />}
-            {selectedTab === "Correos" && <Correos />}
-            {selectedTab === "Llamadas" && <Llamadas phone={leadData.phone_number} />}
-            {selectedTab === "Tareas" && <Tareas />}
-            {selectedTab === "Notas" && (
-              <Notas idCliente={leadData._id ?? ""} />
-            )}
-            {selectedTab === "Whatsapp" && (
-              <Whatsapp phone={leadData.phone_number} />
-            )}
-            {selectedTab === "Historial" && <Historial />}
-          </div>
+          </Card>
         </div>
-        <div className="flex flex-col gap-3 w-full col-span-1">
-          <div className="flex gap-10 bg-white border-gray-300 border-[1px] p-2 pt-2.5">
-            <span className="font-semibold flex justify-center w-full">
-              Acerca de este Lead
-            </span>
-          </div>
-          <div className="border-[1px] border-gray-300 p-2">
-            <InfoLead
-              lead={{
-                ...leadData,
-                status: leadData?.status ?? null,
-                created_at: leadData?.created_at ?? "",
-                updated_at: leadData?.updated_at ?? "",
-                is_client: leadData?.is_client ?? undefined,
-              }}
-            />
-          </div>
+        <div className="w-full col-span-1">
+          <Card padding={'200'}>
+            <div className="flex flex-col gap-3 w-full">
+              <div className="flex gap-10">
+                <span className="font-semibold flex justify-center w-full">
+                  Acerca de este Lead
+                </span>
+              </div>
+              <div className="">
+                <InfoLead
+                  lead={{
+                    ...leadData,
+                    status: leadData?.status ?? null,
+                    created_at: leadData?.created_at ?? "",
+                    updated_at: leadData?.updated_at ?? "",
+                    is_client: leadData?.is_client ?? undefined,
+                  }}
+                />
+              </div>
+            </div>
+          </Card>
         </div>
       </div>
-    </Card>
+    </Page>
   );
 }
