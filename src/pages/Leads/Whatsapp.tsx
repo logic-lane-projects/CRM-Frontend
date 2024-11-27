@@ -28,6 +28,7 @@ interface FolderData {
   updated_at: string;
 }
 
+
 export default function Whatsapp({ phone }: { phone: string }) {
   type Message = {
     body: string;
@@ -159,6 +160,7 @@ export default function Whatsapp({ phone }: { phone: string }) {
     setIsOpen(true);
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function listenPhone (data: any) {
     // console.log('Número recibido:', data);
     if(data.messages && data.messages.length > 0){
