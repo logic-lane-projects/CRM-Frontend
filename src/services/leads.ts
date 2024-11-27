@@ -24,13 +24,14 @@ export interface Lead {
   files_legal_moral?: string[];
   created_at?: string;
   updated_at?: string;
+  profesion?:string;
+  especialidad?:string
 }
 export interface ApiResponse<T> {
   result: boolean;
   error: string;
   data: T;
 }
-
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -207,9 +208,9 @@ export const updateLead = async (id: string, leadData: Lead): Promise<Lead> => {
 };
 
 // Eliminar lead
-export const deleteLead = async (id: string): Promise<void> => {
+export const deleteLead = async (id: string, userId: string): Promise<void> => {
   try {
-    const response = await fetch(`${API_URL}leads/${id}`, {
+    const response = await fetch(`${API_URL}clientes/custom/${id}/${userId}`, {
       method: "DELETE",
     });
     if (!response.ok) {
@@ -332,7 +333,9 @@ export const getLeadsByOfficeId = async (
 // buscar por tipo de cliente, trae todos
 export const getClientsByType = async (type_cliente: string) => {
   try {
-    const response = await fetch(`${API_URL}clientes/custom/all/${type_cliente}`);
+    const response = await fetch(
+      `${API_URL}clientes/custom/all/${type_cliente}`
+    );
     if (!response.ok) {
       throw new Error(`Error al obtener datos de ${type_cliente}`);
     }
@@ -344,9 +347,11 @@ export const getClientsByType = async (type_cliente: string) => {
   }
 };
 
-
 // Traer todos los clientes por oficina
-export const getAllClientsByOfficeIdAndType = async (officeId: string, type_cliente: string) => {
+export const getAllClientsByOfficeIdAndType = async (
+  officeId: string,
+  type_cliente: string
+) => {
   try {
     const response = await fetch(
       `${API_URL}clientes/buscar/por/oficinas/${officeId}?type_cliente=${type_cliente}`
@@ -380,3 +385,41 @@ export const getAllClientesByOfficeId = async (officeId: string) => {
   }
 };
 
+export const getAllClientsNoOffice = async () => {
+  try {
+    const response = await fetch(`${API_URL}clientes/buscar/all/sin/oficina`);
+    if (!response.ok) {
+      throw new Error(`Error al obtener clientes: ${response.statusText}`);
+    }
+    const { data } = await response.json();
+    return data;
+  } catch (error) {
+    console.error(`Error al obtener clientes por oficina: ${error}`);
+    throw error;
+  }
+};
+
+export const asignOffice = async (adminId: string, id_oficina: string, clientes: string[]) => {
+  try {
+    const response = await fetch(`${API_URL}clientes/asignar/oficina/${adminId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json', 
+      },
+      body: JSON.stringify({
+        id_oficina,
+        clientes,
+      }), 
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error al asignar oficina: ${response.statusText}`);
+    }
+
+    const { data } = await response.json();
+    return data;
+  } catch (error) {
+    console.error(`Error al asignar oficina: ${error}`);
+    throw error;
+  }
+};

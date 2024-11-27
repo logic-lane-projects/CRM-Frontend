@@ -11,8 +11,18 @@ import {
   TextField,
   Modal,
   TextContainer,
+  IndexTable,
+  Tooltip,
+  Page,
 } from "@shopify/polaris";
 import ModalArchivosCarpetas from "../../components/Modales/ModalArchivosCarpetas";
+import { useAuthToken } from "../../hooks/useAuthToken";
+
+import {
+  FolderIcon,
+  DeleteIcon,
+  ViewIcon,
+} from '@shopify/polaris-icons';
 
 interface FolderData {
   _id: string;
@@ -23,6 +33,8 @@ interface FolderData {
 }
 
 const Archivos: React.FC = () => {
+  const { permisos } = useAuthToken();
+  const archivos = permisos?.includes("Archivos");
   const [folders, setFolders] = useState<FolderData[]>([]);
   const [folderName, setFolderName] = useState<string>("");
   const [loadingFolders, setLoadingFolders] = useState<boolean>(false);
@@ -156,93 +168,135 @@ const Archivos: React.FC = () => {
     setIsOpen(true);
   };
 
-  return (
-    <div>
-      <Card>
-        <div className="mb-4">
-          <TextField
-            label="Nombre de la carpeta"
-            value={folderName}
-            onChange={handleFolderNameChange}
-            placeholder="Escribe el nombre de la carpeta"
-            autoComplete="off"
-          />
-          <Button
-            onClick={handleCreateFolder}
-            loading={loadingCreate}
-            variant="primary"
-          >
-            Crear carpeta
-          </Button>
+  const rowMarkup = folders.map((folder, index) => (
+    <IndexTable.Row
+      key={folder._id}
+      id={folder._id}
+      position={index}
+    >
+      <IndexTable.Cell className="w-full">
+        <span>{folder.nombre_carpeta}</span>
+      </IndexTable.Cell>
+      <IndexTable.Cell className="max-w-[300px]">
+        <div className="flex gap-3 items-center">
+          <Tooltip content="Ver carpeta">
+            <Button 
+              onClick={() => handleViewFolder(folder)} 
+              variant="tertiary"
+              icon={ViewIcon}
+            />
+          </Tooltip>
+          <Tooltip content="Eliminar carpeta">
+            <Button
+              icon={DeleteIcon}
+              variant="tertiary"
+              tone="critical"
+              onClick={() => confirmDeleteFolder(folder)}
+              loading={loadingDeleteFolderId === folder._id}
+            />
+          </Tooltip>
         </div>
+      </IndexTable.Cell>
+    </IndexTable.Row>
+  ))
 
+  return (
+    <>
+      {archivos ? (
         <div>
-          {loadingFolders ? (
-            <p>Cargando carpetas...</p>
-          ) : folders.length > 0 ? (
-            folders.map((folder) => (
-              <div
-                key={folder._id}
-                className="p-2 flex justify-between items-center border-b"
-              >
-                <span>{folder.nombre_carpeta}</span>
-                <div className="flex gap-3">
-                  <Button onClick={() => handleViewFolder(folder)}>
-                    Ver carpeta
-                  </Button>
-                  <Button
-                    onClick={() => confirmDeleteFolder(folder)}
-                    loading={loadingDeleteFolderId === folder._id}
-                  >
-                    Eliminar carpeta
-                  </Button>
+          <Page
+            title="Archivos"
+          >
+            <Card padding={'0'}>
+              <div className="w-full flex flex-col gap-2">
+                <div className="px-3 py-2">
+                  <TextField
+                    label="Nombre de la carpeta"
+                    value={folderName}
+                    onChange={handleFolderNameChange}
+                    placeholder="Escribe el nombre de la carpeta"
+                    autoComplete="off"
+                    connectedRight={
+                      <Button
+                        onClick={handleCreateFolder}
+                        loading={loadingCreate}
+                        variant="primary"
+                        disabled={folderName.trim() === ""}
+                        icon={FolderIcon}
+                      >
+                        Crear carpeta
+                      </Button>
+                    }
+                  />
+                </div>
+
+                <div>
+                  {loadingFolders ? (
+                    <p>Cargando carpetas...</p>
+                  ) : folders.length > 0 ? (
+                    <IndexTable
+                      resourceName={{ singular: "archivo", plural: "archivos" }}
+                      itemCount={folders.length ?? 0}
+                      headings={[
+                        { title: "Nombre de la carpeta" },
+                        { title: "Acciones" },
+                      ]}
+                      selectable={false}
+                    >
+                      {rowMarkup}
+                    </IndexTable>
+                  ) : (
+                    <p>No hay carpetas disponibles</p>
+                  )}
                 </div>
               </div>
-            ))
-          ) : (
-            <p>No hay carpetas disponibles</p>
+            </Card>
+          </Page>
+
+          {isOpen && selectedFolder && (
+            <ModalArchivosCarpetas
+              isOpen={isOpen}
+              setIsOpen={setIsOpen}
+              folder={selectedFolder}
+            />
+          )}
+
+          {isDeleteModalOpen && folderToDelete && (
+            <Modal
+              open={isDeleteModalOpen}
+              onClose={() => setIsDeleteModalOpen(false)}
+              title="Eliminar carpeta"
+              primaryAction={{
+                content: "Eliminar",
+                onAction: handleDeleteFolder,
+                destructive: true,
+                loading: loadingDeleteFolderId === folderToDelete._id,
+              }}
+              secondaryActions={[
+                {
+                  content: "Cancelar",
+                  onAction: () => setIsDeleteModalOpen(false),
+                },
+              ]}
+            >
+              <Modal.Section>
+                <TextContainer>
+                  <p>
+                    ¿Estás seguro que deseas eliminar la carpeta{" "}
+                    <strong>{folderToDelete.nombre_carpeta}</strong>? Todos los
+                    archivos internos serán eliminados permanentemente.
+                  </p>
+                </TextContainer>
+              </Modal.Section>
+            </Modal>
           )}
         </div>
-      </Card>
-
-      {isOpen && selectedFolder && (
-        <ModalArchivosCarpetas
-          isOpen={isOpen}
-          setIsOpen={setIsOpen}
-          folder={selectedFolder}
-        />
+      ) : (
+        <div>
+          <span>No tienes permiso para esta seccion</span>
+        </div>
       )}
-
-      {isDeleteModalOpen && folderToDelete && (
-        <Modal
-          open={isDeleteModalOpen}
-          onClose={() => setIsDeleteModalOpen(false)}
-          title="Eliminar carpeta"
-          primaryAction={{
-            content: "Eliminar",
-            onAction: handleDeleteFolder,
-            destructive: true,
-            loading: loadingDeleteFolderId === folderToDelete._id,
-          }}
-          secondaryActions={[
-            {
-              content: "Cancelar",
-              onAction: () => setIsDeleteModalOpen(false),
-            },
-          ]}
-        >
-          <Modal.Section>
-            <TextContainer>
-              <p>
-                ¿Estás seguro que deseas eliminar la carpeta{" "}
-                <strong>{folderToDelete.nombre_carpeta}</strong>? Todos los
-                archivos internos serán eliminados permanentemente.
-              </p>
-            </TextContainer>
-          </Modal.Section>
-        </Modal>
-      )}
-    </div>
+    </>
   );
 };
 

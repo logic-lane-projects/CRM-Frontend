@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import ModalRegistroLeads from "../../components/Modales/ModalRegistroLeads";
 import {
   IndexTable,
-  TextField,
+  Filters,
   Pagination,
   Button,
   Card,
@@ -198,7 +198,7 @@ export default function ClientesPorOficina() {
     if (!selectedLead) return;
 
     try {
-      await deleteLead(selectedLead);
+      await deleteLead(selectedLead, userInfo?.id || "");
       Toast.fire({ icon: "success", title: "Lead eliminado correctamente" });
 
       // Refetch de los leads después de eliminar
@@ -372,8 +372,8 @@ export default function ClientesPorOficina() {
             </Button>
           )}
         </div>
-        <Card>
-          <div className="flex flex-col gap-4">
+        <Card padding={'0'}>
+          <div className="flex flex-col gap-0">
             {/* <div className="flex gap-2">
               <Button
                 onClick={() => handleTableSelection("lead")}
@@ -400,17 +400,16 @@ export default function ClientesPorOficina() {
                 Clientes
               </Button>
             </div> */}
-            <TextField
-              label=""
-              value={searchValue}
-              onChange={(value) => {
+            <Filters
+              queryValue={searchValue}
+              onQueryChange={(value) => {
                 setSearchValue(value);
                 setCurrentPage(1);
               }}
-              placeholder="Buscar por nombre o correo"
-              clearButton
-              onClearButtonClick={() => setSearchValue("")}
-              autoComplete="off"
+              queryPlaceholder="Buscar por nombre o correo"
+              onClearAll={() => setSearchValue("")}
+              onQueryClear={() => setSearchValue("")}
+              filters={[]}
             />
 
             {isLoading ? (
@@ -451,13 +450,14 @@ export default function ClientesPorOficina() {
                     { title: "Estado" },
                     { title: "Status" },
                     { title: "Asignacion" },
+                    { title: "" },
                   ]}
                   promotedBulkActions={promotedBulkActions}
                   emptyState="No se encontraron resultados"
                 >
                   {rowMarkup}
                 </IndexTable>
-                <div className="flex flex-row-reverse items-center w-full justify-between">
+                <div className="flex flex-row-reverse items-center w-full justify-between px-3 py-2 bg-[#f3f3f3] border-t">
                   <Pagination
                     hasPrevious={currentPage > 1}
                     onPrevious={() => handlePagination("previous")}

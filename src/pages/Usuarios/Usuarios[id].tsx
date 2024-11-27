@@ -127,7 +127,7 @@ export default function InfoUsuarios() {
           title: "Usuario eliminado con éxito",
         });
         setIsModalOpen(false);
-        navigate("/vendedores");
+        navigate("/usuarios");
       } catch (error) {
         const errorMessage = typeof error === "string" ? error : String(error);
         Toast.fire({

@@ -53,7 +53,7 @@ export default function Sidebar({ isOpen }: SidebarProps) {
     },
     {
       url: "/sin-asignacion",
-      label: "Sin Asignación",
+      label: "Sin Oficinas",
       icon: WorkIcon,
       selected: currentPath === "/sin-asignacion",
     },

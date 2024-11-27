@@ -63,13 +63,17 @@ export default function ModalRegistroUsuarios({
   const [ciudades, setCiudades] = useState<string[]>([]);
 
   const roleOptions = [
+    { label: "Selecciona una opcion", value: "" },
     { label: "Vendedor", value: UserRole.Vendedor, permiso: true },
-    { label: "Administrador", value: UserRole.Administrador, permiso: crearAdministradores },
+    {
+      label: "Administrador",
+      value: UserRole.Administrador,
+      permiso: crearAdministradores,
+    },
     { label: "Asignador", value: UserRole.Asignador, permiso: true },
     { label: "Coordinador", value: UserRole.Coordinador, permiso: true },
     { label: "Marketing", value: UserRole.Marketing, permiso: true },
   ].filter((role) => role.permiso);
-  
 
   useEffect(() => {
     setEstados(Ciudades.map((item) => item.Estado));
@@ -94,10 +98,20 @@ export default function ModalRegistroUsuarios({
     setIsLoading(true);
     const newErrors: { [key: string]: string } = {};
 
-    // Verificación de campos vacíos
-    Object.keys(formValues).forEach((key) => {
-      if (!formValues[key as keyof FormValues]) {
-        newErrors[key] = "Campo obligatorio";
+    // Verificación de campos obligatorios
+    const requiredFields: (keyof FormValues)[] = [
+      "nombre",
+      "correo",
+      "contrasena",
+      "confirmContrasena",
+      "estado",
+      "ciudad",
+      "rol",
+    ];
+
+    requiredFields.forEach((field) => {
+      if (!formValues[field]) {
+        newErrors[field] = "Campo obligatorio";
       }
     });
 
@@ -132,6 +146,7 @@ export default function ModalRegistroUsuarios({
         permisos: [],
         state: formValues.estado,
       });
+
       if (!response.success) {
         throw new Error(
           response.message || "Error desconocido al crear el usuario"
@@ -193,43 +208,52 @@ export default function ModalRegistroUsuarios({
           <Modal.Section>
             <TextContainer>
               <TextField
-                label="Nombre"
+                label="Nombre*"
                 value={formValues.nombre}
-                onChange={(value) => handleFieldChange("nombre", value)}
+                onChange={(value) =>
+                  /^[a-zA-Z\s]*$/.test(value) &&
+                  handleFieldChange("nombre", value)
+                }
                 autoComplete="off"
-                error={errors.nombre}
+                error={!formValues.nombre && "Ingresa el nombre"}
               />
               <TextField
                 label="Apellido Paterno"
                 value={formValues.apellidop}
-                onChange={(value) => handleFieldChange("apellidop", value)}
+                onChange={(value) =>
+                  /^[a-zA-Z\s]*$/.test(value) &&
+                  handleFieldChange("apellidop", value)
+                }
                 autoComplete="off"
                 error={errors.apellidop}
               />
               <TextField
                 label="Apellido Materno"
                 value={formValues.apellidom}
-                onChange={(value) => handleFieldChange("apellidom", value)}
+                onChange={(value) =>
+                  /^[a-zA-Z\s]*$/.test(value) &&
+                  handleFieldChange("apellidom", value)
+                }
                 autoComplete="off"
                 error={errors.apellidom}
               />
               <TextField
-                label="Correo electrónico"
+                label="Correo electrónico*"
                 value={formValues.correo}
                 onChange={(value) => handleFieldChange("correo", value)}
                 autoComplete="off"
-                error={errors.correo}
+                error={!formValues.correo && "Ingresa el correo"}
               />
               <TextField
-                label="Contraseña"
+                label="Contraseña*"
                 type="password"
                 value={formValues.contrasena}
                 onChange={(value) => handleFieldChange("contrasena", value)}
                 autoComplete="off"
-                error={errors.contrasena}
+                error={!formValues.contrasena && "Ingresa la contraseña"}
               />
               <TextField
-                label="Confirmar Contraseña"
+                label="Confirmar Contraseña*"
                 type="password"
                 value={formValues.confirmContrasena}
                 onChange={(value) =>
@@ -239,18 +263,19 @@ export default function ModalRegistroUsuarios({
                 error={
                   !passwordsMatch
                     ? "Las contraseñas no coinciden"
-                    : errors.confirmContrasena
+                    : !formValues.confirmContrasena && "Confirma la contraseña"
                 }
               />
               <TextField
                 label="Teléfono"
                 value={formValues.telefono}
-                onChange={(value) => handleFieldChange("telefono", value)}
+                onChange={(value) =>
+                  /^[0-9]*$/.test(value) && handleFieldChange("telefono", value)
+                }
                 autoComplete="off"
-                error={errors.telefono}
               />
               <Select
-                label="Estado"
+                label="Estado*"
                 options={[
                   { label: "Selecciona una opción", value: "" },
                   ...estados.map((estado) => ({
@@ -260,10 +285,10 @@ export default function ModalRegistroUsuarios({
                 ]}
                 onChange={(value) => handleFieldChange("estado", value)}
                 value={formValues.estado}
-                error={errors.estado}
+                error={!formValues.estado && "Selecciona un estado"}
               />
               <Select
-                label="Ciudad"
+                label="Ciudad*"
                 options={[
                   { label: "Selecciona una opción", value: "" },
                   ...ciudades.map((ciudad) => ({
@@ -273,17 +298,17 @@ export default function ModalRegistroUsuarios({
                 ]}
                 onChange={(value) => handleFieldChange("ciudad", value)}
                 value={formValues.ciudad}
-                error={errors.ciudad}
+                error={!formValues.ciudad && "Selecciona una ciudad"}
               />
 
               <Select
-                label="Rol"
+                label="Rol*"
                 options={roleOptions}
                 onChange={(value) =>
                   handleFieldChange("rol", value as UserRole)
                 }
                 value={formValues.rol}
-                error={errors.rol}
+                error={!formValues.rol && "Selecciona un rol"}
               />
             </TextContainer>
           </Modal.Section>

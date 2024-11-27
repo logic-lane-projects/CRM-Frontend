@@ -88,7 +88,7 @@ export default function Historial() {
     };
 
 return (
-    <div className="font-semibold text-[15px]" >
+    <div className="font-semibold text-[15px] px-3 py-2">
         Historial
         {Object.keys(groupedActivities).length > 0 ? (
             Object.keys(groupedActivities).map(date => (
@@ -114,7 +114,7 @@ return (
                                             <span className="text-gray-700">{activity.activity_description}</span>
                                         </p>
                                         <p>
-                                            <span className="font-semibold">Vendedor:  </span> 
+                                            <span className="font-semibold">Realizado por:  </span> 
                                             <span className="text-gray-700">{activity.name_vendedor}</span>
                                         </p>
                                     </TextContainer>

@@ -7,6 +7,7 @@ import { updateClient, deleteLead } from "../../services/leads";
 import { useAuthToken } from "../../hooks/useAuthToken";
 import { Toast } from "../../components/Toast/toast";
 import { Ciudades } from "../../utils/estados";
+import { useNavigate } from "react-router-dom";
 
 export interface InfoLeads {
   _id?: string;
@@ -27,6 +28,8 @@ export interface InfoLeads {
   type_person?: string;
   is_client?: boolean;
   assigned_to?: string | null;
+  profesion?: string;
+  especialidad?: string;
 }
 
 interface InfoLeadProps {
@@ -35,6 +38,7 @@ interface InfoLeadProps {
 
 export default function InfoLead({ lead }: InfoLeadProps) {
   const { userInfo, permisos } = useAuthToken();
+  const navigate = useNavigate();
   const modificarLeads = permisos?.includes("Modificar Leads") ?? false;
   const eliminarLeads = permisos?.includes("Eliminar Leads") ?? false;
   const [isRegimenOpen, setIsRegimenOpen] = useState(false);
@@ -48,11 +52,15 @@ export default function InfoLead({ lead }: InfoLeadProps) {
   const [maternalSurname, setMaternalSurname] = useState(lead.maternal_surname);
   const [email, setEmail] = useState(lead.email);
   const [phoneNumber, setPhoneNumber] = useState(lead.phone_number);
+  const [profesion, setProfesion] = useState(lead.profesion);
+  const [especialidad, setEspecialidad] = useState(lead.especialidad);
   const [city, setCity] = useState(lead.city || "");
   const [state, setState] = useState(lead.state || "");
   const [ciudades, setCiudades] = useState<string[]>([]);
   const [birthdayDate, setBirthdayDate] = useState(lead?.birthday_date);
-  const formattedDate = new Date(birthdayDate).toISOString().split("T")[0];
+  const formattedDate = new Date(birthdayDate ?? "2024-11-24T03:39:20.084Z")
+    ?.toISOString()
+    .split("T")[0];
   const [age, setAge] = useState(lead.age ? lead.age.toString() : "");
   const [typeLead, setTypeLead] = useState(lead.type_lead);
   const [gender, setGender] = useState(lead.gender);
@@ -66,13 +74,21 @@ export default function InfoLead({ lead }: InfoLeadProps) {
     }
   }, [state]);
 
+  useEffect(() => {
+    if (lead?.birthday_date) {
+      setBirthdayDate(lead?.birthday_date);
+    }
+  }, [lead]);
+
   const typeLeadOptions = [
+    { label: "Selecciona una opcion", value: "" },
     { label: "Frío", value: "FRIO" },
     { label: "Tibio", value: "TIBIO" },
     { label: "Caliente", value: "CALIENTE" },
   ];
 
   const genderOptions = [
+    { label: "Selecciona una opcion", value: "" },
     { label: "Masculino", value: "MALE" },
     { label: "Femenino", value: "FEMALE" },
   ];
@@ -94,6 +110,8 @@ export default function InfoLead({ lead }: InfoLeadProps) {
       status: typeof lead.status === "boolean" ? lead.status : null,
       is_client: true,
       assigned_to: lead.assigned_to,
+      profesion: profesion,
+      especialidad: especialidad,
     };
 
     try {
@@ -101,10 +119,11 @@ export default function InfoLead({ lead }: InfoLeadProps) {
         await updateClient(lead._id || "", userInfo.id, updatedLeadData);
         Toast.fire({ icon: "success", title: "Cliente actualizado" });
       }
-    } catch {
+    } catch (error) {
       Toast.fire({
         icon: "error",
-        title: "Error al actualizar el cliente",
+        title: error || "Error al actualizar el cliente",
+        timer: 5000,
       });
     } finally {
       setIsLoading(false);
@@ -133,8 +152,11 @@ export default function InfoLead({ lead }: InfoLeadProps) {
   const deleteLeadHandler = async (id: string) => {
     setIsLoadingDelete(true);
     try {
-      await deleteLead(id);
+      await deleteLead(id, userInfo?.id || "");
       Toast.fire({ icon: "success", title: "Lead eliminado correctamente" });
+      setTimeout(() => {
+        navigate("/leads");
+      }, 500);
     } catch (error) {
       Toast.fire({
         icon: "error",
@@ -167,19 +189,23 @@ export default function InfoLead({ lead }: InfoLeadProps) {
         <TextField
           label="Nombre"
           value={names}
-          onChange={(value) => setNames(value)}
+          onChange={(value) => /^[a-zA-Z\s]*$/.test(value) && setNames(value)}
           autoComplete="off"
         />
         <TextField
           label="Apellido Paterno"
           value={paternalSurname}
-          onChange={(value) => setPaternalSurname(value)}
+          onChange={(value) =>
+            /^[a-zA-Z\s]*$/.test(value) && setPaternalSurname(value)
+          }
           autoComplete="off"
         />
         <TextField
           label="Apellido Materno"
           value={maternalSurname}
-          onChange={(value) => setMaternalSurname(value)}
+          onChange={(value) =>
+            /^[a-zA-Z\s]*$/.test(value) && setMaternalSurname(value)
+          }
           autoComplete="off"
         />
         <TextField
@@ -243,8 +269,22 @@ export default function InfoLead({ lead }: InfoLeadProps) {
         <Select
           label="Género"
           options={genderOptions}
-          value={gender || "MALE"}
+          value={gender ?? "Selecciona una opcion"}
           onChange={(value) => setGender(value as "MALE" | "FEMALE")}
+        />
+        <TextField
+          label="Profesion"
+          value={profesion}
+          onChange={(value) => setProfesion(value)}
+          type="tel"
+          autoComplete="off"
+        />
+        <TextField
+          label="Especialidad"
+          value={especialidad}
+          onChange={(value) => setEspecialidad(value)}
+          type="tel"
+          autoComplete="off"
         />
         <p>
           <strong>Fecha de creación:</strong>{" "}

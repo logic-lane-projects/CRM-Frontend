@@ -184,11 +184,7 @@ export default function ModalSubirArchivos({
       }
       primaryAction={{
         disabled: isLoading,
-        content: !isPayment
-          ? "Subir Pago"
-          : isLoading
-          ? "Cargando..."
-          : "Subir Archivo",
+        content: isLoading ? "Cargando..." : "Subir Archivo",
         onAction: handleFileUpload,
       }}
       secondaryActions={[

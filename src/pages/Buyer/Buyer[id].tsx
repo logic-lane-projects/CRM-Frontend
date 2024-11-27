@@ -11,6 +11,7 @@ import {
   ClockIcon,
 } from "@shopify/polaris-icons";
 import { getBuyerById, changeProspectToClient } from "../../services/buyer";
+import { getHistorialCallsByNumber } from "../../services/historial";
 import Actividad from "../Leads/Actividad";
 import Correos from "../Leads/Correos";
 import Llamadas from "../Leads/Llamadas";
@@ -22,6 +23,7 @@ import Archivos from "../Leads/Archivos";
 import Historial from "../Leads/Historial";
 import { Toast } from "../../components/Toast/toast";
 import type { All as Buyer } from "../../services/buyer";
+import type { CallsHistorial } from "../../services/historial";
 import { useAuthToken } from "../../hooks/useAuthToken";
 
 export default function BuyerInfo() {
@@ -36,6 +38,29 @@ export default function BuyerInfo() {
   const [isLoadingChange, setIsLoadingChange] = useState(false);
   const [finishLoading, setFinishLoading] = useState(false);
   const [isPayment, setIsPayment] = useState(false);
+  const [historialCalls, setHistorialCalls] = useState<CallsHistorial | null>(null);
+
+  const fetchHistorial = async (number: string|number) => {
+    try{
+      if(number){
+        const response = await getHistorialCallsByNumber(number);
+        setHistorialCalls(response);
+      }
+    } catch(error){
+      const errorMessage = typeof error === "string" ? error : String(error);
+      setError(errorMessage);
+      Toast.fire({
+        icon: "error",
+        title: errorMessage,
+      });
+    }
+  }
+
+  useEffect(() => {
+    if(leadData && leadData.phone_number){
+      fetchHistorial(leadData.phone_number);
+    }
+  }, [leadData]);
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
@@ -111,6 +136,7 @@ export default function BuyerInfo() {
       setIsLoadingChange(false);
     }
   };
+
 
   return (
     <Card>
@@ -254,9 +280,9 @@ export default function BuyerInfo() {
             </div>
           </div>
           <div className="border-[1px] border-gray-300 p-2">
-            {selectedTab === "Actividad" && <Actividad />}
+            {selectedTab === "Actividad" && <Actividad historial={historialCalls}/>}
             {selectedTab === "Correos" && <Correos />}
-            {selectedTab === "Llamadas" && <Llamadas />}
+            {selectedTab === "Llamadas" && <Llamadas phone={leadData.phone_number} historial={historialCalls}/>}
             {selectedTab === "Tareas" && <Tareas />}
             {selectedTab === "Notas" && (
               <Notas idCliente={leadData._id ?? ""} />
