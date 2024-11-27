@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Frame, Modal, Spinner, Text } from "@shopify/polaris";
 import {
   getFolderInfo,
-  uploadFileToFolder,
+  // uploadFileToFolder,
   // deleteFileByPath,
 } from "../../services/newFiles";
 import { Toast } from "../Toast/toast";
@@ -27,8 +27,8 @@ const ModalArchivosCarpetas: React.FC<ModalArchivosCarpetasProps> = ({
   const API_URL = "https://fiftydoctorsback.com/crmdev";
   const [folderInfo, setFolderInfo] = useState<FolderInfo | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [uploading, setUploading] = useState<boolean>(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  // const [uploading, setUploading] = useState<boolean>(false);
+  // const [selectedFile, setSelectedFile] = useState<File | null>(null);
   // const [deleting, setDeleting] = useState<string | null>(null);
 
   const handleClose = () => {
@@ -56,44 +56,44 @@ const ModalArchivosCarpetas: React.FC<ModalArchivosCarpetasProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, folder.id]);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files ? event.target.files[0] : null;
-    setSelectedFile(file);
-  };
+  // const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = event.target.files ? event.target.files[0] : null;
+  //   setSelectedFile(file);
+  // };
 
-  const handleUpload = async () => {
-    if (!selectedFile) {
-      Toast.fire({
-        icon: "warning",
-        title: "Selecciona un archivo antes de subirlo",
-      });
-      return;
-    }
+  // const handleUpload = async () => {
+  //   if (!selectedFile) {
+  //     Toast.fire({
+  //       icon: "warning",
+  //       title: "Selecciona un archivo antes de subirlo",
+  //     });
+  //     return;
+  //   }
   
-    // Limpiar el nombre del archivo
-    const cleanFileName = selectedFile.name
-      .replace(/[^a-zA-Z0-9\s.]/g, "") // Permite solo letras, números, espacios y el punto (.)
-      .replace(/\s+/g, " ") // Reemplaza múltiples espacios por uno solo
-      .trim(); // Elimina espacios al inicio y final
+  //   // Limpiar el nombre del archivo
+  //   const cleanFileName = selectedFile.name
+  //     .replace(/[^a-zA-Z0-9\s.]/g, "") // Permite solo letras, números, espacios y el punto (.)
+  //     .replace(/\s+/g, " ") // Reemplaza múltiples espacios por uno solo
+  //     .trim(); // Elimina espacios al inicio y final
   
-    // Crear un nuevo archivo con el nombre limpio
-    const cleanFile = new File([selectedFile], cleanFileName, {
-      type: selectedFile.type,
-    });
+  //   // Crear un nuevo archivo con el nombre limpio
+  //   const cleanFile = new File([selectedFile], cleanFileName, {
+  //     type: selectedFile.type,
+  //   });
   
-    setUploading(true);
-    try {
-      await uploadFileToFolder(folder.id, cleanFile);
-      Toast.fire({ icon: "success", title: "Archivo subido exitosamente" });
-      setSelectedFile(null);
-      fetchFolderInfo();
-    } catch (error) {
-      console.error("Error al subir el archivo", error);
-      Toast.fire({ icon: "error", title: "Error al subir el archivo" });
-    } finally {
-      setUploading(false);
-    }
-  };
+  //   setUploading(true);
+  //   try {
+  //     await uploadFileToFolder(folder.id, cleanFile);
+  //     Toast.fire({ icon: "success", title: "Archivo subido exitosamente" });
+  //     setSelectedFile(null);
+  //     fetchFolderInfo();
+  //   } catch (error) {
+  //     console.error("Error al subir el archivo", error);
+  //     Toast.fire({ icon: "error", title: "Error al subir el archivo" });
+  //   } finally {
+  //     setUploading(false);
+  //   }
+  // };
   
 
   // const handleDeleteFile = async (filePath: string) => {
@@ -124,7 +124,7 @@ const ModalArchivosCarpetas: React.FC<ModalArchivosCarpetasProps> = ({
         >
           <Modal.Section>
             <div className="w-full flex flex-col gap-4">
-              <div className="">
+              {/* <div className="">
                 <label
                   htmlFor="file-upload"
                   className="block text-sm font-medium text-gray-700"
@@ -155,7 +155,7 @@ const ModalArchivosCarpetas: React.FC<ModalArchivosCarpetasProps> = ({
                 <div className="w-full h-0.5 rounded-full bg-[#E9E9E9]" />
                 <span className="bg-white p-1 text-[#7d7d7d] text-sm">O</span>
                 <div className="w-full h-0.5 rounded-full bg-[#E9E9E9]" />
-              </div>
+              </div> */}
 
               <div className="w-full flex flex-col gap-2">
                 <Text variant="headingMd" as="span">Elegir de la Galería</Text>

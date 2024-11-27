@@ -1,6 +1,14 @@
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { Button, Card, Spinner, Page, Badge, Icon } from "@shopify/polaris";
+import { 
+  // Button, 
+  Banner,
+  Card, 
+  Spinner, 
+  Page, 
+  Badge, 
+  Icon,
+} from "@shopify/polaris";
 import {
   NotificationIcon,
   // EmailIcon,
@@ -155,6 +163,13 @@ export default function ProspectInfo() {
       )}
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+        {finishLoading && (
+          <Banner 
+            title="Actualización de archivos"
+            tone="info"
+            onDismiss={() => setFinishLoading(false)}
+          />
+        )}
         <div className="w-full col-span-2">
           <Card padding={'0'}>
             <div className="flex flex-col gap-3 w-full">

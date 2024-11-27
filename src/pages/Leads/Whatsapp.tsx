@@ -1,11 +1,19 @@
 import ModalArchivosCarpetas from "../../components/Modales/ModalArchivosCarpetasWhatsapp";
 import { PageDownIcon, AttachmentFilledIcon } from "@shopify/polaris-icons";
 import { SplitDateTime, FormatTime } from "../../utils/functions";
-import { Box, Button, Tooltip, Icon } from "@shopify/polaris";
+import { 
+  Box, 
+  Button, 
+  Tooltip, 
+  // Icon,
+} from "@shopify/polaris";
 import { getAllFiles } from "../../services/newFiles";
 import { Toast } from "../../components/Toast/toast";
 import { useState, useEffect, useRef } from "react";
-import { FolderIcon, PlusCircleIcon } from '@shopify/polaris-icons';
+import { 
+  FolderIcon, 
+  // PlusCircleIcon,
+} from '@shopify/polaris-icons';
 import { PDFFileIcon } from "../../components/icons";
 
 interface FolderData {
@@ -17,7 +25,6 @@ interface FolderData {
 }
 
 export default function Whatsapp({ phone }: { phone: string }) {
-  const API_URL = import.meta.env.VITE_API_URL;
   type Message = {
     body: string;
     date_sent: string;
@@ -283,12 +290,12 @@ export default function Whatsapp({ phone }: { phone: string }) {
                               )
                             }
                           })}
-                          <button 
+                          {/* <button 
                             className="w-10 aspect-square flex justify-center items-center transition-all duration-200 bg-[#E9E9E9] hover:bg-[#dbdbdb] rounded-lg p-1"
                             onClick={() => setIsOpen((prev) => !prev)}
                           >
                             <Icon source={PlusCircleIcon} />
-                          </button>
+                          </button> */}
                         </>)
                         : (<p>No hay carpetas disponibles</p>)}
                   </>)}

@@ -214,7 +214,7 @@ export default function Usuarios() {
           <div className="flex w-full justify-between items-center">
             <span className="font-semibold text-[20px]">Usuarios</span>
             <div className="flex gap-2">
-              <Button onClick={() => setIsOpen(true)} variant="primary">
+              <Button onClick={() => setIsOpen(true)} variant="primary" icon={PersonAddIcon}>
                 Registro
               </Button>
               <Button
@@ -230,19 +230,18 @@ export default function Usuarios() {
               </Button>
             </div>
           </div>
-          <Card>
-            <div className="flex flex-col gap-4">
-              <TextField
-                label="Buscar Usuarios"
-                value={searchValue}
-                onChange={(value) => {
+          <Card padding={'0'}>
+            <div className="flex flex-col gap-0">
+              <Filters
+                queryValue={searchValue}
+                onQueryChange={(value) => {
                   setSearchValue(value);
                   setCurrentPage(1);
                 }}
-                placeholder="Buscar por nombre, correo, ciudad u oficina"
-                clearButton
-                onClearButtonClick={() => setSearchValue("")}
-                autoComplete="off"
+                queryPlaceholder="Buscar por nombre, correo, ciudad u oficina"
+                onClearAll={() => setSearchValue("")}
+                onQueryClear={() => setSearchValue("")}
+                filters={[]}
               />
 
               <IndexTable
@@ -262,7 +261,7 @@ export default function Usuarios() {
               >
                 {rowMarkup}
               </IndexTable>
-              <div className="flex flex-row-reverse items-center w-full justify-between">
+              <div className="flex flex-row-reverse items-center w-full justify-between px-3 py-2 bg-[#f3f3f3] border-t">
                 <Pagination
                   hasPrevious={currentPage > 1}
                   onPrevious={() => handlePagination("previous")}
