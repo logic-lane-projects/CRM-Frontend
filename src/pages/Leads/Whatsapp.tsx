@@ -7,10 +7,13 @@ import { Toast } from "../../components/Toast/toast";
 import { useState, useEffect, useRef } from "react";
 import {
   FolderIcon,
-  // PlusCircleIcon,
+  PauseCircleIcon,
+  PlayIcon,
+  DeleteIcon,
 } from "@shopify/polaris-icons";
 import { PDFFileIcon } from "../../components/icons";
 import { RefreshIcon } from "@shopify/polaris-icons";
+import AudioRecorderComponent from "../../components/RecordAudio/record-audio";
 
 import { io } from "socket.io-client";
 
@@ -50,6 +53,22 @@ export default function Whatsapp({ phone }: { phone: string }) {
   } | null>(null);
 
   const [fileSelected, setFileSelected] = useState<string[]>([]);
+  const [audioFile, setAudioFile] = useState<File | null>(null);
+  const audioPlayer = useRef<HTMLAudioElement | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  const togglePlayPause = () => {
+    if (audioPlayer.current) {
+      const player = audioPlayer.current;
+      if (player.paused) {
+        player.play();
+        setIsPlaying(true);
+      } else {
+        player.pause();
+        setIsPlaying(false);
+      }
+    }
+  };
 
   const handleGetMessages = async () => {
     try {
@@ -106,6 +125,36 @@ export default function Whatsapp({ phone }: { phone: string }) {
       // handleGetMessages();
     } catch (error) {
       console.error("Error al enviar el mensaje:", error);
+    }
+  };
+
+  const handleSendAudio = async () => {
+    if (!PHONE_NUMBER || !audioFile) return;
+
+    const formData = new FormData();
+
+    formData.append("file", audioFile);
+
+    try {
+      const response = await fetch(`${APP_TWILIO_URL}upload_audio`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Error desconocido");
+      }
+
+      const data = await response.json();
+
+      if(data.url){
+        handleSendMessage("audio:", [`https://fiftydoctorsback.com/crmtwilio${data.url}`]);
+        setAudioFile(null);
+      }
+
+    } catch (error) {
+      console.error("Error al enviar el audio:", error);
     }
   };
 
@@ -264,6 +313,16 @@ export default function Whatsapp({ phone }: { phone: string }) {
                                   Ver archivo
                                 </a>
                               );
+                            } else if (mediaUrl.endsWith(".mp3") || mediaUrl.endsWith(".mpeg")) {
+                              return (
+                                <audio
+                                  key={`file-${mediaIndex}`}
+                                  className=""
+                                  controls
+                                >
+                                  <source src={`${APP_TWILIO_URL}${mediaUrl}`} />
+                                </audio>
+                              );
                             } else {
                               return (
                                 <img
@@ -277,7 +336,9 @@ export default function Whatsapp({ phone }: { phone: string }) {
                           })}
                         </div>
                       )}
-                      <p>{msg.body}</p>
+                      {msg.body !== "audio:" && (
+                        <p>{msg.body}</p>
+                      )}
                     </div>
                     <span className="text-[11px] font-normal">
                       {FormatTime(time)} hrs.
@@ -353,24 +414,63 @@ export default function Whatsapp({ phone }: { phone: string }) {
               </div>
             )}
             <div className="flex items-center gap-2 w-full">
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Escribe un mensaje"
-                className="flex-1 w-full p-2 bg-transparent"
-              />
-              <Tooltip content="Agregar archivo">
-                <div className="[&_button]:bg-[#E9E9E9] flex justify-center items-center">
+              {(audioFile && audioFile !== null) ? (
+                <div className="[&_button]:bg-[#E9E9E9] w-full flex justify-center items-center">
                   <Button
-                    icon={AttachmentFilledIcon}
                     variant="tertiary"
-                    onClick={() => setOpenArchivos((prev) => !prev)}
-                  />
+                    onClick={togglePlayPause}
+                    icon={isPlaying ? PauseCircleIcon : PlayIcon}
+                    fullWidth
+                  >
+                    {isPlaying ? "Pausar" : "Reproducir"}
+                  </Button>
+                  <audio ref={audioPlayer} controls className="hidden" onEnded={() => setIsPlaying(false)}>
+                    <source src={URL.createObjectURL(audioFile)} />
+                  </audio>
                 </div>
-              </Tooltip>
+              ):(
+                <input
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Escribe un mensaje"
+                  className="flex-1 w-full p-2 bg-transparent"
+                />
+              )}
+              <AudioRecorderComponent 
+                audioFile={audioFile}
+                setAudioFile={setAudioFile}
+              />
+              {(audioFile && audioFile !== null) ? (
+                <Tooltip content="Eliminar Audio">
+                  <div className="transition-all duration-500 [&_button]:bg-[#ffa9a9] [&_button]:hover:bg-[#ff8989] flex justify-center items-center">
+                    <Button
+                      icon={DeleteIcon}
+                      variant="tertiary"
+                      tone="critical"
+                      onClick={() => setAudioFile(null)}
+                    />
+                  </div>
+                </Tooltip>
+              ):(
+                <Tooltip content="Agregar archivo">
+                  <div className="transition-all duration-500 [&_button]:bg-[#E9E9E9] [&_button]:hover:bg-[#c2c2c2] flex justify-center items-center">
+                    <Button
+                      icon={AttachmentFilledIcon}
+                      variant="tertiary"
+                      onClick={() => setOpenArchivos((prev) => !prev)}
+                    />
+                  </div>
+                </Tooltip>
+              )}
               <button
-                onClick={() => handleSendMessage(input, fileSelected)}
+                onClick={() => {
+                  if(audioFile && audioFile !== null){
+                    handleSendAudio();
+                  }else{
+                    handleSendMessage(input, fileSelected);
+                  }
+                }}
                 className="px-4 py-1 bg-green-500 text-white transition-all duration-200 rounded-md hover:bg-green-600"
               >
                 Enviar
