@@ -117,6 +117,17 @@ export default function Whatsapp({ phone }: { phone: string }) {
         throw new Error(errorData.error || "Error desconocido");
       }
 
+      setMessages([
+        ...messages,
+        {
+          body: messageBody,
+          date_sent: String(new Date()),
+          from: "5555555",
+          to: PHONE_NUMBER,
+          media: mediaUrl ? mediaUrl?.length > 0 ? mediaUrl?.map((item) => item.replace(APP_TWILIO_URL, "")) : [] : [],
+        }
+      ])
+
       setInput("");
       if (mediaUrl && mediaUrl?.length > 0) {
         setFileSelected([]);
@@ -242,10 +253,10 @@ export default function Whatsapp({ phone }: { phone: string }) {
     <div className="flex flex-col w-full rounded-lg gap-0">
       <div className="flex items-center justify-between px-3 py-2">
         <h2 className="font-semibold text-[15px]">Whatsapp Chat</h2>
-        <div>
-          <button onClick={handleGetMessages}>
-            <Icon source={RefreshIcon} tone="base" />
-          </button>
+        <div className="flex items-center gap-2">
+          <Button icon={RefreshIcon} onClick={handleGetMessages} variant="tertiary">
+            Recargar
+          </Button>
           <Button
             onClick={() => {
               const blob = new Blob([JSON.stringify(messages)], {
