@@ -1,7 +1,7 @@
 import ModalArchivosCarpetas from "../../components/Modales/ModalArchivosCarpetasWhatsapp";
 import { PageDownIcon, AttachmentFilledIcon } from "@shopify/polaris-icons";
 import { SplitDateTime, FormatTime } from "../../utils/functions";
-import { Box, Button, Tooltip, Icon } from "@shopify/polaris";
+import { Box, Button, Tooltip } from "@shopify/polaris";
 import { getAllFiles } from "../../services/newFiles";
 import { Toast } from "../../components/Toast/toast";
 import { useState, useEffect, useRef } from "react";
