@@ -8,7 +8,7 @@ import {
   ResourceItem,
   Button,
 } from "@shopify/polaris";
-import { getUsers, getUserById } from "../../services/users";
+import { getSellers, getUserById } from "../../services/users";
 import { assignSeller } from "../../services/user";
 import { useAuthToken } from "../../hooks/useAuthToken";
 import type { User } from "../../services/users";
@@ -59,7 +59,8 @@ export default function ModalAsignacionVendedor({
     if (!assignedTo || isChangingSeller) {
       const fetchUsers = async () => {
         try {
-          const users = await getUsers();
+          const users = await getSellers();
+          console.log(users)
           setSellers(users);
         } catch (error) {
           console.error("Error fetching sellers:", error);

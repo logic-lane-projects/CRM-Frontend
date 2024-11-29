@@ -331,7 +331,7 @@ export default function ModalRegistroLeads({
                 autoComplete="off"
               />
               <TextField
-                label="Especialidad*"
+                label="Especialidad"
                 value={formValues.especialidad}
                 onChange={(value) => handleFieldChange("especialidad", value)}
                 autoComplete="off"

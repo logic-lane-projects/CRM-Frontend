@@ -13,6 +13,22 @@ export interface User {
   oficinas_permitidas: string[];
 }
 
+export interface UserResponse {
+  data: {
+    id: string;
+    name: string;
+    paternal_surname: string;
+    maternal_surname: string;
+    email: string;
+    cellphone: string;
+    city: string;
+    role: string;
+    state: string;
+    permisos: string[];
+    oficinas_permitidas: string[];
+  };
+}
+
 const API_URL = import.meta.env.VITE_API_URL;
 
 // Obtener todos los usuarios
@@ -26,6 +42,42 @@ export const getUsers = async (): Promise<User[]> => {
     }
     const users: User[] = await response.json();
     return users;
+  } catch (error) {
+    console.error("Error al obtener los usuarios:", error);
+    throw error;
+  }
+};
+
+export const getSellers = async (): Promise<User[]> => {
+  try {
+    const response = await fetch(`${API_URL}users/vendedores/con/oficina`, {
+      method: "GET",
+    });
+
+    if (!response.ok) {
+      throw new Error("Error al obtener usuarios");
+    }
+
+    const responseData = await response.json();
+
+    if (!responseData.result || !Array.isArray(responseData.data)) {
+      throw new Error("La respuesta no tiene el formato esperado");
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return responseData.data.map((user: any) => ({
+      id: user._id,
+      name: user.name,
+      paternal_surname: user.paternal_surname || "",
+      maternal_surname: user.maternal_surname || "",
+      email: user.email,
+      cellphone: user.cellphone || "",
+      city: user.city || "",
+      role: user.role || "",
+      state: user.state || "",
+      permisos: user.permisos || [],
+      oficinas_permitidas: user.oficinas_permitidas || [],
+    }));
   } catch (error) {
     console.error("Error al obtener los usuarios:", error);
     throw error;
