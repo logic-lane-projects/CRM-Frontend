@@ -130,7 +130,7 @@ const Login: React.FC = () => {
       console.error("Error al enviar el correo de restablecimiento:", error);
       setResetEmailError("No se pudo enviar el correo de restablecimiento.");
     }
-  };
+  }; 
 
   return (
     <form onSubmit={handleSubmit}>
