@@ -73,11 +73,6 @@ export default function SinRegistrar() {
       ? dataFilter.length
       : parseInt(itemsPerPage, 10);
 
-  const paginatedNumbers = dataFilter.slice(
-    (currentPage - 1) * numItemsPerPage,
-    currentPage * numItemsPerPage
-  );
-
   const totalPages = Math.ceil(dataFilter.length / numItemsPerPage);
 
   const resource = dataFilter.map((item) => ({
