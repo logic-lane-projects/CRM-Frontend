@@ -21,6 +21,7 @@ export interface Client {
 }
 
 const API_URL = import.meta.env.VITE_API_URL;
+const API_URL_TWILIO = import.meta.env.VITE_API_TWILIO_URL;
 
 export const getActiveClient = async (): Promise<{
   result: boolean;
@@ -61,3 +62,25 @@ export const getClientById = async (
     throw error;
   }
 };
+
+export interface UnregisterClient {
+  _id: string;
+  created_At: string;
+  is_activate: string|boolean;
+  number: string|number;
+}
+
+export const getUnregisterClients = async (): 
+Promise<{ message: UnregisterClient[] }> => {
+  try {
+    const response = await fetch(`${API_URL_TWILIO}get_unregistered_chats`, {
+      method: "GET",
+    });
+
+    const jsonResponse = await response.json();
+    return jsonResponse;
+  } catch (error) {
+    console.error("Error al obtener la información de los clientes", error);
+    throw error;
+  }
+}

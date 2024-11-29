@@ -25,6 +25,9 @@ const Permissions = {
 
   // Otros
   SinAsignacion: "Sin Asignación",
+
+  // Unregistre
+  SinRegistrar: "Sin Registrar",
 };
 
 export default Permissions;
