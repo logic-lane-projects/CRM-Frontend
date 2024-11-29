@@ -1,15 +1,23 @@
 // src/firebase.ts
-import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+
+const apikey = import.meta.env.VITE_APIKEY;
+const authDomain = import.meta.env.VITE_AUTHDOMAIN;
+const projectId = import.meta.env.VITE_PROJECTID;
+const storageBucket = import.meta.env.VITE_STORAGEBUCKER;
+const messagingSenderId = import.meta.env.VITE_MESSAGINSENDERID;
+const appId = import.meta.env.VITE_APPID;
+const measurementId = import.meta.env.VITE_MEASUREMENTID;
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAIMmpZTrIS70QMvgTlbNXSBXuvNJHG3Os",
-  authDomain: "crm-dev-99767.firebaseapp.com",
-  projectId: "crm-dev-99767",
-  storageBucket: "crm-dev-99767.appspot.com",
-  messagingSenderId: "867591998050",
-  appId: "1:867591998050:web:aacace4f3fe58bd9ba1f3b",
-  measurementId: "G-EDSCBLWFXC"
+  apiKey: apikey,
+  authDomain: authDomain,
+  projectId: projectId,
+  storageBucket: storageBucket,
+  messagingSenderId: messagingSenderId,
+  appId: appId,
+  measurementId: measurementId,
 };
 
 const app = initializeApp(firebaseConfig);
