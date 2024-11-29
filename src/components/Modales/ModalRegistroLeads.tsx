@@ -132,13 +132,7 @@ export default function ModalRegistroLeads({
   };
 
   useEffect(() => {
-    const requiredFields = [
-      "nombre",
-      "correo",
-      "telefono",
-      "especialidad",
-      "type_lead",
-    ];
+    const requiredFields = ["nombre", "correo", "telefono", "type_lead"];
     const allRequiredFieldsFilled = requiredFields.every(
       (field) => formValues[field as keyof FormValues] !== ""
     );
@@ -341,7 +335,6 @@ export default function ModalRegistroLeads({
                 value={formValues.especialidad}
                 onChange={(value) => handleFieldChange("especialidad", value)}
                 autoComplete="off"
-                error={!formValues.especialidad && "Ingresa la especialidad"}
               />
               <Select
                 label="Tipo de Lead*"
