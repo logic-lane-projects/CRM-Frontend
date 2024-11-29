@@ -137,6 +137,12 @@ const Login: React.FC = () => {
       <AppProvider i18n={{}}>
         <div className="w-screen h-screen flex flex-col items-center justify-center gap-3">
           <span className="font-bold text-[20px]">Iniciar sesión</span>
+          <div>
+            <img
+            src="/images/50DRS.png"
+            className="w-20"
+            />
+          </div>
           <Card>
             <TextField
               label="Correo electrónico"
