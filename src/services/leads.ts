@@ -26,6 +26,7 @@ export interface Lead {
   updated_at?: string;
   profesion?:string;
   especialidad?:string
+  folio?:string
 }
 export interface ApiResponse<T> {
   result: boolean;

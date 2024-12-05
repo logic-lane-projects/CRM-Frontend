@@ -26,8 +26,8 @@ export interface PaginatedResponse<T> {
   data: T[];
 }
 
-
 const API_URL = import.meta.env.VITE_API_URL;
+const API_URL_TWILIO = import.meta.env.VITE_API_TWILIO_URL;
 
 // Función para manejar errores
 const handleError = (error: unknown): string => {
@@ -38,7 +38,9 @@ const handleError = (error: unknown): string => {
 };
 
 // Crear un usuario
-export const createUser = async (userData: User): Promise<ApiResponse<User>> => {
+export const createUser = async (
+  userData: User
+): Promise<ApiResponse<User>> => {
   try {
     const response = await fetch(`${API_URL}users`, {
       method: "POST",
@@ -60,8 +62,6 @@ export const createUser = async (userData: User): Promise<ApiResponse<User>> => 
   }
 };
 
-
-
 // Obtener todos los usuarios
 export const getAllUsers = async (): Promise<ApiResponse<User[]>> => {
   try {
@@ -77,14 +77,15 @@ export const getUsersByOffice = async (
   officeId: string
 ): Promise<ApiResponse<PaginatedResponse<User>>> => {
   try {
-    const response = await fetch(`${API_URL}users/buscar/por/oficina/${officeId}`);
+    const response = await fetch(
+      `${API_URL}users/buscar/por/oficina/${officeId}`
+    );
     const data = await response.json();
     return { success: response.ok, data };
   } catch (error) {
     throw handleError(error);
   }
 };
-
 
 // Obtener usuario por ID
 export const getUserById = async (id: string): Promise<ApiResponse<User>> => {
@@ -128,7 +129,9 @@ export const deleteUser = async (id: string): Promise<ApiResponse<null>> => {
 };
 
 // Buscar usuario por email
-export const getUserByEmail = async (email: string): Promise<ApiResponse<User>> => {
+export const getUserByEmail = async (
+  email: string
+): Promise<ApiResponse<User>> => {
   try {
     const response = await fetch(`${API_URL}users/find/email`, {
       method: "POST",
@@ -143,36 +146,47 @@ export const getUserByEmail = async (email: string): Promise<ApiResponse<User>> 
 };
 
 // Funcion para actualizar los permisos
-export const updatePermissions = async (id_admin: unknown, id_vendedor: unknown, permisos: unknown) => {
+export const updatePermissions = async (
+  id_admin: unknown,
+  id_vendedor: unknown,
+  permisos: unknown
+) => {
   try {
-    const response = await fetch(`${API_URL}users/asignar/permisos/${id_admin}`, {
-      method: 'POST', 
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        id_vendedor,
-        permisos, 
-      }),
-    });
+    const response = await fetch(
+      `${API_URL}users/asignar/permisos/${id_admin}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id_vendedor,
+          permisos,
+        }),
+      }
+    );
 
     if (!response.ok) {
-      throw new Error('Error al asignar permisos');
+      throw new Error("Error al asignar permisos");
     }
 
-    return await response.json(); 
+    return await response.json();
   } catch (error) {
     console.error(error);
-    return error; 
+    return error;
   }
 };
 
-export const updateOficinasPermitidas = async (idVendedor: string, selectedOffices: string[], idAdmin: string) => {
+export const updateOficinasPermitidas = async (
+  idVendedor: string,
+  selectedOffices: string[],
+  idAdmin: string
+) => {
   try {
     const response = await fetch(`${API_URL}users/asignar/oficina/${idAdmin}`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         id_vendedor: idVendedor,
@@ -181,17 +195,20 @@ export const updateOficinasPermitidas = async (idVendedor: string, selectedOffic
     });
 
     if (!response.ok) {
-      throw new Error('Error al actualizar las oficinas permitidas');
+      throw new Error("Error al actualizar las oficinas permitidas");
     }
 
     return response.json();
   } catch (error) {
     if (error instanceof Error) {
-      console.error('Error al actualizar las oficinas permitidas:', error.message);
+      console.error(
+        "Error al actualizar las oficinas permitidas:",
+        error.message
+      );
       return { error: error.message };
     }
-    console.error('Error desconocido:', error);
-    return { error: 'Error desconocido' };
+    console.error("Error desconocido:", error);
+    return { error: "Error desconocido" };
   }
 };
 
@@ -201,16 +218,19 @@ export const assignSeller = async (
   leadIds: string[]
 ) => {
   try {
-    const response = await fetch(`${API_URL}clientes/asignar/vendedor/${userId}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        id_vendedor: sellerId,
-        clientes: leadIds,
-      }),
-    });
+    const response = await fetch(
+      `${API_URL}clientes/asignar/vendedor/${userId}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id_vendedor: sellerId,
+          clientes: leadIds,
+        }),
+      }
+    );
 
     if (!response.ok) {
       throw new Error("Error assigning lead to seller");
@@ -220,5 +240,26 @@ export const assignSeller = async (
   } catch (error) {
     console.error("Error in assignSeller:", error);
     throw error;
+  }
+};
+
+export const msnToSeller = async (number: string, leadFolio: string) => {
+  console.log(leadFolio)
+  console.log("enviando mensaje");
+  try {
+    const response = await fetch(
+      `${API_URL_TWILIO}/notication_assignament?To=${number}&lead_folio=${leadFolio}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    console.log(response);
+    return response.json();
+  } catch (error) {
+    return error;
   }
 };

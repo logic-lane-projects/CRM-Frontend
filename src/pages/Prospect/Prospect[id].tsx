@@ -146,7 +146,7 @@ export default function ProspectInfo() {
   return (
     <Page
       backAction={{content: 'Regresar', onAction: () => navigate(-1)}}
-      title={`${leadData?.names} ${leadData?.paternal_surname} ${leadData?.maternal_surname}`}
+      title={`${leadData?.names} ${leadData?.paternal_surname} ${leadData?.maternal_surname} #${leadData?.folio || "Sin folio"}`}
       titleMetadata={<Badge>Prospecto</Badge>}
       primaryAction={{ 
         content: "Pasar a Comprador",
@@ -286,7 +286,7 @@ export default function ProspectInfo() {
               <div className="w-full">
                 {selectedTab === "Actividad" && <Actividad historial={historialCalls}/>}
                 {selectedTab === "Correos" && <Correos />}
-                {selectedTab === "Llamadas" && <Llamadas phone={leadData.phone_number} />}
+                {selectedTab === "Llamadas" && <Llamadas phone={leadData.phone_number} idLead={leadData?._id}/>}
                 {selectedTab === "Tareas" && <Tareas />}
                 {selectedTab === "Notas" && (
                   <Notas idCliente={leadData._id ?? ""} />

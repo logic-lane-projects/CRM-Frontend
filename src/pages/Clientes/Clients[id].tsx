@@ -80,7 +80,7 @@ export default function LeadInfo() {
         <div>
           <span className="font-semibold text-lg">Cliente/</span>
           <span className="ml-1 text-[15px]">
-            {`${clientData?.names} ${clientData?.maternal_surname} ${clientData?.paternal_surname}`}
+            {`${clientData?.names} ${clientData?.maternal_surname} ${clientData?.paternal_surname} #${clientData?.folio || "Sin folio"}`}
           </span>
         </div>
       </div>
@@ -200,7 +200,7 @@ export default function LeadInfo() {
           <div className="border-[1px] border-gray-300 p-2">
             {selectedTabFromUrl === "Actividad" && <Actividad />}
             {selectedTabFromUrl === "Correos" && <Correos />}
-            {selectedTabFromUrl === "Llamadas" && <Llamadas phone={clientData.phone_number} />}
+            {selectedTabFromUrl === "Llamadas" && <Llamadas phone={clientData.phone_number} idLead={clientData?._id}/>}
             {selectedTabFromUrl === "Tareas" && <Tareas />}
             {selectedTabFromUrl === "Notas" && (
               <Notas idCliente={clientData._id ?? ""} />

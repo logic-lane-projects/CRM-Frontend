@@ -39,6 +39,7 @@ export default function ClientesPorOficina() {
   const [isOpenAsignacion, setIsOpenAsignacion] = useState(false);
   const [assignedTo, setAssignedTo] = useState("");
   const [selectedResources, setSelectedResources] = useState<string[]>([]);
+  const [folioLead, setFolioLead] = useState<string | null>(null);
 
   //   const handleTableSelection = (table: SetStateAction<string>) => {
   //     setSelected(table);
@@ -146,6 +147,7 @@ export default function ClientesPorOficina() {
           status,
           assigned_to,
           type_client,
+          folio,
         }: Lead) => ({
           id: _id,
           names,
@@ -156,6 +158,7 @@ export default function ClientesPorOficina() {
           status,
           assigned_to,
           type_client,
+          folio,
         })
       )
     : [];
@@ -284,6 +287,7 @@ export default function ClientesPorOficina() {
         status,
         assigned_to,
         type_client,
+        folio,
       },
       index
     ) => (
@@ -333,7 +337,9 @@ export default function ClientesPorOficina() {
               <Button
                 variant="primary"
                 onClick={() => {
+                  setAssignedTo("");
                   setIsOpenAsignacion(true);
+                  setFolioLead(folio ?? "");
                 }}
               >
                 Asignar
@@ -372,7 +378,7 @@ export default function ClientesPorOficina() {
             </Button>
           )}
         </div>
-        <Card padding={'0'}>
+        <Card padding={"0"}>
           <div className="flex flex-col gap-0">
             {/* <div className="flex gap-2">
               <Button
@@ -496,6 +502,7 @@ export default function ClientesPorOficina() {
           setIsOpen={setIsOpenAsignacion}
           isOpen={isOpenAsignacion}
           assignedTo={assignedTo}
+          folioLead={folioLead}
         />
       )}
       {isDeleteModalOpen && (

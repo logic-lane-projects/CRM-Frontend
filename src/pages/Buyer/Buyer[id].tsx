@@ -145,7 +145,7 @@ export default function BuyerInfo() {
         <div className="flex items-center gap-1">
           <span className="font-semibold text-lg">Comprador/</span>
           <span className="ml-1 text-[15px]">
-            {`${leadData?.names} ${leadData?.maternal_surname} ${leadData?.paternal_surname}`}
+            {`${leadData?.names} ${leadData?.maternal_surname} ${leadData?.paternal_surname} #${leadData?.folio || "Sin folio"}`}
           </span>
           {leadData?.type_person === "" ||
             (leadData.type_person === null && (
@@ -282,7 +282,7 @@ export default function BuyerInfo() {
           <div className="border-[1px] border-gray-300 p-2">
             {selectedTab === "Actividad" && <Actividad historial={historialCalls}/>}
             {selectedTab === "Correos" && <Correos />}
-            {selectedTab === "Llamadas" && <Llamadas phone={leadData.phone_number} historial={historialCalls}/>}
+            {selectedTab === "Llamadas" && <Llamadas phone={leadData.phone_number} historial={historialCalls} idLead={leadData?._id}/>}
             {selectedTab === "Tareas" && <Tareas />}
             {selectedTab === "Notas" && (
               <Notas idCliente={leadData._id ?? ""} />

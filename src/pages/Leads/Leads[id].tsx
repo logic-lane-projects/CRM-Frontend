@@ -63,6 +63,7 @@ export default function LeadInfo() {
       try {
         if (id) {
           const response = await getLeadById(id);
+          console.log(response)
           setLeadData(response);
           const respuesta = await getHistorialById(id);
           console.log(respuesta)
@@ -122,7 +123,7 @@ export default function LeadInfo() {
   return (
     <Page
       backAction={{content: 'Regresar', onAction: () => navigate(-1)}}
-      title={`${leadData?.names} ${leadData?.paternal_surname} ${leadData?.maternal_surname}`}
+      title={`${leadData?.names} ${leadData?.paternal_surname} ${leadData?.maternal_surname} #${leadData?.folio || "Sin folio"}`}
       titleMetadata={<Badge>Leads</Badge>}
       primaryAction={{ 
         content: "Pasar a Prospecto",
@@ -226,7 +227,7 @@ export default function LeadInfo() {
               <div className="w-full">
                 {selectedTab === "Actividad" && <Actividad historial={historialCalls}/>}
                 {selectedTab === "Correos" && <Correos />}
-                {selectedTab === "Llamadas" && <Llamadas phone={leadData.phone_number} historial={historialCalls}/>}
+                {selectedTab === "Llamadas" && <Llamadas phone={leadData.phone_number} historial={historialCalls} idLead={leadData?._id}/>}
                 {selectedTab === "Tareas" && <Tareas />}
                 {selectedTab === "Notas" && (
                   <Notas idCliente={leadData._id ?? ""} />

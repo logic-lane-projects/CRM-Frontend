@@ -84,6 +84,49 @@ export const getSellers = async (): Promise<User[]> => {
   }
 };
 
+// obtener vendedores por oficina
+export const getSellersByOffie = async (
+  idOficina: string,
+  role = "vendedor"
+): Promise<User[]> => {
+  try {
+    const response = await fetch(
+      `${API_URL}users/buscar/por/oficina/y/role/${idOficina}/${role}`,
+      {
+        method: "GET",
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Error al obtener usuarios");
+    }
+
+    const responseData = await response.json();
+
+    if (!responseData.result || !Array.isArray(responseData.data)) {
+      throw new Error("La respuesta no tiene el formato esperado");
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return responseData.data.map((user: any) => ({
+      id: user._id,
+      name: user.name,
+      paternal_surname: user.paternal_surname || "",
+      maternal_surname: user.maternal_surname || "",
+      email: user.email,
+      cellphone: user.cellphone || "",
+      city: user.city || "",
+      role: user.role || "",
+      state: user.state || "",
+      permisos: user.permisos || [],
+      oficinas_permitidas: user.oficinas_permitidas || [],
+    }));
+  } catch (error) {
+    console.error("Error al obtener los usuarios:", error);
+    throw error;
+  }
+};
+
 // Obtener un usuario por ID
 export const getUserById = async (id: string): Promise<User> => {
   try {

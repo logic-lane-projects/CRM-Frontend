@@ -116,6 +116,17 @@ export default function Oficinas() {
 
   const promotedBulkActions = [
     {
+      content: "Editar",
+      onAction: () => {
+        if (selectedResources.length === 1) {
+          setOfficeToDelete(selectedResources[0]);
+          setIsOpen(true);
+        } else {
+          Toast.fire({ icon: "error", title: "Seleccione una sola oficina para eliminar" });
+        }
+      },
+    },
+    {
       content: "Eliminar",
       onAction: () => {
         if (selectedResources.length === 1) {
