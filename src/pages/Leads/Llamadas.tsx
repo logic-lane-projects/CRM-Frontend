@@ -13,9 +13,11 @@ import {
 } from "@shopify/polaris";
 import { SplitDateTime, FormatDate, FormatDateHistory } from "../../utils/functions";
 
-function Llamadas({phone, historial}: {phone? : string, historial?: CallsHistorial|null}) {
+function Llamadas({phone, historial,idLead}: {phone? : string, historial?: CallsHistorial|null, idLead:string|undefined}) {
   const [seleted, setSelected] = useState<HistorialCalls|null>(null);
   const [open, setOpen] = useState<boolean>(false);
+  const telefonoOficinaActual = localStorage.getItem("telefonoOficinaActual");
+
 
   const handleClose = () => {
     setOpen(false);
@@ -96,7 +98,7 @@ function Llamadas({phone, historial}: {phone? : string, historial?: CallsHistori
             target='_blank'
             icon={PhoneIcon}
             variant='primary'
-            url={`https://fiftydoctorsback.com/crmtwilio/#${phone}`}
+            url={`https://fiftydoctorsback.com/crmtwilio/?of_num=${telefonoOficinaActual}&to=${phone}&ident=crm_${idLead}`}
           >
             Llamar
           </Button>

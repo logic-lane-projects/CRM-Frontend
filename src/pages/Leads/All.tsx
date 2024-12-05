@@ -40,6 +40,7 @@ export default function Leads() {
   const [isOpenAsignacion, setIsOpenAsignacion] = useState(false);
   const [assignedTo, setAssignedTo] = useState("");
   const [selectedResources, setSelectedResources] = useState<string[]>([]);
+  const [folioLead, setFolioLead] = useState<string | null>(null);
 
   const handleTableSelection = (table: SetStateAction<string>) => {
     setSelected(table);
@@ -143,13 +144,15 @@ export default function Leads() {
     type_lead: lead.type_lead,
     status: lead.status,
     assigned_to: lead.assigned_to,
+    folio: lead.folio || "Sin folio",
   }));
 
   // Filtro de búsqueda
   const filteredLeads = leadsForIndexTable.filter(
     (lead) =>
       lead.names?.toLowerCase().includes(searchValue.toLowerCase()) ||
-      lead.email?.toLowerCase().includes(searchValue.toLowerCase())
+      lead.email?.toLowerCase().includes(searchValue.toLowerCase()) ||
+      lead?.folio?.toLowerCase().includes(searchValue.toLowerCase())
   );
 
   const numItemsPerPage =
@@ -259,7 +262,17 @@ export default function Leads() {
 
   const rowMarkup = paginatedLeads.map(
     (
-      { id, names, email, phone_number, city, type_lead, status, assigned_to },
+      {
+        id,
+        names,
+        email,
+        phone_number,
+        city,
+        type_lead,
+        status,
+        assigned_to,
+        folio,
+      },
       index
     ) => (
       <IndexTable.Row
@@ -271,6 +284,7 @@ export default function Leads() {
       >
         <IndexTable.Cell>{names ?? "Desconocido"}</IndexTable.Cell>
         <IndexTable.Cell>{email ?? "No disponible"}</IndexTable.Cell>
+        <IndexTable.Cell>{folio ?? "No disponible"}</IndexTable.Cell>
         <IndexTable.Cell>{phone_number ?? "No disponible"}</IndexTable.Cell>
         <IndexTable.Cell>{city ?? "No disponible"}</IndexTable.Cell>
         <IndexTable.Cell>
@@ -296,7 +310,9 @@ export default function Leads() {
               <Button
                 variant="primary"
                 onClick={() => {
+                  setAssignedTo("");
                   setIsOpenAsignacion(true);
+                  setFolioLead(folio);
                 }}
               >
                 Asignar
@@ -312,28 +328,28 @@ export default function Leads() {
 
   const tabs = [
     {
-      id: 'lead',
-      content: 'Leads',
-      accessibilityLabel: 'Leads',
-      panelID: 'leads',
+      id: "lead",
+      content: "Leads",
+      accessibilityLabel: "Leads",
+      panelID: "leads",
     },
     {
-      id: 'prospecto',
-      content: 'Prospectos',
-      accessibilityLabel: 'Prospectos',
-      panelID: 'prospectos',
+      id: "prospecto",
+      content: "Prospectos",
+      accessibilityLabel: "Prospectos",
+      panelID: "prospectos",
     },
     {
-      id: 'comprador',
-      content: 'Compradores',
-      accessibilityLabel: 'Compradores',
-      panelID: 'compradores',
+      id: "comprador",
+      content: "Compradores",
+      accessibilityLabel: "Compradores",
+      panelID: "compradores",
     },
     {
-      id: 'client',
-      content: 'Clientes',
-      accessibilityLabel: 'Clientes',
-      panelID: 'clientes',
+      id: "client",
+      content: "Clientes",
+      accessibilityLabel: "Clientes",
+      panelID: "clientes",
     },
   ];
 
@@ -369,9 +385,9 @@ export default function Leads() {
             </Button>
           )}
         </div>
-        <Card padding={'0'}>
+        <Card padding={"0"}>
           <div className="flex flex-col gap-0">
-            <Tabs tabs={tabs} selected={tabsIndex} onSelect={handleTabChange}/>
+            <Tabs tabs={tabs} selected={tabsIndex} onSelect={handleTabChange} />
             <Filters
               filters={[]}
               queryValue={searchValue}
@@ -379,7 +395,7 @@ export default function Leads() {
                 setSearchValue(value);
                 setCurrentPage(1);
               }}
-              queryPlaceholder="Buscar por nombre o correo"
+              queryPlaceholder="Buscar por nombre, correo o folio"
               onQueryClear={() => setSearchValue("")}
               onClearAll={() => setSearchValue("")}
             />
@@ -417,6 +433,7 @@ export default function Leads() {
                   headings={[
                     { title: "Nombre" },
                     { title: "Correo Electrónico" },
+                    { title: "Folio" },
                     { title: "Teléfono" },
                     { title: "Ciudad" },
                     { title: "Estado" },
@@ -467,6 +484,7 @@ export default function Leads() {
           setIsOpen={setIsOpenAsignacion}
           isOpen={isOpenAsignacion}
           assignedTo={assignedTo}
+          folioLead={folioLead}
         />
       )}
       {isDeleteModalOpen && (

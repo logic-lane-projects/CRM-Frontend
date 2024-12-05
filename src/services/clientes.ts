@@ -18,6 +18,7 @@ export interface Client {
   created_at?: string;
   updated_at?: string;
   type_person: string;
+  folio?:string
 }
 
 const API_URL = import.meta.env.VITE_API_URL;

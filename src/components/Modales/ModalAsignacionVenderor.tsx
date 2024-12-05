@@ -8,8 +8,8 @@ import {
   ResourceItem,
   Button,
 } from "@shopify/polaris";
-import { getSellers, getUserById } from "../../services/users";
-import { assignSeller } from "../../services/user";
+import { getSellersByOffie, getUserById } from "../../services/users";
+import { assignSeller, msnToSeller } from "../../services/user";
 import { useAuthToken } from "../../hooks/useAuthToken";
 import type { User } from "../../services/users";
 import { Toast } from "../Toast/toast";
@@ -19,6 +19,7 @@ interface ModalAsignacionVendedorProps {
   setIsOpen: (isOpen: boolean) => void;
   leadIds: string[];
   assignedTo: string | null;
+  folioLead: string | null;
 }
 
 export default function ModalAsignacionVendedor({
@@ -26,17 +27,20 @@ export default function ModalAsignacionVendedor({
   setIsOpen,
   leadIds,
   assignedTo,
+  folioLead,
 }: ModalAsignacionVendedorProps) {
   const { userInfo } = useAuthToken();
   const [searchTerm, setSearchTerm] = useState("");
   const [sellers, setSellers] = useState<User[]>([]);
   const [filteredSellers, setFilteredSellers] = useState<User[]>([]);
   const [selectedSellerId, setSelectedSellerId] = useState<string | null>(null);
+  const [sellerPhone, setSellerPhone] = useState<string | null>(null);
   const [assignedSellerInfo, setAssignedSellerInfo] = useState<User | null>(
     null
   );
   const [isChangingSeller, setIsChangingSeller] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const storedOffice = localStorage.getItem("oficinaActual");
 
   useEffect(() => {
     const fetchAssignedSeller = async () => {
@@ -59,8 +63,7 @@ export default function ModalAsignacionVendedor({
     if (!assignedTo || isChangingSeller) {
       const fetchUsers = async () => {
         try {
-          const users = await getSellers();
-          console.log(users)
+          const users = await getSellersByOffie(storedOffice || "", "vendedor");
           setSellers(users);
         } catch (error) {
           console.error("Error fetching sellers:", error);
@@ -102,16 +105,19 @@ export default function ModalAsignacionVendedor({
     });
 
     try {
-      await assignSeller(userInfo.id, selectedSellerId, leadIds);
+      await Promise.all([
+        assignSeller(userInfo.id, selectedSellerId, leadIds),
+        msnToSeller(sellerPhone || "", folioLead || assignedSellerInfo?.email || "sinFolio"),
+      ]);
       Toast.fire({
         icon: "success",
         title: "Vendedor asignado exitosamente.",
       });
       setIsOpen(false);
       setIsChangingSeller(false);
-      setTimeout(() => {
-        window.location.reload();
-      }, 500);
+      // setTimeout(() => {
+      //   window.location.reload();
+      // }, 500);
     } catch (error) {
       Toast.fire({
         icon: "error",
@@ -192,12 +198,16 @@ export default function ModalAsignacionVendedor({
                       resourceName={{ singular: "seller", plural: "sellers" }}
                       items={filteredSellers}
                       renderItem={(seller) => {
-                        const { id, name, paternal_surname, email } = seller;
+                        const { id, name, paternal_surname, email, cellphone } =
+                          seller;
                         const isSelected = selectedSellerId === id;
                         return (
                           <ResourceItem
                             id={id || ""}
-                            onClick={() => setSelectedSellerId(id || null)}
+                            onClick={() => {
+                              setSelectedSellerId(id || null);
+                              setSellerPhone(cellphone || null);
+                            }}
                           >
                             <div
                               className={`p-2 cursor-pointer ${
@@ -206,7 +216,11 @@ export default function ModalAsignacionVendedor({
                                   : "bg-white"
                               }`}
                             >
-                              <div className={isSelected ? "font-bold" : "font-normal"}>
+                              <div
+                                className={
+                                  isSelected ? "font-bold" : "font-normal"
+                                }
+                              >
                                 <p>
                                   {name} {paternal_surname}
                                 </p>

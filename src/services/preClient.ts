@@ -18,6 +18,7 @@ export interface PreClient {
   created_at?: string;
   updated_at?: string;
   files_legal?: [];
+  folio?:string
 }
 
 const API_URL = import.meta.env.VITE_API_URL;
