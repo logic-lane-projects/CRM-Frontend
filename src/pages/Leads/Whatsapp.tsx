@@ -249,6 +249,8 @@ export default function Whatsapp({ phone }: { phone: string }) {
     }
   }, []);
 
+  // console.log(messages)
+
   return (
     <div className="flex flex-col w-full rounded-lg gap-0">
       <div className="flex items-center justify-between px-3 py-2">
@@ -324,7 +326,7 @@ export default function Whatsapp({ phone }: { phone: string }) {
                                   Ver archivo
                                 </a>
                               );
-                            } else if (mediaUrl.endsWith(".mp3") || mediaUrl.endsWith(".mpeg")) {
+                            } else if (mediaUrl.endsWith(".mp3") || mediaUrl.endsWith(".mpeg") || mediaUrl.endsWith(".ogg")) {
                               return (
                                 <audio
                                   key={`file-${mediaIndex}`}
