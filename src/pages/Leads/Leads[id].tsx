@@ -28,6 +28,7 @@ import { useAuthToken } from "../../hooks/useAuthToken";
 export default function LeadInfo() {
   const { userInfo } = useAuthToken();
   const navigate = useNavigate();
+  const officeNumber = localStorage.getItem("telefonoOficinaActual") ?? "";
   const { id } = useParams<{ id: string }>();
   const [leadData, setLeadData] = useState<Lead | null>(null);
   const [historialCalls, setHistorialCalls] = useState<CallsHistorial | null>(null);
@@ -39,7 +40,7 @@ export default function LeadInfo() {
   const fetchHistorial = async (number: string|number) => {
     try{
       if(number){
-        const response = await getHistorialCallsByNumber(number);
+        const response = await getHistorialCallsByNumber(number,officeNumber);
         setHistorialCalls(response);
       }
     } catch(error){

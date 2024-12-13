@@ -50,9 +50,25 @@ export interface CallsHistorial {
   history_calls: HistorialCalls[]
 }
 
-export const getHistorialCallsByNumber = async (number: number|string): Promise<CallsHistorial> => {
+export const getHistorialCallsByNumber = async (number: number|string,officeNumber: number|string): Promise<CallsHistorial> => {
   try {
-    const response = await fetch(`${API_URL_TWILIO}get_calls_histories?number=${number}`, {
+    const response = await fetch(`${API_URL_TWILIO}get_calls_histories?number=${number}?of_number=${officeNumber}`, {
+      method: "GET",
+    });
+    if (!response.ok) {
+      throw new Error(`Error al obtener el historial de llamas del ${number}`);
+    }    
+    const data = await response.json();
+    return data;
+  } catch(error){
+    console.error(`Error al obtener el historial de llamadas de ${number}:`, error);
+    throw error;
+  }
+}
+
+export const downloadHistorialCallsByNumber = async (number: number|string,officeNumber: number|string) => {
+  try {
+    const response = await fetch(`${API_URL_TWILIO}get_all_calls_histories?number=${number}&of_number=${officeNumber}`, {
       method: "GET",
     });
     if (!response.ok) {

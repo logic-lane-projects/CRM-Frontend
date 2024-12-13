@@ -14,6 +14,7 @@ import {
 import { PDFFileIcon } from "../../components/icons";
 import { RefreshIcon } from "@shopify/polaris-icons";
 import AudioRecorderComponent from "../../components/RecordAudio/record-audio";
+import * as XLSX from "xlsx";
 
 import { io } from "socket.io-client";
 
@@ -124,9 +125,13 @@ export default function Whatsapp({ phone }: { phone: string }) {
           date_sent: String(new Date()),
           from: "5555555",
           to: PHONE_NUMBER,
-          media: mediaUrl ? mediaUrl?.length > 0 ? mediaUrl?.map((item) => item.replace(APP_TWILIO_URL, "")) : [] : [],
-        }
-      ])
+          media: mediaUrl
+            ? mediaUrl?.length > 0
+              ? mediaUrl?.map((item) => item.replace(APP_TWILIO_URL, ""))
+              : []
+            : [],
+        },
+      ]);
 
       setInput("");
       if (mediaUrl && mediaUrl?.length > 0) {
@@ -159,11 +164,12 @@ export default function Whatsapp({ phone }: { phone: string }) {
 
       const data = await response.json();
 
-      if(data.url){
-        handleSendMessage("audio:", [`https://fiftydoctorsback.com/crmtwilio${data.url}`]);
+      if (data.url) {
+        handleSendMessage("audio:", [
+          `https://fiftydoctorsback.com/crmtwilio${data.url}`,
+        ]);
         setAudioFile(null);
       }
-
     } catch (error) {
       console.error("Error al enviar el audio:", error);
     }
@@ -256,18 +262,31 @@ export default function Whatsapp({ phone }: { phone: string }) {
       <div className="flex items-center justify-between px-3 py-2">
         <h2 className="font-semibold text-[15px]">Whatsapp Chat</h2>
         <div className="flex items-center gap-2">
-          <Button icon={RefreshIcon} onClick={handleGetMessages} variant="tertiary">
+          <Button
+            icon={RefreshIcon}
+            onClick={handleGetMessages}
+            variant="tertiary"
+          >
             Recargar
           </Button>
           <Button
             onClick={() => {
-              const blob = new Blob([JSON.stringify(messages)], {
-                type: "application/json",
+              const worksheet = XLSX.utils.json_to_sheet(messages);
+              const workbook = XLSX.utils.book_new();
+              XLSX.utils.book_append_sheet(workbook, worksheet, "Chat History");
+
+              const excelBuffer = XLSX.write(workbook, {
+                bookType: "xlsx",
+                type: "array",
               });
+              const blob = new Blob([excelBuffer], {
+                type: "application/octet-stream",
+              });
+
               const url = URL.createObjectURL(blob);
               const a = document.createElement("a");
               a.href = url;
-              a.download = "message_history.json";
+              a.download = "message_history.xlsx";
               a.click();
             }}
             variant="primary"
@@ -326,14 +345,20 @@ export default function Whatsapp({ phone }: { phone: string }) {
                                   Ver archivo
                                 </a>
                               );
-                            } else if (mediaUrl.endsWith(".mp3") || mediaUrl.endsWith(".mpeg") || mediaUrl.endsWith(".ogg")) {
+                            } else if (
+                              mediaUrl.endsWith(".mp3") ||
+                              mediaUrl.endsWith(".mpeg") ||
+                              mediaUrl.endsWith(".ogg")
+                            ) {
                               return (
                                 <audio
                                   key={`file-${mediaIndex}`}
                                   className=""
                                   controls
                                 >
-                                  <source src={`${APP_TWILIO_URL}${mediaUrl}`} />
+                                  <source
+                                    src={`${APP_TWILIO_URL}${mediaUrl}`}
+                                  />
                                 </audio>
                               );
                             } else {
@@ -349,9 +374,7 @@ export default function Whatsapp({ phone }: { phone: string }) {
                           })}
                         </div>
                       )}
-                      {msg.body !== "audio:" && (
-                        <p>{msg.body}</p>
-                      )}
+                      {msg.body !== "audio:" && <p>{msg.body}</p>}
                     </div>
                     <span className="text-[11px] font-normal">
                       {FormatTime(time)} hrs.
@@ -427,7 +450,7 @@ export default function Whatsapp({ phone }: { phone: string }) {
               </div>
             )}
             <div className="flex items-center gap-2 w-full">
-              {(audioFile && audioFile !== null) ? (
+              {audioFile && audioFile !== null ? (
                 <div className="[&_button]:bg-[#E9E9E9] w-full flex justify-center items-center">
                   <Button
                     variant="tertiary"
@@ -437,11 +460,16 @@ export default function Whatsapp({ phone }: { phone: string }) {
                   >
                     {isPlaying ? "Pausar" : "Reproducir"}
                   </Button>
-                  <audio ref={audioPlayer} controls className="hidden" onEnded={() => setIsPlaying(false)}>
+                  <audio
+                    ref={audioPlayer}
+                    controls
+                    className="hidden"
+                    onEnded={() => setIsPlaying(false)}
+                  >
                     <source src={URL.createObjectURL(audioFile)} />
                   </audio>
                 </div>
-              ):(
+              ) : (
                 <input
                   type="text"
                   value={input}
@@ -450,11 +478,11 @@ export default function Whatsapp({ phone }: { phone: string }) {
                   className="flex-1 w-full p-2 bg-transparent"
                 />
               )}
-              <AudioRecorderComponent 
+              <AudioRecorderComponent
                 audioFile={audioFile}
                 setAudioFile={setAudioFile}
               />
-              {(audioFile && audioFile !== null) ? (
+              {audioFile && audioFile !== null ? (
                 <Tooltip content="Eliminar Audio">
                   <div className="transition-all duration-500 [&_button]:bg-[#ffa9a9] [&_button]:hover:bg-[#ff8989] flex justify-center items-center">
                     <Button
@@ -465,7 +493,7 @@ export default function Whatsapp({ phone }: { phone: string }) {
                     />
                   </div>
                 </Tooltip>
-              ):(
+              ) : (
                 <Tooltip content="Agregar archivo">
                   <div className="transition-all duration-500 [&_button]:bg-[#E9E9E9] [&_button]:hover:bg-[#c2c2c2] flex justify-center items-center">
                     <Button
@@ -478,9 +506,9 @@ export default function Whatsapp({ phone }: { phone: string }) {
               )}
               <button
                 onClick={() => {
-                  if(audioFile && audioFile !== null){
+                  if (audioFile && audioFile !== null) {
                     handleSendAudio();
-                  }else{
+                  } else {
                     handleSendMessage(input, fileSelected);
                   }
                 }}
