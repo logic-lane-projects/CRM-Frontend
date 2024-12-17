@@ -52,7 +52,7 @@ export interface CallsHistorial {
 
 export const getHistorialCallsByNumber = async (number: number|string,officeNumber: number|string): Promise<CallsHistorial> => {
   try {
-    const response = await fetch(`${API_URL_TWILIO}get_calls_histories?number=${number}?of_number=${officeNumber}`, {
+    const response = await fetch(`${API_URL_TWILIO}get_calls_histories?number=${number}&of_number=${officeNumber}`, {
       method: "GET",
     });
     if (!response.ok) {
