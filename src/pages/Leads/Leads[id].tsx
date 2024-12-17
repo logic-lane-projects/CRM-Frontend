@@ -45,7 +45,7 @@ export default function LeadInfo() {
       }
     } catch(error){
       const errorMessage = typeof error === "string" ? error : String(error);
-      setError(errorMessage);
+      // setError(errorMessage);
       Toast.fire({
         icon: "error",
         title: errorMessage,

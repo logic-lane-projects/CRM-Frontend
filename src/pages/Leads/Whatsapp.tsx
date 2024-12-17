@@ -17,6 +17,7 @@ import AudioRecorderComponent from "../../components/RecordAudio/record-audio";
 import * as XLSX from "xlsx";
 
 import { io } from "socket.io-client";
+import TemplatesWhats from "../../components/Templates/TemplatesWhats";
 
 const socket = io("https://fiftydoctorsback.com/");
 
@@ -41,6 +42,31 @@ export default function Whatsapp({ phone }: { phone: string }) {
   const PHONE_NUMBER = phone || "15951129872";
 
   const [messages, setMessages] = useState<Message[]>([]);
+  console.log(messages);
+  const clientMessages = messages.filter((message) =>
+    message.from.includes(PHONE_NUMBER)
+  );
+  const lastMessage =
+    clientMessages.length > 0
+      ? clientMessages.sort(
+          (a, b) =>
+            new Date(b.date_sent).getTime() - new Date(a.date_sent).getTime()
+        )[0]
+      : null;
+
+  let hasPassed23Hours = false;
+
+  if (lastMessage) {
+    const lastMessageDate = new Date(lastMessage.date_sent);
+    const currentDate = new Date();
+    const timeDiff = currentDate.getTime() - lastMessageDate.getTime();
+    const hoursDiff = timeDiff / (1000 * 3600); // Convertir la diferencia a horas
+
+    if (hoursDiff > 23) {
+      hasPassed23Hours = true;
+    }
+  }
+
   const [input, setInput] = useState("");
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -504,20 +530,24 @@ export default function Whatsapp({ phone }: { phone: string }) {
                   </div>
                 </Tooltip>
               )}
-              <button
-                onClick={() => {
-                  if (audioFile && audioFile !== null) {
-                    handleSendAudio();
-                  } else {
-                    handleSendMessage(input, fileSelected);
-                  }
-                }}
-                className="px-4 py-1 bg-green-500 text-white transition-all duration-200 rounded-md hover:bg-green-600"
-              >
-                Enviar
-              </button>
+              <Tooltip content="Han pasado mas de 24 hrs despues del ultimo mensaje, envia un template" active={hasPassed23Hours}>
+                <button
+                  disabled={hasPassed23Hours}
+                  onClick={() => {
+                    if (audioFile && audioFile !== null) {
+                      handleSendAudio();
+                    } else {
+                      handleSendMessage(input, fileSelected);
+                    }
+                  }}
+                  className="px-4 py-1 bg-green-500 text-white transition-all duration-200 rounded-md hover:bg-green-600"
+                >
+                  Enviar
+                </button>
+              </Tooltip>
             </div>
           </div>
+          <TemplatesWhats refetch={handleGetMessages} clientNumber={phone} />
         </div>
       </Box>
 
