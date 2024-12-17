@@ -144,6 +144,8 @@ export default function Sidebar({ isOpen }: SidebarProps) {
         "telefonoOficinaActual",
         selectedOfficeDetails.telefono
       );
+      const officeName = selectedOfficeDetails?.label.split(" (")[0];
+      localStorage.setItem("oficinaActualNombre", officeName);
     }
     window.location.reload();
   };
@@ -186,11 +188,9 @@ export default function Sidebar({ isOpen }: SidebarProps) {
               <div className="flex flex-col">
                 <span>Teléfono oficina:</span>
                 <span className="font-bold text-[15px]">
-                  {
-                    officeOptions.find(
-                      (office) => office.value === selectedOffice
-                    )?.telefono || "No disponible"
-                  }
+                  {officeOptions.find(
+                    (office) => office.value === selectedOffice
+                  )?.telefono || "No disponible"}
                 </span>
               </div>
             )}

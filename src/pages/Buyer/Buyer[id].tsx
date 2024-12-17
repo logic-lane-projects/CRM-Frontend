@@ -28,6 +28,7 @@ import { useAuthToken } from "../../hooks/useAuthToken";
 
 export default function BuyerInfo() {
   const { userInfo } = useAuthToken();
+  const officeNumber = localStorage.getItem("telefonoOficinaActual") ?? "";
   const navigate = useNavigate();
   const location = useLocation();
   const { id } = useParams<{ id: string }>();
@@ -43,7 +44,7 @@ export default function BuyerInfo() {
   const fetchHistorial = async (number: string|number) => {
     try{
       if(number){
-        const response = await getHistorialCallsByNumber(number);
+        const response = await getHistorialCallsByNumber(number,officeNumber);
         setHistorialCalls(response);
       }
     } catch(error){

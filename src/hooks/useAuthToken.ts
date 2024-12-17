@@ -8,6 +8,8 @@ interface UserInfo {
   permisos?: string[];
   oficinas_permitidas?: string[];
   numero_telefonico?: string;
+  name?: string;
+  paternal_surname?: string;
 }
 
 export const useAuthToken = () => {
@@ -22,12 +24,12 @@ export const useAuthToken = () => {
 
     if (token) {
       setEmailOnline(token);
-
       getUserInfo(token)
         .then((data) => {
           setUserInfo(data?.data || null);
           setPermisos(data?.data?.permisos || undefined);
           setLoading(false);
+          console.log("data", data);
         })
         .catch(() => {
           setError("Error fetching user information");

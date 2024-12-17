@@ -39,6 +39,7 @@ import type { CallsHistorial } from "../../services/historial";
 
 export default function ProspectInfo() {
   const navigate = useNavigate();
+  const officeNumber = localStorage.getItem("telefonoOficinaActual") ?? "";
   const { id } = useParams<{ id: string }>();
   const [leadData, setLeadData] = useState<PreClient | null>(null);
   const [selectedTab, setSelectedTab] = useState<string>("Actividad");
@@ -52,7 +53,7 @@ export default function ProspectInfo() {
   const fetchHistorial = async (number: string|number) => {
     try{
       if(number){
-        const response = await getHistorialCallsByNumber(number);
+        const response = await getHistorialCallsByNumber(number,officeNumber);
         setHistorialCalls(response);
       }
     } catch(error){
