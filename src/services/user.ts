@@ -244,8 +244,6 @@ export const assignSeller = async (
 };
 
 export const msnToSeller = async (number: string, leadFolio: string) => {
-  console.log(leadFolio)
-  console.log("enviando mensaje");
   try {
     const response = await fetch(
       `${API_URL_TWILIO}/notication_assignament?To=${number}&lead_folio=${leadFolio}`,
@@ -257,7 +255,6 @@ export const msnToSeller = async (number: string, leadFolio: string) => {
       }
     );
 
-    console.log(response);
     return response.json();
   } catch (error) {
     return error;

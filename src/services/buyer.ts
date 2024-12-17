@@ -88,7 +88,6 @@ export const changeProspectToClient = async (
     if (!response.ok) {
       throw new Error("Error al pasar el lead a prospecto");
     }
-    console.log("El lead se hizo cliente existosamente");
   } catch (error) {
     console.error("Error al pasar el lead a prospecto", error);
     throw error;

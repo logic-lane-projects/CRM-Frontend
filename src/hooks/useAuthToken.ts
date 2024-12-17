@@ -29,7 +29,6 @@ export const useAuthToken = () => {
           setUserInfo(data?.data || null);
           setPermisos(data?.data?.permisos || undefined);
           setLoading(false);
-          console.log("data", data);
         })
         .catch(() => {
           setError("Error fetching user information");

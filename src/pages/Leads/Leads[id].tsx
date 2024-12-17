@@ -64,7 +64,6 @@ export default function LeadInfo() {
       try {
         if (id) {
           const response = await getLeadById(id);
-          console.log(response)
           setLeadData(response);
           const respuesta = await getHistorialById(id);
           console.log(respuesta)

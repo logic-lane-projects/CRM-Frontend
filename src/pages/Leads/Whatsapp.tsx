@@ -42,7 +42,6 @@ export default function Whatsapp({ phone }: { phone: string }) {
   const PHONE_NUMBER = phone || "15951129872";
 
   const [messages, setMessages] = useState<Message[]>([]);
-  console.log(messages);
   const clientMessages = messages.filter((message) =>
     message.from.includes(PHONE_NUMBER)
   );
@@ -250,7 +249,6 @@ export default function Whatsapp({ phone }: { phone: string }) {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function listenPhone(data: any) {
-    // console.log('Número recibido:', data);
     if (data.messages && data.messages.length > 0) {
       setMessages(data.messages as Message[]);
     }
@@ -281,7 +279,6 @@ export default function Whatsapp({ phone }: { phone: string }) {
     }
   }, []);
 
-  // console.log(messages)
 
   return (
     <div className="flex flex-col w-full rounded-lg gap-0">

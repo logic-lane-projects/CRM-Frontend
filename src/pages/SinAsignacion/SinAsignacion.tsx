@@ -55,7 +55,6 @@ export default function SinAsignacion() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState("10");
   const [leads, setLeads] = useState<LeadResponse[]>([]);
-  console.log(leads);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -69,7 +68,6 @@ export default function SinAsignacion() {
     setLoading(true);
     try {
       const response = await getAllClientsNoOffice();
-      console.log(response)
       const leadsData = response || [];
       setLeads(leadsData);
     } catch (error) {

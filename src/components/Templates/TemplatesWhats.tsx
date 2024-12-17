@@ -11,7 +11,6 @@ export default function TemplatesWhats({
   refetch: () => void;
 }) {
   const { userInfo } = useAuthToken();
-  console.log(userInfo?.paternal_surname);
   const [loading, setLoading] = useState<string | null>(null);
   const nombre = userInfo?.name ?? "";
   const paterno = userInfo?.paternal_surname ?? "";

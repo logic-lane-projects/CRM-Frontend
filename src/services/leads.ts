@@ -217,7 +217,6 @@ export const deleteLead = async (id: string, userId: string): Promise<void> => {
     if (!response.ok) {
       throw new Error(`Error al eliminar el lead con ID ${id}`);
     }
-    console.log(`Lead con ID ${id} eliminado`);
   } catch (error) {
     console.error(`Error al eliminar el lead con ID ${id}:`, error);
     throw error;
