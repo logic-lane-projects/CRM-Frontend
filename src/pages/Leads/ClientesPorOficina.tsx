@@ -300,6 +300,7 @@ export default function ClientesPorOficina() {
       >
         <IndexTable.Cell>{names ?? "Desconocido"}</IndexTable.Cell>
         <IndexTable.Cell>{email ?? "No disponible"}</IndexTable.Cell>
+        <IndexTable.Cell>{folio ?? "No disponible"}</IndexTable.Cell>
         <IndexTable.Cell>{phone_number ?? "No disponible"}</IndexTable.Cell>
         <IndexTable.Cell>{city ?? "No disponible"}</IndexTable.Cell>
         <IndexTable.Cell>
@@ -451,6 +452,7 @@ export default function ClientesPorOficina() {
                   headings={[
                     { title: "Nombre" },
                     { title: "Correo Electrónico" },
+                    { title: "Folio" },
                     { title: "Teléfono" },
                     { title: "Ciudad" },
                     { title: "Estado" },
