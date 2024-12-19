@@ -24,7 +24,7 @@ const ModalArchivosCarpetas: React.FC<ModalArchivosCarpetasProps> = ({
   fileSelected,
   setFileSelected,
 }) => {
-  const API_URL = "https://fiftydoctorsback.com/crmdev";
+  const API_URL = "https://fiftydoctorsback.com/crm";
   const [folderInfo, setFolderInfo] = useState<FolderInfo | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   // const [uploading, setUploading] = useState<boolean>(false);

@@ -59,9 +59,9 @@ export default function Whatsapp({ phone }: { phone: string }) {
     const lastMessageDate = new Date(lastMessage.date_sent);
     const currentDate = new Date();
     const timeDiff = currentDate.getTime() - lastMessageDate.getTime();
-    const hoursDiff = timeDiff / (1000 * 3600); // Convertir la diferencia a horas
+    const hoursDiff = timeDiff / (1000 * 3600);
 
-    if (hoursDiff > 23) {
+    if (hoursDiff >= 24) {
       hasPassed23Hours = true;
     }
   }
