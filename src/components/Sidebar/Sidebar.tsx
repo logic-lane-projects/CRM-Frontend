@@ -1,5 +1,5 @@
 import { Frame, Navigation, Select, Spinner } from "@shopify/polaris";
-import { HomeIcon, PersonIcon, WorkIcon } from "@shopify/polaris-icons";
+import { HomeIcon, PersonIcon, WorkIcon, ProfileIcon } from "@shopify/polaris-icons";
 import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useAuthToken } from "../../hooks/useAuthToken";
@@ -38,6 +38,12 @@ export default function Sidebar({ isOpen }: SidebarProps) {
       label: "Clientes por oficina",
       icon: HomeIcon,
       selected: currentPath === "/clientes-por-oficina",
+    },
+    {
+      url: "/clientes-no-registrados",
+      label: "Clientes no registrados",
+      icon: ProfileIcon,
+      selected: currentPath === "/clientes-no-registrados",
     },
     {
       url: "/usuarios",

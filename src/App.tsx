@@ -21,6 +21,7 @@ import Usuarios from "./pages/Usuarios/Usuarios";
 import InfoUsuarios from "./pages/Usuarios/Usuarios[id]";
 import Archivos from "./pages/Archivos/Archivos";
 import ClientesPorOficina from "./pages/Leads/ClientesPorOficina";
+import SinRegistrar from "./pages/SinRegistrar/SinRegistrar";
 
 const App: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
@@ -103,6 +104,14 @@ const App: React.FC = () => {
           element={
             <AppLayout>
               <ClientesPorOficina />
+            </AppLayout>
+          }
+        />
+        <Route
+          path="/clientes-no-registrados"
+          element={
+            <AppLayout>
+              <SinRegistrar />
             </AppLayout>
           }
         />
