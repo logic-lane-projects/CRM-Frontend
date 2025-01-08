@@ -10,7 +10,7 @@ import {
   Icon,
 } from "@shopify/polaris";
 import {
-  NotificationIcon,
+  // NotificationIcon,
   // EmailIcon,
   PhoneIcon,
   // ListBulletedFilledIcon,
@@ -23,7 +23,6 @@ import {
   changeProspectToClient,
   PreClient,
 } from "./../../services/preClient";
-import Actividad from "../Leads/Actividad";
 import Correos from "../Leads/Correos";
 import Llamadas from "../Leads/Llamadas";
 import Tareas from "../Leads/Tareas";
@@ -42,13 +41,13 @@ export default function ProspectInfo() {
   const officeNumber = localStorage.getItem("telefonoOficinaActual") ?? "";
   const { id } = useParams<{ id: string }>();
   const [leadData, setLeadData] = useState<PreClient | null>(null);
-  const [selectedTab, setSelectedTab] = useState<string>("Actividad");
+  const [selectedTab, setSelectedTab] = useState<string>("Llamadas");
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isLoadingChange, setIsLoadingChange] = useState(false);
   const [isPayment, setIsPayment] = useState(false);
   const [finishLoading, setFinishLoading] = useState(false);
-  const [historialCalls, setHistorialCalls] = useState<CallsHistorial | null>(null);
+  const [, setHistorialCalls] = useState<CallsHistorial | null>(null);
 
   const fetchHistorial = async (number: string|number) => {
     try{
@@ -175,7 +174,7 @@ export default function ProspectInfo() {
           <Card padding={'0'}>
             <div className="flex flex-col gap-3 w-full">
               <div className="flex gap-4 items-center pt-3 px-3">
-                <div
+                {/* <div
                   className={`cursor-pointer overflow-hidden ${
                     selectedTab === "Actividad"
                       ? "border-b-2 border-b-black"
@@ -187,7 +186,7 @@ export default function ProspectInfo() {
                     <Icon source={NotificationIcon} />
                     <span>Actividad</span>
                   </div>
-                </div>
+                </div> */}
                 {/* <div
                   className={`cursor-pointer overflow-hidden ${
                     selectedTab === "Correos"
@@ -285,7 +284,7 @@ export default function ProspectInfo() {
                 </div>
               </div>
               <div className="w-full">
-                {selectedTab === "Actividad" && <Actividad historial={historialCalls}/>}
+                {/* {selectedTab === "Actividad" && <Actividad historial={historialCalls}/>} */}
                 {selectedTab === "Correos" && <Correos />}
                 {selectedTab === "Llamadas" && <Llamadas phone={leadData.phone_number} idLead={leadData?._id}/>}
                 {selectedTab === "Tareas" && <Tareas />}

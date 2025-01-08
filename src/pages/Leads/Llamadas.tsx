@@ -167,7 +167,7 @@ function Llamadas({
             </Button>
           </div>
         </div>
-        {historial && historial != null && (
+        {historial && historial?.history_calls?.length > 0 && (
           <ResourceList
             resourceName={{ singular: "customer", plural: "customers" }}
             items={historial.history_calls}

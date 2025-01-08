@@ -145,6 +145,7 @@ export default function Leads() {
     status: lead.status,
     assigned_to: lead.assigned_to,
     folio: lead.folio || "Sin folio",
+    nombre_campania_externa: lead.nombre_campania_externa || "Sin campaña",
   }));
 
   // Filtro de búsqueda
@@ -272,6 +273,7 @@ export default function Leads() {
         status,
         assigned_to,
         folio,
+        nombre_campania_externa
       },
       index
     ) => (
@@ -285,6 +287,7 @@ export default function Leads() {
         <IndexTable.Cell>{names ?? "Desconocido"}</IndexTable.Cell>
         <IndexTable.Cell>{email ?? "No disponible"}</IndexTable.Cell>
         <IndexTable.Cell>{folio ?? "No disponible"}</IndexTable.Cell>
+        <IndexTable.Cell>{nombre_campania_externa ?? "No disponible"}</IndexTable.Cell>
         <IndexTable.Cell>{phone_number ?? "No disponible"}</IndexTable.Cell>
         <IndexTable.Cell>{city ?? "No disponible"}</IndexTable.Cell>
         <IndexTable.Cell>
@@ -434,6 +437,7 @@ export default function Leads() {
                     { title: "Nombre" },
                     { title: "Correo Electrónico" },
                     { title: "Folio" },
+                    { title: "Campaña" },
                     { title: "Teléfono" },
                     { title: "Ciudad" },
                     { title: "Estado" },

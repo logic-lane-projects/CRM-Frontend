@@ -2,7 +2,7 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Button, Card, Icon, Spinner } from "@shopify/polaris";
 import {
-  NotificationIcon,
+  // NotificationIcon,
   // EmailIcon,
   PhoneIcon,
   // ListBulletedFilledIcon,
@@ -12,7 +12,7 @@ import {
 } from "@shopify/polaris-icons";
 import { getBuyerById, changeProspectToClient } from "../../services/buyer";
 import { getHistorialCallsByNumber } from "../../services/historial";
-import Actividad from "../Leads/Actividad";
+// import Actividad from "../Leads/Actividad";
 import Correos from "../Leads/Correos";
 import Llamadas from "../Leads/Llamadas";
 import Tareas from "../Leads/Tareas";
@@ -33,7 +33,7 @@ export default function BuyerInfo() {
   const location = useLocation();
   const { id } = useParams<{ id: string }>();
   const [leadData, setLeadData] = useState<Buyer | null>(null);
-  const [selectedTab, setSelectedTab] = useState<string>("Actividad");
+  const [selectedTab, setSelectedTab] = useState<string>("Llamadas");
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isLoadingChange, setIsLoadingChange] = useState(false);
@@ -171,7 +171,7 @@ export default function BuyerInfo() {
       <div className="grid grid-cols-3">
         <div className="flex flex-col gap-3 col-span-2">
           <div className="flex gap-4 bg-white border-gray-300 border-[1px] p-2">
-            <div
+            {/* <div
               className={`cursor-pointer overflow-hidden ${
                 selectedTab === "Actividad"
                   ? "border-b-2 border-b-black"
@@ -183,7 +183,7 @@ export default function BuyerInfo() {
                 <Icon source={NotificationIcon} />
                 <span>Actividad</span>
               </div>
-            </div>
+            </div> */}
             {/* <div
               className={`cursor-pointer overflow-hidden ${
                 selectedTab === "Correos"
@@ -281,7 +281,7 @@ export default function BuyerInfo() {
             </div>
           </div>
           <div className="border-[1px] border-gray-300 p-2">
-            {selectedTab === "Actividad" && <Actividad historial={historialCalls}/>}
+            {/* {selectedTab === "Actividad" && <Actividad historial={historialCalls}/>} */}
             {selectedTab === "Correos" && <Correos />}
             {selectedTab === "Llamadas" && <Llamadas phone={leadData.phone_number} historial={historialCalls} idLead={leadData?._id}/>}
             {selectedTab === "Tareas" && <Tareas />}
