@@ -42,9 +42,10 @@ export default function Whatsapp({ phone }: { phone: string }) {
   const PHONE_NUMBER = phone || "15951129872";
 
   const [messages, setMessages] = useState<Message[]>([]);
-  const clientMessages = messages.filter((message) =>
-    message.from.includes(PHONE_NUMBER)
-  );
+  const clientMessages = Array.isArray(messages)
+  ? messages.filter((message) => message.from.includes(PHONE_NUMBER))
+  : [];
+
   const lastMessage =
     clientMessages.length > 0
       ? clientMessages.sort(
@@ -330,7 +331,7 @@ export default function Whatsapp({ phone }: { phone: string }) {
             className="flex flex-col gap-1 overflow-y-scroll h-[50vh] px-2 py-2 relative"
             ref={messagesEndRef}
           >
-            {messages && messages.length > 0 ? (
+            {Array.isArray(messages) && messages.length > 0 ? (
               messages.map((msg, index) => {
                 const { time } = SplitDateTime(msg.date_sent);
                 return (

@@ -25,6 +25,7 @@ export interface All {
   profesion?: string;	
   especialidad?:string;
   folio?:string
+  nombre_campania_externa?: string;
 }
 
 const API_URL = import.meta.env.VITE_API_URL;

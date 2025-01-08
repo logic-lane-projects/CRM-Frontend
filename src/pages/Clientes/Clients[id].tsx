@@ -2,7 +2,7 @@ import { useParams, useSearchParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Card, Icon } from "@shopify/polaris";
 import {
-  NotificationIcon,
+  // NotificationIcon,
   // EmailIcon,
   PhoneIcon,
   // ListBulletedFilledIcon,
@@ -11,7 +11,7 @@ import {
   ClockIcon,
 } from "@shopify/polaris-icons";
 import { Client, getClientById } from "../../services/clientes";
-import Actividad from "../Leads/Actividad";
+// import Actividad from "../Leads/Actividad";
 import Correos from "../Leads/Correos";
 import Llamadas from "../Leads/Llamadas";
 import Tareas from "../Leads/Tareas";
@@ -21,6 +21,8 @@ import Whatsapp from "../Leads/Whatsapp";
 import { Toast } from "../../components/Toast/toast";
 import Archivos from "../Leads/Archivos";
 import Historial from "../Leads/Historial";
+import { CallsHistorial } from "../../services/historial";
+import { getHistorialCallsByNumber } from "./../../services/historial";
 
 export default function LeadInfo() {
   const { id } = useParams<{ id: string }>();
@@ -28,8 +30,34 @@ export default function LeadInfo() {
   const [clientData, setClientData] = useState<Client | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [historialCalls, setHistorialCalls] = useState<CallsHistorial | null>(
+    null
+  );
+  const officeNumber = localStorage.getItem("telefonoOficinaActual") ?? "";
 
-  const selectedTabFromUrl = searchParams.get("selected") || "Actividad";
+  const fetchHistorial = async (number: string | number) => {
+    try {
+      if (number) {
+        const response = await getHistorialCallsByNumber(number, officeNumber);
+        setHistorialCalls(response);
+      }
+    } catch (error) {
+      const errorMessage = typeof error === "string" ? error : String(error);
+      setError(errorMessage);
+      Toast.fire({
+        icon: "error",
+        title: errorMessage,
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (clientData && clientData.phone_number) {
+      fetchHistorial(clientData.phone_number);
+    }
+  }, [clientData]);
+
+  const selectedTabFromUrl = searchParams.get("selected") || "Llamadas";
 
   const handleTabClick = (selected: string) => {
     setSearchParams({ selected });
@@ -80,7 +108,9 @@ export default function LeadInfo() {
         <div>
           <span className="font-semibold text-lg">Cliente/</span>
           <span className="ml-1 text-[15px]">
-            {`${clientData?.names} ${clientData?.maternal_surname} ${clientData?.paternal_surname} #${clientData?.folio || "Sin folio"}`}
+            {`${clientData?.names} ${clientData?.maternal_surname} ${
+              clientData?.paternal_surname
+            } #${clientData?.folio || "Sin folio"}`}
           </span>
         </div>
       </div>
@@ -88,7 +118,7 @@ export default function LeadInfo() {
       <div className="grid grid-cols-3">
         <div className="flex flex-col gap-3 col-span-2">
           <div className="flex gap-4 bg-white border-gray-300 border-[1px] p-2">
-            <div
+            {/* <div
               className={`cursor-pointer overflow-hidden ${
                 selectedTabFromUrl === "Actividad"
                   ? "border-b-2 border-b-black"
@@ -100,7 +130,7 @@ export default function LeadInfo() {
                 <Icon source={NotificationIcon} />
                 <span>Actividad</span>
               </div>
-            </div>
+            </div> */}
             {/* <div
               className={`cursor-pointer overflow-hidden ${
                 selectedTabFromUrl === "Correos"
@@ -198,9 +228,15 @@ export default function LeadInfo() {
             </div>
           </div>
           <div className="border-[1px] border-gray-300 p-2">
-            {selectedTabFromUrl === "Actividad" && <Actividad />}
+            {/* {selectedTabFromUrl === "Actividad" && <Actividad />} */}
             {selectedTabFromUrl === "Correos" && <Correos />}
-            {selectedTabFromUrl === "Llamadas" && <Llamadas phone={clientData.phone_number} idLead={clientData?._id}/>}
+            {selectedTabFromUrl === "Llamadas" && (
+              <Llamadas
+                phone={clientData.phone_number}
+                idLead={clientData?._id}
+                historial={historialCalls}
+              />
+            )}
             {selectedTabFromUrl === "Tareas" && <Tareas />}
             {selectedTabFromUrl === "Notas" && (
               <Notas idCliente={clientData._id ?? ""} />

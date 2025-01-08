@@ -2,7 +2,6 @@ import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Button, Card, Spinner, Page, Badge } from "@shopify/polaris";
 import {
-  NotificationIcon,
   // EmailIcon,
   PhoneIcon,
   // ListBulletedFilledIcon,
@@ -32,7 +31,7 @@ export default function LeadInfo() {
   const { id } = useParams<{ id: string }>();
   const [leadData, setLeadData] = useState<Lead | null>(null);
   const [historialCalls, setHistorialCalls] = useState<CallsHistorial | null>(null);
-  const [selectedTab, setSelectedTab] = useState<string>("Actividad");
+  const [selectedTab, setSelectedTab] = useState<string>("Llamadas");
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isLoadingChange, setIsLoadingChange] = useState(false);
@@ -153,14 +152,14 @@ export default function LeadInfo() {
           <Card padding={'0'}>
             <div className="flex flex-col gap-3 w-full">
               <div className="flex gap-4 items-center pt-3 px-3">
-                <Button 
+                {/* <Button 
                   variant="tertiary"
                   icon={NotificationIcon}
                   onClick={() => handleTabClick("Actividad")}
                   pressed={selectedTab === "Actividad"}
                 >
                   Actividad
-                </Button>
+                </Button> */}
                 {/* <div
                   className={`cursor-pointer overflow-hidden ${
                     selectedTab === "Correos"

@@ -94,7 +94,7 @@ export default function Actividad({ historial }: { historial?: CallsHistorial|nu
           <div className="font-semibold text-[15px]">Actividad Reciente</div>
           <Button variant="primary">Crear</Button>
         </div>
-        { (historial && historial != null) && (
+        { historial && historial?.history_calls?.length > 0 && (
           <ResourceList
             resourceName={{singular: 'customer', plural: 'customers'}}
             items={historial.history_calls}
