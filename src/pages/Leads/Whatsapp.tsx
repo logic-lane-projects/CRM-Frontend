@@ -15,6 +15,7 @@ import { PDFFileIcon } from "../../components/icons";
 import { RefreshIcon } from "@shopify/polaris-icons";
 import AudioRecorderComponent from "../../components/RecordAudio/record-audio";
 import * as XLSX from "xlsx";
+import { Lead } from "../../services/leads";
 
 import { io } from "socket.io-client";
 import TemplatesWhats from "../../components/Templates/TemplatesWhats";
@@ -29,7 +30,7 @@ interface FolderData {
   updated_at: string;
 }
 
-export default function Whatsapp({ phone }: { phone: string }) {
+export default function Whatsapp({ phone, leadData }: { phone: string,leadData: Lead }) {
   type Message = {
     body: string;
     date_sent: string;
@@ -545,7 +546,7 @@ export default function Whatsapp({ phone }: { phone: string }) {
               </Tooltip>
             </div>
           </div>
-          <TemplatesWhats refetch={handleGetMessages} clientNumber={phone} />
+          <TemplatesWhats refetch={handleGetMessages} clientNumber={phone} clientInfo={leadData}/>
         </div>
       </Box>
 

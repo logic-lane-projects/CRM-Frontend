@@ -3,22 +3,30 @@ interface SendTemplateParams {
     of_name: string;
     name_vendedor: string;
     template_number: number;
+    client_name: string;
+    full_name: string;
+    city:string
   }
   
   const APP_URL = import.meta.env.VITE_API_TWILIO_URL as string;
   
   export const sendTemplate = async ({
+    client_name,
+    full_name,
     to,
     of_name,
-    name_vendedor,
     template_number,
+    city
   }: SendTemplateParams): Promise<void> => {
-    const url = `${APP_URL}send_template?To=${encodeURIComponent(to)}&of_name=${encodeURIComponent(
-      of_name
-    )}&name_vendedor=${encodeURIComponent(name_vendedor)}&template_number=${encodeURIComponent(
-      template_number
-    )}`;
-  
+    const url = `${APP_URL}send_template?To=${encodeURIComponent(to)}`;
+    const body={
+      client_name: client_name,
+      full_name: full_name,
+      of_name: of_name,
+      city:city,
+      template_number:template_number
+    }
+    console.log("info enviada",body)
     const response = await fetch(url, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
