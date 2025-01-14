@@ -242,7 +242,7 @@ export default function LeadInfo() {
               <Notas idCliente={clientData._id ?? ""} />
             )}{" "}
             {selectedTabFromUrl === "Whatsapp" && (
-              <Whatsapp phone={clientData.phone_number} />
+              <Whatsapp phone={clientData.phone_number} leadData={clientData}/>
             )}
             {selectedTabFromUrl === "Archivos" && (
               <Archivos id={id} regimen={clientData.type_person} />

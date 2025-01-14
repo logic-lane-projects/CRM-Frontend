@@ -13,7 +13,6 @@ export default function TemplatesWhats({
   refetch: () => void;
   clientInfo: Lead
 }) {
-  console.log(clientInfo)
   const { userInfo } = useAuthToken();
   const [loading, setLoading] = useState<string | null>(null);
   const nombre = userInfo?.name ?? "";
@@ -25,10 +24,9 @@ export default function TemplatesWhats({
       await sendTemplate({
         to: clientNumber,
         of_name: nombreOficina ?? "",
-        name_vendedor: `${nombre} ${paterno}`,
         template_number,
-        client_name : clientInfo?.names,
-        full_name: clientInfo?.maternal_surname + " " + clientInfo?.paternal_surname,
+        client_name : clientInfo?.names + " " + clientInfo?.maternal_surname + " " + clientInfo?.paternal_surname,
+        seller_name: `${nombre} ${paterno}`,
         city: "Puebla",
       });
       Toast.fire({ icon: "success", title: "Template enviado exitosamente" });

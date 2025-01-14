@@ -1,10 +1,9 @@
 interface SendTemplateParams {
     to: string;
     of_name: string;
-    name_vendedor: string;
     template_number: number;
     client_name: string;
-    full_name: string;
+    seller_name: string;
     city:string
   }
   
@@ -12,29 +11,28 @@ interface SendTemplateParams {
   
   export const sendTemplate = async ({
     client_name,
-    full_name,
-    to,
+    seller_name,
     of_name,
+    city,
     template_number,
-    city
+    to,
   }: SendTemplateParams): Promise<void> => {
-    const url = `${APP_URL}send_template?To=${encodeURIComponent(to)}`;
-    const body={
+    const url = `${APP_URL}/send_template?To=${to}`;
+    const body = {
       client_name: client_name,
-      full_name: full_name,
+      seller_name: seller_name,
       of_name: of_name,
-      city:city,
-      template_number:template_number
-    }
-    console.log("info enviada",body)
+      city: city,
+      template_number: template_number.toString()
+    };
     const response = await fetch(url, {
-      method: "GET",
+      method: "POST",
       headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
     });
-  
+
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.message || "Error al enviar el correo");
     }
   };
-  
