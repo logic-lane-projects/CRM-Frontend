@@ -18,8 +18,8 @@ import * as XLSX from "xlsx";
 
 import { io } from "socket.io-client";
 import TemplatesWhats from "../../components/Templates/TemplatesWhats";
-
-const socket = io("https://fiftydoctorsback.com/");
+const APP_TWILIO_URL = import.meta.env.VITE_API_TWILIO_URL;
+const socket = io(`${APP_TWILIO_URL}/`);
 
 interface FolderData {
   _id: string;
@@ -29,7 +29,7 @@ interface FolderData {
   updated_at: string;
 }
 
-export default function Whatsapp({ phone }: { phone: string }) {
+export default function Whatsapp({ phone ,leadData}: { phone: string,leadData:any }) {
   type Message = {
     body: string;
     date_sent: string;
@@ -38,14 +38,12 @@ export default function Whatsapp({ phone }: { phone: string }) {
     to: string;
   };
 
-  const APP_TWILIO_URL = import.meta.env.VITE_API_TWILIO_URL;
   const PHONE_NUMBER = phone || "15951129872";
 
   const [messages, setMessages] = useState<Message[]>([]);
-  const clientMessages = Array.isArray(messages)
-  ? messages.filter((message) => message.from.includes(PHONE_NUMBER))
-  : [];
-
+  const clientMessages = messages.filter((message) =>
+    message.from.includes(PHONE_NUMBER)
+  );
   const lastMessage =
     clientMessages.length > 0
       ? clientMessages.sort(
@@ -103,6 +101,7 @@ export default function Whatsapp({ phone }: { phone: string }) {
         `${APP_TWILIO_URL}get_all_messages?number=${PHONE_NUMBER}`
       );
       if (!response.ok) {
+        setMessages([]);
         throw new Error("Error al obtener mensajes.");
       }
       const data = await response.json();
@@ -331,7 +330,7 @@ export default function Whatsapp({ phone }: { phone: string }) {
             className="flex flex-col gap-1 overflow-y-scroll h-[50vh] px-2 py-2 relative"
             ref={messagesEndRef}
           >
-            {Array.isArray(messages) && messages.length > 0 ? (
+            {messages && messages.length > 0 ? (
               messages.map((msg, index) => {
                 const { time } = SplitDateTime(msg.date_sent);
                 return (
@@ -545,7 +544,7 @@ export default function Whatsapp({ phone }: { phone: string }) {
               </Tooltip>
             </div>
           </div>
-          <TemplatesWhats refetch={handleGetMessages} clientNumber={phone} />
+          <TemplatesWhats refetch={handleGetMessages} clientNumber={phone} clientInfo={leadData} />
         </div>
       </Box>
 

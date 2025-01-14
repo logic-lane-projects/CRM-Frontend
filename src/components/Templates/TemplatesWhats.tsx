@@ -2,13 +2,16 @@ import { useState } from "react";
 import { Toast } from "../Toast/toast";
 import { sendTemplate } from "../../services/template";
 import { useAuthToken } from "../../hooks/useAuthToken";
+import { Lead } from "../../services/leads";
 
 export default function TemplatesWhats({
   clientNumber,
   refetch,
+  clientInfo
 }: {
   clientNumber: string;
   refetch: () => void;
+  clientInfo: Lead
 }) {
   const { userInfo } = useAuthToken();
   const [loading, setLoading] = useState<string | null>(null);
@@ -21,8 +24,10 @@ export default function TemplatesWhats({
       await sendTemplate({
         to: clientNumber,
         of_name: nombreOficina ?? "",
-        name_vendedor: `${nombre} ${paterno}`,
         template_number,
+        client_name : clientInfo?.names + " " + clientInfo?.maternal_surname + " " + clientInfo?.paternal_surname,
+        seller_name: `${nombre} ${paterno}`,
+        city: "Puebla",
       });
       Toast.fire({ icon: "success", title: "Template enviado exitosamente" });
       setTimeout(() => {

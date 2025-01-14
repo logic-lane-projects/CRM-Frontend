@@ -41,13 +41,13 @@ export default function BuyerInfo() {
   const [isPayment, setIsPayment] = useState(false);
   const [historialCalls, setHistorialCalls] = useState<CallsHistorial | null>(null);
 
-  const fetchHistorial = async (number: string|number) => {
-    try{
-      if(number){
-        const response = await getHistorialCallsByNumber(number,officeNumber);
+  const fetchHistorial = async (number: string | number) => {
+    try {
+      if (number) {
+        const response = await getHistorialCallsByNumber(number, officeNumber);
         setHistorialCalls(response);
       }
-    } catch(error){
+    } catch (error) {
       const errorMessage = typeof error === "string" ? error : String(error);
       setError(errorMessage);
       Toast.fire({
@@ -58,7 +58,7 @@ export default function BuyerInfo() {
   }
 
   useEffect(() => {
-    if(leadData && leadData.phone_number){
+    if (leadData && leadData.phone_number) {
       fetchHistorial(leadData.phone_number);
     }
   }, [leadData]);
@@ -198,11 +198,10 @@ export default function BuyerInfo() {
               </div>
             </div> */}
             <div
-              className={`cursor-pointer overflow-hidden ${
-                selectedTab === "Llamadas"
+              className={`cursor-pointer overflow-hidden ${selectedTab === "Llamadas"
                   ? "border-b-2 border-b-black"
                   : "hover-border-b-2 hover-border-b-black"
-              }`}
+                }`}
               onClick={() => handleTabClick("Llamadas")}
             >
               <div className="flex gap-1">
@@ -211,11 +210,10 @@ export default function BuyerInfo() {
               </div>
             </div>
             <div
-              className={`cursor-pointer overflow-hidden ${
-                selectedTab === "Whatsapp"
+              className={`cursor-pointer overflow-hidden ${selectedTab === "Whatsapp"
                   ? "border-b-2 border-b-black"
                   : "hover:border-b-2 hover-border-b-black"
-              }`}
+                }`}
               onClick={() => handleTabClick("Whatsapp")}
             >
               <div className="flex gap-1 items-center">
@@ -241,11 +239,10 @@ export default function BuyerInfo() {
               </div>
             </div> */}
             <div
-              className={`cursor-pointer overflow-hidden ${
-                selectedTab === "Notas"
+              className={`cursor-pointer overflow-hidden ${selectedTab === "Notas"
                   ? "border-b-2 border-b-black"
                   : "hover-border-b-2 hover-border-b-black"
-              }`}
+                }`}
               onClick={() => handleTabClick("Notas")}
             >
               <div className="flex gap-1">
@@ -254,11 +251,10 @@ export default function BuyerInfo() {
               </div>
             </div>
             <div
-              className={`cursor-pointer overflow-hidden ${
-                selectedTab === "Archivos"
+              className={`cursor-pointer overflow-hidden ${selectedTab === "Archivos"
                   ? "border-b-2 border-b-black"
                   : "hover-border-b-2 hover-border-b-black"
-              }`}
+                }`}
               onClick={() => handleTabClick("Archivos")}
             >
               <div className="flex gap-1">
@@ -267,11 +263,10 @@ export default function BuyerInfo() {
               </div>
             </div>
             <div
-              className={`cursor-pointer overflow-hidden ${
-                selectedTab === "Historial"
+              className={`cursor-pointer overflow-hidden ${selectedTab === "Historial"
                   ? "border-b-2 border-b-black"
                   : "hover-border-b-2 hover-border-b-black"
-              }`}
+                }`}
               onClick={() => handleTabClick("Historial")}
             >
               <div className="flex gap-1">
@@ -283,13 +278,13 @@ export default function BuyerInfo() {
           <div className="border-[1px] border-gray-300 p-2">
             {/* {selectedTab === "Actividad" && <Actividad historial={historialCalls}/>} */}
             {selectedTab === "Correos" && <Correos />}
-            {selectedTab === "Llamadas" && <Llamadas phone={leadData.phone_number} historial={historialCalls} idLead={leadData?._id}/>}
+            {selectedTab === "Llamadas" && <Llamadas phone={leadData.phone_number} historial={historialCalls} idLead={leadData?._id} />}
             {selectedTab === "Tareas" && <Tareas />}
             {selectedTab === "Notas" && (
               <Notas idCliente={leadData._id ?? ""} />
             )}{" "}
             {selectedTab === "Whatsapp" && (
-              <Whatsapp phone={leadData.phone_number} />
+              <Whatsapp phone={leadData.phone_number} leadData={leadData} />
             )}{" "}
             {selectedTab === "Archivos" && (
               <Archivos

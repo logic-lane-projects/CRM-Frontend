@@ -292,7 +292,7 @@ export default function ProspectInfo() {
                   <Notas idCliente={leadData._id ?? ""} />
                 )}{" "}
                 {selectedTab === "Whatsapp" && (
-                  <Whatsapp phone={leadData.phone_number} />
+                  <Whatsapp phone={leadData.phone_number} leadData={leadData}/>
                 )}
                 {selectedTab === "Archivos" && (
                   <Archivos
