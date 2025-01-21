@@ -6,19 +6,19 @@ import { Lead } from '../../services/leads';
 
 interface Template4Props {
     setIsOpen: (isOpen: boolean) => void;
-    clientInfo: Lead;
+    clientNumber: string;
+    clientInfo?: Lead;
 }
 
-export default function Template4({ setIsOpen, clientInfo }: Template4Props) {
+export default function Template4({ setIsOpen, clientInfo,clientNumber }: Template4Props) {
     const [isLoading, setIsLoading] = useState(false);
     const [direccion, setDireccion] = useState('');
-    const clientNumber = localStorage.getItem("clientNumber") ?? "";
 
     const handleSend = async () => {
         setIsLoading(true);
         try {
             await sendTemplate({
-                to: clientNumber,
+                to: clientNumber.toString(),
                 client_name: `${clientInfo?.names} ${clientInfo?.maternal_surname} ${clientInfo?.paternal_surname}`,
                 address: direccion,
                 template_number: "4"

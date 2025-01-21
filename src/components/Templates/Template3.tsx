@@ -6,13 +6,13 @@ import { Lead } from '../../services/leads';
 
 interface Template3Props {
     setIsOpen: (isOpen: boolean) => void;
+    clientNumber: string;
     clientInfo?: Lead;
 }
 
-export default function Template3({ setIsOpen }: Template3Props) {
+export default function Template3({ setIsOpen , clientNumber}: Template3Props) {
     const [direccion, setDireccion] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const clientNumber = localStorage.getItem("clientNumber") ?? "";
 
     const isFormValid =
         direccion.trim() !== '';

@@ -15,7 +15,7 @@ interface Template1Props {
     clientInfo?: Lead;
 }
 
-export default function Template2({ setIsOpen }: Template1Props) {
+export default function Template2({ setIsOpen,clientNumber }: Template1Props) {
     const [loadingFolders, setLoadingFolders] = useState<boolean>(false);
     const [folders, setFolders] = useState<FolderData[]>([]);
     const [fileSelected, setFileSelected] = useState<string[]>([]);
@@ -25,7 +25,6 @@ export default function Template2({ setIsOpen }: Template1Props) {
     const [isLoading, setIsLoading] = useState({
         sending: false
     });
-    const clientNumber = localStorage.getItem("clientNumber") ?? "";
     const isFormValid = (
         city.trim() !== '' &&
         fileSelected && fileSelected.length > 0
