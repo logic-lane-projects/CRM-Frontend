@@ -59,7 +59,7 @@ export default function Template2({ setIsOpen,clientNumber }: Template1Props) {
     const handleSend = async () => {
         setIsLoading({ ...isLoading, sending: true });
         try {
-            const fileName = fileSelected[0].split('vendedores/')[1] ?? fileSelected[0].split('archivos/')[1];
+            const fileName = fileSelected[0].split('vendedores/')[1] ?? fileSelected[0].split('templates/')[1];
             await sendTemplate({
                 to: clientNumber.toString(),
                 city: city ?? "",
