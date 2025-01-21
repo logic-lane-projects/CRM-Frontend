@@ -10,7 +10,7 @@ interface Template4Props {
     clientInfo?: Lead;
 }
 
-export default function Template4({ setIsOpen, clientInfo,clientNumber }: Template4Props) {
+export default function Template4({ setIsOpen, clientInfo, clientNumber }: Template4Props) {
     const [isLoading, setIsLoading] = useState(false);
     const [direccion, setDireccion] = useState('');
 
@@ -32,6 +32,7 @@ export default function Template4({ setIsOpen, clientInfo,clientNumber }: Templa
                 timer: 5000
             });
         } finally {
+            setIsOpen(false);
             setIsLoading(false);
         }
     };

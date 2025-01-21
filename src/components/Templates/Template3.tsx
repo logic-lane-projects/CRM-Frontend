@@ -30,13 +30,14 @@ export default function Template3({ setIsOpen , clientNumber}: Template3Props) {
             const errorMessage = error instanceof Error ? error.message : "Unknown error";
             Toast.fire({ icon: "error", title: "Error", text: errorMessage, timer: 5000 });
         } finally {
+            setIsOpen(false);
             setIsLoading(false);
         }
     };
 
     return (
         <div>
-            <TextField label="Direccion" value={direccion} onChange={setDireccion} autoComplete="off" error={direccion === '' && 'Ingrese la Direccion de la origina'} />
+            <TextField label="Direccion" value={direccion} onChange={setDireccion} autoComplete="off" error={direccion === '' && 'Ingrese la Direccion de la oficina'} />
             <div className="mt-4">
                 <p>
                     ¿Sabías que <strong>50 Doctors</strong> es el complejo hospitalario más moderno y de mayor crecimiento en México?<br />

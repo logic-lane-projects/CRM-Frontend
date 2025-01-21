@@ -68,6 +68,7 @@ export default function Template2({ setIsOpen,clientNumber }: Template1Props) {
             });
             Toast.fire({ icon: "success", title: "Template enviado exitosamente" });
             setIsLoading({ ...isLoading, sending: false });
+            setIsOpen(false);
         } catch (error) {
             setIsLoading({ ...isLoading, sending: false });
             Toast.fire({
