@@ -12,37 +12,31 @@ import { Lead } from '../../services/leads';
 interface Template1Props {
     setIsOpen: (isOpen: boolean) => void;
     clientNumber: string;
-    clientInfo: Lead;
+    clientInfo?: Lead;
 }
 
-export default function Template2({ setIsOpen, clientInfo }: Template1Props) {
+export default function Template2({ setIsOpen }: Template1Props) {
     const [loadingFolders, setLoadingFolders] = useState<boolean>(false);
     const [folders, setFolders] = useState<FolderData[]>([]);
     const [fileSelected, setFileSelected] = useState<string[]>([]);
     const [selectedFolder, setSelectedFolder] = useState<{ id: string; name: string } | null>(null);
-    const [userName, setUserName] = useState('');
     const [city, setCity] = useState('');
     const [isOpen1, setIsOpen1] = useState(false);
     const [isLoading, setIsLoading] = useState({
         sending: false
     });
-    const [projectName, setProjectName] = useState(''); 
-    const nombreOficina = localStorage.getItem("oficinaActualNombre");
     const clientNumber = localStorage.getItem("clientNumber") ?? "";
     const isFormValid = (
-        userName.trim() !== '' &&
-        projectName.trim() !== '' &&
         city.trim() !== '' &&
         fileSelected && fileSelected.length > 0
     );
-
 
     const fetchAllFolders = async () => {
         setLoadingFolders(true);
         try {
             const response = await getAllFiles();
             if (response.result && Array.isArray(response.data)) {
-                const filteredFolders = response.data.filter(folder => ["templates"].includes(folder.nombre_carpeta));
+                const filteredFolders = response.data.filter(folder => ["templates", "vendedores"].includes(folder.nombre_carpeta));
                 setFolders(filteredFolders.length ? filteredFolders : []);
             } else {
                 Toast.fire({ icon: "error", title: "No se encontraron carpetas" });
@@ -66,15 +60,11 @@ export default function Template2({ setIsOpen, clientInfo }: Template1Props) {
     const handleSend = async () => {
         setIsLoading({ ...isLoading, sending: true });
         try {
-            const fileName = fileSelected[0].split('templates/')[1];
+            const fileName = fileSelected[0].split('vendedores/')[1] ?? fileSelected[0].split('archivos/')[1];
             await sendTemplate({
                 to: clientNumber.toString(),
-                client_name: `${clientInfo?.names} ${clientInfo?.maternal_surname} ${clientInfo?.paternal_surname}`,
-                seller_name: userName,
-                of_name: nombreOficina ?? "",
                 city: city ?? "",
-                project_name: projectName ?? "",
-                img_name: fileName,
+                img_name: selectedFolder?.name +"/" + fileName,
                 template_number: "2"
             });
             Toast.fire({ icon: "success", title: "Template enviado exitosamente" });
@@ -92,19 +82,11 @@ export default function Template2({ setIsOpen, clientInfo }: Template1Props) {
 
     return (
         <div>
-            <TextField label="Nombre del Vendedor" value={userName} onChange={setUserName} autoComplete="off" error={userName === '' && 'Ingrese el nombre del vendedor'} />
-            <TextField label="Nombre del Proyecto" value={projectName} onChange={setProjectName} autoComplete="off" error={projectName === '' && 'Ingrese el nombre del proyecto'} />
             <TextField label="Ciudad" value={city} onChange={setCity} autoComplete="off" error={city === '' && 'Ingrese la ciudad'} />
             <div className="mt-4">
                 <p>
-                    Estimado/a <strong>{clientInfo?.names}</strong>:<br />
-                    Muy buenas tardes.<br /><br />
-                    Me presento, soy <strong>{userName}</strong>, Asesor Comercial de Fifty Doctors en <strong>{city}</strong>. <br />
-                    Es un gusto saludarle. 😊<br /><br />
-                    Hemos recibido su solicitud de información sobre nuestro proyecto de Hospital y Consultorios en <strong>{projectName}</strong>. 🏥<br /><br />
-                    Por favor, indíquenos en qué podemos asistirle para brindarle la información que necesite. 📄<br /><br />
-                    Quedamos atentos a su respuesta. 📩<br /><br />
-                    Saludos cordiales.
+                    ¡Espero que esté teniendo un excelente día! Me comunico de nuevo con usted, pues recibí recientemente su solicitud de información para nuestro proyecto de hospital y consultorios en <strong>{city}</strong>.<br /><br />
+                    Cuéntenos ¿cuál es la información que requiere para resolver todas sus dudas? ¡Esta a un paso de adquirir su consultorio!
                 </p>
             </div>
 

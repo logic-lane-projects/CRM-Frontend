@@ -9,6 +9,7 @@ interface SendTemplateParams {
   project_name?: string;
   template_number?: string;
   img_name?: string;
+  address?:string;
 }
 
 const APP_URL = import.meta.env.VITE_API_TWILIO_URL as string;
@@ -24,6 +25,7 @@ export const sendTemplate = async ({
   project_name,
   img_name,
   template_number,
+  address
 }: SendTemplateParams): Promise<void> => {
   const url = `${APP_URL}/send_template?To=${to}`;
   const body = {
@@ -36,6 +38,7 @@ export const sendTemplate = async ({
     project_name,
     img_name,
     template_number,
+    address
   };
   const response = await fetch(url, {
     method: "POST",

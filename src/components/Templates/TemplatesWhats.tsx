@@ -103,14 +103,14 @@ export default function TemplatesWhats({
         </button>
 
         {/* Contacto 5 */}
-        <button
+        {/* <button
           onClick={() => { setIsOpen(true); setTemplateNumber(5) }}
           className={`bg-blue-500 text-white px-4 py-2 rounded ${loading === "btn-5" && "opacity-50 cursor-not-allowed"
             }`}
           disabled={loading === "btn-5"}
         >
           {loading === "btn-5" ? "Enviando..." : "Contacto 5"}
-        </button>
+        </button> */}
       </div>
 
       <div className="flex items-center justify-center">

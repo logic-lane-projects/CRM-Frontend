@@ -12,10 +12,10 @@ import { Lead } from '../../services/leads';
 interface Template1Props {
     setIsOpen: (isOpen: boolean) => void;
     clientNumber: string;
-    clientInfo: Lead;
+    clientInfo?: Lead;
 }
 
-export default function Template1({ setIsOpen, clientInfo }: Template1Props) {
+export default function Template1({ setIsOpen }: Template1Props) {
     const [loadingFolders, setLoadingFolders] = useState<boolean>(false);
     const [folders, setFolders] = useState<FolderData[]>([]);
     const [fileSelected, setFileSelected] = useState<string[]>([]);
@@ -28,9 +28,8 @@ export default function Template1({ setIsOpen, clientInfo }: Template1Props) {
     const [isOpen1, setIsOpen1] = useState(false);
     const [isLoading, setIsLoading] = useState({
         sending: false
-    })
-    const nombreOficina = localStorage.getItem("oficinaActualNombre");
-    const clientNumber = localStorage.getItem("clientNumber") ?? ""
+    });
+    const clientNumber = localStorage.getItem("clientNumber") ?? "";
     const isFormValid = (
         userName.trim() !== '' &&
         userPosition.trim() !== '' &&
@@ -40,13 +39,12 @@ export default function Template1({ setIsOpen, clientInfo }: Template1Props) {
         fileSelected && fileSelected.length > 0
     );
 
-
     const fetchAllFolders = async () => {
         setLoadingFolders(true);
         try {
             const response = await getAllFiles();
             if (response.result && Array.isArray(response.data)) {
-                const filteredFolders = response.data.filter(folder => ["vendedores"].includes(folder.nombre_carpeta));
+                const filteredFolders = response.data.filter(folder => ["vendedores", "templates"].includes(folder.nombre_carpeta));
                 setFolders(filteredFolders.length ? filteredFolders : []);
             } else {
                 Toast.fire({ icon: "error", title: "No se encontraron carpetas" });
@@ -70,17 +68,15 @@ export default function Template1({ setIsOpen, clientInfo }: Template1Props) {
     const handleSend = async () => {
         setIsLoading({ ...isLoading, sending: true });
         try {
-            const fileName = fileSelected[0].split('vendedores/')[1];
+            const fileName = fileSelected[0].split('vendedores/')[1] ?? fileSelected[0].split('templates/')[1];
             await sendTemplate({
                 to: clientNumber.toString(),
-                client_name: `${clientInfo?.names} ${clientInfo?.maternal_surname} ${clientInfo?.paternal_surname}`,
                 seller_name: userName,
                 seller_position: userPosition,
-                of_name: nombreOficina ?? "",
-                city: city ?? "",
                 state: state ?? "",
                 project_name: projectName ?? "",
-                img_name: fileName,
+                city: city ?? "",
+                img_name: selectedFolder?.name +"/" + fileName,
                 template_number: "1"
             });
             Toast.fire({ icon: "success", title: "Template enviado exitosamente" });
@@ -104,7 +100,7 @@ export default function Template1({ setIsOpen, clientInfo }: Template1Props) {
             <TextField label="Nombre del proyecto" value={projectName} onChange={setProjectName} autoComplete="off" error={projectName === '' && 'Ingrese el nombre del proyecto'} />
             <TextField label="Ciudad" value={city} onChange={setCity} autoComplete="off" error={city === '' && 'Ingrese la ciudad'} />
             <div className="mt-4">
-                <p>Hola! Buenos días. Soy <strong>{userName}</strong>, <strong>{userPosition}</strong> de 50Doctors en <strong>{state}</strong>.<br />Un gusto saludarle.<br />He visto que nos ha pedido información sobre nuestro proyecto <strong>{projectName}</strong> en <strong>{city}</strong>.<br />Dígame en qué podemos ayudarle. Gracias.</p>
+                <p>¡Hola! ¡Te doy la bienvenida! Soy <strong>{userName}</strong>, <strong>{userPosition}</strong> de 50 Doctors en <strong>{state}</strong>. Un gusto saludarte.<br />He visto que tiene interés sobre nuestro proyecto <strong>{projectName}</strong> en <strong>{city}</strong>. Me dará mucho gusto darle seguimiento y resolver todas sus dudas.</p>
             </div>
 
             <div className='mt-3 flex gap-2 border-2 border-black'>
@@ -140,7 +136,6 @@ export default function Template1({ setIsOpen, clientInfo }: Template1Props) {
             {fileSelected?.length == 0 && (
                 <span className="text-red-500 font-bold">Selecciona una imagen</span>
             )}
-
 
             {fileSelected.length > 0 && (
                 <div className='mt-2'>
