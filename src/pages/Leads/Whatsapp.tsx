@@ -21,7 +21,7 @@ import TemplatesWhats from "../../components/Templates/TemplatesWhats";
 const APP_TWILIO_URL = import.meta.env.VITE_API_TWILIO_URL;
 const socket = io(`${APP_TWILIO_URL}/`);
 
-interface FolderData {
+export interface FolderData {
   _id: string;
   nombre_carpeta: string;
   status: boolean;

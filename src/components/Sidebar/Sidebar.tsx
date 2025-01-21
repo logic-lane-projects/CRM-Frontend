@@ -21,7 +21,7 @@ export default function Sidebar({ isOpen }: SidebarProps) {
   const currentPath = location.pathname;
   const { userInfo } = useAuthToken();
   const [officeOptions, setOfficeOptions] = useState<
-    { label: string; value: string; telefono: string }[]
+    { label: string; value: string; telefono: string, city:string, state:string }[]
   >([]);
   const [selectedOffice, setSelectedOffice] = useState<string | undefined>();
   const [loading, setLoading] = useState(true);
@@ -91,6 +91,8 @@ export default function Sidebar({ isOpen }: SidebarProps) {
             label: `${office.nombre} (${office.ciudad})`,
             value: office._id,
             telefono: office.numero_telefonico,
+            state: office?.estado,
+            city: office?.ciudad
           }));
 
           setOfficeOptions(options);
@@ -106,6 +108,7 @@ export default function Sidebar({ isOpen }: SidebarProps) {
             )?.numero_telefonico;
             if (officePhone) {
               localStorage.setItem("telefonoOficinaActual", officePhone);
+
             }
           } else if (permittedOffices.length === 1) {
             setSelectedOffice(permittedOffices[0]._id);
@@ -146,6 +149,8 @@ export default function Sidebar({ isOpen }: SidebarProps) {
       );
       const officeName = selectedOfficeDetails?.label.split(" (")[0];
       localStorage.setItem("oficinaActualNombre", officeName);
+      localStorage.setItem("ciudadOficinaActual", selectedOfficeDetails?.city);
+      localStorage.setItem("estadoOficinaActual", selectedOfficeDetails?.state);
     }
     window.location.reload();
   };
@@ -164,7 +169,12 @@ export default function Sidebar({ isOpen }: SidebarProps) {
     <div className={`${isOpen ? "block" : "hidden"} md:block h-full`}>
       <Frame>
         <Navigation location={currentPath}>
-          <Navigation.Section items={filteredNavigationItems} />
+          <Navigation.Section
+            items={filteredNavigationItems.map((item) => ({
+              ...item,
+              disabled: !selectedOffice,
+            }))}
+          />
           <div className="mt-4 px-4">
             {loading ? (
               <Spinner size="small" />
@@ -179,6 +189,7 @@ export default function Sidebar({ isOpen }: SidebarProps) {
                   onChange={handleOfficeChange}
                   value={selectedOffice}
                   placeholder="Selecciona una oficina"
+                  error={selectedOffice === undefined && "Selecciona una oficina para continuar"}
                 />
               )
             )}
