@@ -36,13 +36,13 @@ export default function LeadInfo() {
   const [error, setError] = useState<string | null>(null);
   const [isLoadingChange, setIsLoadingChange] = useState(false);
 
-  const fetchHistorial = async (number: string|number) => {
-    try{
-      if(number){
-        const response = await getHistorialCallsByNumber(number,officeNumber);
+  const fetchHistorial = async (number: string | number) => {
+    try {
+      if (number) {
+        const response = await getHistorialCallsByNumber(number, officeNumber);
         setHistorialCalls(response);
       }
-    } catch(error){
+    } catch (error) {
       const errorMessage = typeof error === "string" ? error : String(error);
       // setError(errorMessage);
       Toast.fire({
@@ -53,7 +53,7 @@ export default function LeadInfo() {
   }
 
   useEffect(() => {
-    if(leadData && leadData.phone_number){
+    if (leadData && leadData.phone_number) {
       fetchHistorial(leadData.phone_number);
     }
   }, [leadData]);
@@ -64,6 +64,7 @@ export default function LeadInfo() {
         if (id) {
           const response = await getLeadById(id);
           setLeadData(response);
+          localStorage.setItem("clientNumber", response.phone_number)
           const respuesta = await getHistorialById(id);
           console.log(respuesta)
         }
@@ -121,10 +122,10 @@ export default function LeadInfo() {
 
   return (
     <Page
-      backAction={{content: 'Regresar', onAction: () => navigate(-1)}}
+      backAction={{ content: 'Regresar', onAction: () => navigate(-1) }}
       title={`${leadData?.names} ${leadData?.paternal_surname} ${leadData?.maternal_surname} #${leadData?.folio || "Sin folio"}`}
       titleMetadata={<Badge>Leads</Badge>}
-      primaryAction={{ 
+      primaryAction={{
         content: "Pasar a Prospecto",
         onAction: () => {
           if (leadData?.assigned_to) {
@@ -173,7 +174,7 @@ export default function LeadInfo() {
                     <span>Correos</span>
                   </div>
                 </div> */}
-                <Button 
+                <Button
                   variant="tertiary"
                   icon={PhoneIcon}
                   onClick={() => handleTabClick("Llamadas")}
@@ -181,7 +182,7 @@ export default function LeadInfo() {
                 >
                   Llamadas
                 </Button>
-                <Button 
+                <Button
                   variant="tertiary"
                   icon={<img
                     className="w-4 h-4"
@@ -206,7 +207,7 @@ export default function LeadInfo() {
                     <span>Tareas</span>
                   </div>
                 </div> */}
-                <Button 
+                <Button
                   variant="tertiary"
                   icon={NoteIcon}
                   onClick={() => handleTabClick("Notas")}
@@ -214,7 +215,7 @@ export default function LeadInfo() {
                 >
                   Notas
                 </Button>
-                <Button 
+                <Button
                   variant="tertiary"
                   icon={ClockIcon}
                   onClick={() => handleTabClick("Historial")}
@@ -224,15 +225,15 @@ export default function LeadInfo() {
                 </Button>
               </div>
               <div className="w-full">
-                {selectedTab === "Actividad" && <Actividad historial={historialCalls}/>}
+                {selectedTab === "Actividad" && <Actividad historial={historialCalls} />}
                 {selectedTab === "Correos" && <Correos />}
-                {selectedTab === "Llamadas" && <Llamadas phone={leadData.phone_number} historial={historialCalls} idLead={leadData?._id}/>}
+                {selectedTab === "Llamadas" && <Llamadas phone={leadData.phone_number} historial={historialCalls} idLead={leadData?._id} />}
                 {selectedTab === "Tareas" && <Tareas />}
                 {selectedTab === "Notas" && (
                   <Notas idCliente={leadData._id ?? ""} />
                 )}
                 {selectedTab === "Whatsapp" && (
-                  <Whatsapp phone={leadData.phone_number} leadData={leadData}/>
+                  <Whatsapp phone={leadData.phone_number} leadData={leadData} />
                 )}
                 {selectedTab === "Historial" && <Historial />}
               </div>
