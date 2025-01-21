@@ -163,6 +163,9 @@ export default function Whatsapp({ phone ,leadData}: { phone: string,leadData:an
         setFileSelected([]);
         setOpenArchivos(false);
       }
+      setTimeout(()=>{
+        window.location.reload()
+      },1500)
       // handleGetMessages();
     } catch (error) {
       console.error("Error al enviar el mensaje:", error);
