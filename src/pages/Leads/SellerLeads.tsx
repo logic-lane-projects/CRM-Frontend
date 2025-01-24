@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import ModalRegistroLeads from "../../components/Modales/ModalRegistroLeads";
 import {
   IndexTable,
@@ -11,6 +11,7 @@ import {
   Modal,
   Frame,
   Badge,
+  InlineError
 } from "@shopify/polaris";
 import { Toast } from "../../components/Toast/toast";
 import { getAllLeadsBySellerIdAndType, deleteLead } from "../../services/leads";
@@ -19,7 +20,6 @@ import { useAuthToken } from "../../hooks/useAuthToken";
 
 export default function SellerLeads() {
   const navigate = useNavigate();
-  const location = useLocation();
   const { userInfo } = useAuthToken();
   const [isOpen, setIsOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
@@ -33,6 +33,7 @@ export default function SellerLeads() {
   const [isLoading, setIsLoading] = useState(false);
   const [selected, setSelected] = useState<string>("");
   const [selectedResources, setSelectedResources] = useState<string[]>([]);
+
   const fetchData = async (clientType: string) => {
     if (userInfo && userInfo.id) {
       setIsLoading(true);
@@ -58,20 +59,6 @@ export default function SellerLeads() {
     }
   };
 
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const selectedTable = params.get("selected");
-
-    if (selectedTable) {
-      setSelected(selectedTable);
-      fetchData(selectedTable);
-    } else {
-      const defaultSelection = "LEAD";
-      setSelected(defaultSelection);
-      fetchData(defaultSelection);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.search]);
 
   const handleTableSelection = (table: string) => {
     setSelected(table);
@@ -147,24 +134,24 @@ export default function SellerLeads() {
         selected === "LEAD"
           ? "Ver Lead"
           : selected === "CLIENTE"
-          ? "Ver Cliente"
-          : selected === "PROSPECTO_CLIENTE"
-          ? "Ver Prospecto"
-          : selected === "COMPRADOR"
-          ? "Ver Comprador"
-          : "",
+            ? "Ver Cliente"
+            : selected === "PROSPECTO_CLIENTE"
+              ? "Ver Prospecto"
+              : selected === "COMPRADOR"
+                ? "Ver Comprador"
+                : "",
       onAction: () => {
         if (selectedResources.length === 1) {
           const path =
             selected === "LEAD"
               ? "leads"
               : selected === "CLIENTE"
-              ? "cliente"
-              : selected === "PROSPECTO_CLIENTE"
-              ? "prospecto"
-              : selected === "COMPRADOR"
-              ? "comprador"
-              : "";
+                ? "cliente"
+                : selected === "PROSPECTO_CLIENTE"
+                  ? "prospecto"
+                  : selected === "COMPRADOR"
+                    ? "comprador"
+                    : "";
 
           if (path) {
             navigate(`/${path}/${selectedResources[0]}`);
@@ -176,20 +163,20 @@ export default function SellerLeads() {
     },
     ...(userInfo && userInfo.role !== "vendedor"
       ? [
-          {
-            content: "Eliminar",
-            onAction: () => {
-              if (selectedResources.length === 1) {
-                setSelectedLead(selectedResources[0]);
-                setIsDeleteModalOpen(true);
-              } else {
-                console.warn(
-                  "Por favor selecciona solo un elemento para eliminar"
-                );
-              }
-            },
+        {
+          content: "Eliminar",
+          onAction: () => {
+            if (selectedResources.length === 1) {
+              setSelectedLead(selectedResources[0]);
+              setIsDeleteModalOpen(true);
+            } else {
+              console.warn(
+                "Por favor selecciona solo un elemento para eliminar"
+              );
+            }
           },
-        ]
+        },
+      ]
       : []),
   ];
 
@@ -237,12 +224,12 @@ export default function SellerLeads() {
             {selected === "LEAD"
               ? "Leads"
               : selected === "CLIENTE"
-              ? "Clientes"
-              : selected === "PROSPECTO_CLIENTE"
-              ? "Prospectos"
-              : selected === "COMPRADOR"
-              ? "Compradores"
-              : ""}
+                ? "Clientes"
+                : selected === "PROSPECTO_CLIENTE"
+                  ? "Prospectos"
+                  : selected === "COMPRADOR"
+                    ? "Compradores"
+                    : ""}
           </span>
           {selected === "LEAD" && (
             <Button
@@ -285,6 +272,11 @@ export default function SellerLeads() {
               >
                 Clientes
               </Button>
+              {!selected && (
+                <div className="flex items-center">
+                  <InlineError message={"Por favor selecciona un tipo de cliente"} fieldID="lead-selection-error" />
+                </div>
+              )}
             </div>
 
             <TextField
@@ -310,22 +302,22 @@ export default function SellerLeads() {
                       selected === "LEAD"
                         ? "Lead"
                         : selected === "PROSPECTO_CLIENTE"
-                        ? "Prospecto"
-                        : selected === "COMPRADOR"
-                        ? "Comprador"
-                        : selected === "CLIENTE"
-                        ? "Cliente"
-                        : "",
+                          ? "Prospecto"
+                          : selected === "COMPRADOR"
+                            ? "Comprador"
+                            : selected === "CLIENTE"
+                              ? "Cliente"
+                              : "",
                     plural:
                       selected === "LEAD"
                         ? "Leads"
                         : selected === "PROSPECTO_CLIENTE"
-                        ? "Prospectos"
-                        : selected === "COMPRADOR"
-                        ? "Compradores"
-                        : selected === "CLIENTE"
-                        ? "Clientes"
-                        : "",
+                          ? "Prospectos"
+                          : selected === "COMPRADOR"
+                            ? "Compradores"
+                            : selected === "CLIENTE"
+                              ? "Clientes"
+                              : "",
                   }}
                   itemCount={filteredLeads.length}
                   selectedItemsCount={selectedResources.length}
