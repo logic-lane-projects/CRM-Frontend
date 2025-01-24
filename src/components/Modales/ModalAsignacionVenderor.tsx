@@ -71,7 +71,7 @@ export default function ModalAsignacionVendedor({
       };
       fetchUsers();
     }
-  }, [assignedTo, isChangingSeller]);
+  }, [assignedTo, isChangingSeller, storedOffice]);
 
   useEffect(() => {
     setFilteredSellers(
@@ -136,6 +136,8 @@ export default function ModalAsignacionVendedor({
           onClose={() => {
             setIsOpen(false);
             setIsChangingSeller(false);
+            setSelectedSellerId(null);
+            setSellerPhone(null);
           }}
           title={
             assignedTo && !isChangingSeller
@@ -176,7 +178,12 @@ export default function ModalAsignacionVendedor({
                     <strong>Teléfono:</strong> {assignedSellerInfo.cellphone}
                   </p>
                   <Button
-                    onClick={() => setIsChangingSeller(true)}
+                    onClick={() => {
+                      setIsChangingSeller(true);
+                      setSelectedSellerId(null);
+                      setSellerPhone(null);
+                      setAssignedSellerInfo(null);
+                    }}
                     disabled={isLoading}
                   >
                     Cambiar Vendedor
@@ -207,14 +214,14 @@ export default function ModalAsignacionVendedor({
                             onClick={() => {
                               setSelectedSellerId(id || null);
                               setSellerPhone(cellphone || null);
+                              setAssignedSellerInfo(seller);
                             }}
                           >
                             <div
-                              className={`p-2 cursor-pointer ${
-                                isSelected
+                              className={`p-2 cursor-pointer ${isSelected
                                   ? "bg-gray-200 border border-black"
                                   : "bg-white"
-                              }`}
+                                }`}
                             >
                               <div
                                 className={
