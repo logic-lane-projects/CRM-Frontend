@@ -122,7 +122,8 @@ export default function ModalRegistroLeads({
       const permittedOffices = oficinas.filter((office) => userInfo.oficinas_permitidas!.includes(office._id));
       setOficinasPermitidas(permittedOffices)
     }
-  }, [])
+    // eslint-disable-next-line
+  }, [oficinas])
 
   const updateCities = (state: string) => {
     const selectedStateData = Ciudades.find((item) => item.Estado === state);
