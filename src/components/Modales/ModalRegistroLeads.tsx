@@ -11,6 +11,8 @@ import { createLead, updateLead } from "../../services/leads";
 import { Lead } from "../../services/leads";
 import { useAuthToken } from "../../hooks/useAuthToken";
 import { Ciudades } from "../../utils/estados";
+import { getAllOffices } from "../../services/oficinas";
+import { OfficeData } from "../../services/oficinas";
 
 interface ModalRegistroLeadsProps {
   leadInfo: Lead | null;
@@ -32,6 +34,7 @@ interface FormValues {
   gender: "MALE" | "FEMALE" | null;
   profesion: string;
   especialidad: string;
+  oficina: string
 }
 
 const initialFormValues: FormValues = {
@@ -48,6 +51,7 @@ const initialFormValues: FormValues = {
   gender: "MALE",
   profesion: "",
   especialidad: "",
+  oficina: ""
 };
 
 export default function ModalRegistroLeads({
@@ -63,6 +67,8 @@ export default function ModalRegistroLeads({
   // Estado para las opciones de estados y ciudades
   const [states, setStates] = useState<{ label: string; value: string }[]>([]);
   const [cities, setCities] = useState<{ label: string; value: string }[]>([]);
+  const [oficinas, setOficinas] = useState<OfficeData[]>([]);
+  const [oficina, setOficina] = useState<string | undefined>();
 
   useEffect(() => {
     const formattedStates = Ciudades.map((item) => ({
@@ -86,13 +92,30 @@ export default function ModalRegistroLeads({
         gender: leadInfo.gender || "MALE",
         profesion: leadInfo.profesion || "",
         especialidad: leadInfo.especialidad || "",
+        oficina: oficina || "",
       });
       const selectedState = leadInfo.state || "";
       updateCities(selectedState);
     } else {
       setFormValues(initialFormValues);
     }
+    // eslint-disable-next-line
   }, [leadInfo]);
+
+  const fetchAllOfices = async () => {
+    try {
+      const response = await getAllOffices();
+      if (response?.result) {
+        setOficinas(response?.data)
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  useEffect(() => {
+    fetchAllOfices()
+  }, [])
 
   const updateCities = (state: string) => {
     const selectedStateData = Ciudades.find((item) => item.Estado === state);
@@ -173,6 +196,7 @@ export default function ModalRegistroLeads({
         is_client: false,
         profesion: formValues.profesion,
         especialidad: formValues.especialidad,
+        oficina: oficina
       };
 
       if (leadInfo && leadInfo._id) {
@@ -218,10 +242,10 @@ export default function ModalRegistroLeads({
             content: isLoading
               ? "Cargando..."
               : leadInfo
-              ? "Actualizar"
-              : "Registrar",
+                ? "Actualizar"
+                : "Registrar",
             onAction: handleSubmit,
-            disabled: isSubmitDisabled || isLoading,
+            disabled: isSubmitDisabled || isLoading || oficina === '' || leadInfo?.city === "" || leadInfo?.state === "",
           }}
           secondaryActions={[
             {
@@ -296,6 +320,19 @@ export default function ModalRegistroLeads({
                 value={formValues.ciudad || ""}
                 onChange={(value) => handleFieldChange("ciudad", value)}
                 error={!formValues.ciudad && "Selecciona una ciudad"}
+              />
+              <Select
+                label="Oficina"
+                options={[
+                  { label: "Selecciona una opción", value: "" },
+                  ...oficinas.map((oficina) => ({
+                    label: oficina?.nombre,
+                    value: oficina?._id,
+                  })),
+                ]}
+                value={oficina || ""}
+                onChange={(value) => setOficina(value)}
+                error={oficina ? "" : "La oficina es requerida"}
               />
 
               <TextField

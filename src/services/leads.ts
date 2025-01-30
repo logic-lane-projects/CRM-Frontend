@@ -27,6 +27,7 @@ export interface Lead {
   profesion?:string;
   especialidad?:string
   folio?:string
+  oficina?:string
 }
 export interface ApiResponse<T> {
   result: boolean;

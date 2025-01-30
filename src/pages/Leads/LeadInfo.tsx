@@ -8,6 +8,8 @@ import { useAuthToken } from "../../hooks/useAuthToken";
 import { Toast } from "../../components/Toast/toast";
 import { Ciudades } from "../../utils/estados";
 import { useNavigate } from "react-router-dom";
+import { getAllOffices } from "../../services/oficinas";
+import { OfficeData } from "../../services/oficinas";
 
 export interface InfoLeads {
   _id?: string;
@@ -30,6 +32,7 @@ export interface InfoLeads {
   assigned_to?: string | null;
   profesion?: string;
   especialidad?: string;
+  oficina?: string;
 }
 
 interface InfoLeadProps {
@@ -64,6 +67,8 @@ export default function InfoLead({ lead }: InfoLeadProps) {
   const [age, setAge] = useState(lead.age ? lead.age.toString() : "");
   const [typeLead, setTypeLead] = useState(lead.type_lead);
   const [gender, setGender] = useState(lead.gender);
+  const [oficinas, setOficinas] = useState<OfficeData[]>([]);
+  const [oficina, setOficina] = useState<string | undefined>();
 
   useEffect(() => {
     if (state) {
@@ -79,6 +84,25 @@ export default function InfoLead({ lead }: InfoLeadProps) {
       setBirthdayDate(lead?.birthday_date);
     }
   }, [lead]);
+
+  const fetchAllOfices = async () => {
+    try {
+      const response = await getAllOffices();
+      if (response?.result) {
+        setOficinas(response?.data)
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  useEffect(() => {
+    if(lead?.oficina){
+      setOficina(lead?.oficina)
+    }
+    fetchAllOfices()
+    // eslint-disable-next-line
+  }, [])
 
   const typeLeadOptions = [
     { label: "Selecciona una opcion", value: "" },
@@ -112,6 +136,7 @@ export default function InfoLead({ lead }: InfoLeadProps) {
       assigned_to: lead.assigned_to,
       profesion: profesion,
       especialidad: especialidad,
+      oficina: oficina
     };
 
     try {
@@ -246,6 +271,20 @@ export default function InfoLead({ lead }: InfoLeadProps) {
           value={city}
           onChange={(value) => setCity(value)}
         />
+        <Select
+          label="Oficina"
+          options={[
+            { label: "Selecciona una opción", value: "" },
+            ...oficinas.map((oficina) => ({
+              label: oficina?.nombre,
+              value: oficina?._id,
+            })),
+          ]}
+          value={oficina || ""}
+          onChange={(value) => setOficina(value)}
+          error={oficina ?  "" : "La oficina es requerida"} 
+        />
+
         <TextField
           label="Fecha de nacimiento"
           value={formattedDate}
