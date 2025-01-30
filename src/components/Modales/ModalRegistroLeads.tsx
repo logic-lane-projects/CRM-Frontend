@@ -71,6 +71,7 @@ export default function ModalRegistroLeads({
   const [cities, setCities] = useState<{ label: string; value: string }[]>([]);
   const [oficinas, setOficinas] = useState<OfficeData[]>([]);
   const [oficina, setOficina] = useState<string | undefined>();
+  const [oficinasPermitidas, setOficinasPermitidas] = useState<OfficeData[]>([]);
 
   useEffect(() => {
     const formattedStates = Ciudades.map((item) => ({
@@ -108,7 +109,7 @@ export default function ModalRegistroLeads({
     try {
       const response = await getAllOffices();
       if (response?.result) {
-        setOficinas(response?.data)
+          setOficinas(response?.data)
       }
     } catch (error) {
       console.log(error)
@@ -117,6 +118,10 @@ export default function ModalRegistroLeads({
 
   useEffect(() => {
     fetchAllOfices()
+    if(userInfo?.oficinas_permitidas?.length){
+      const permittedOffices = oficinas.filter((office) => userInfo.oficinas_permitidas!.includes(office._id));
+      setOficinasPermitidas(permittedOffices)
+    }
   }, [])
 
   const updateCities = (state: string) => {
@@ -327,7 +332,7 @@ export default function ModalRegistroLeads({
                 label="Oficina"
                 options={[
                   { label: "Selecciona una opción", value: "" },
-                  ...oficinas.map((oficina) => ({
+                  ...oficinasPermitidas.map((oficina) => ({
                     label: oficina?.nombre,
                     value: oficina?._id,
                   })),

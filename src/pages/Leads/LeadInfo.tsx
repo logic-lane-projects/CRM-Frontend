@@ -69,6 +69,7 @@ export default function InfoLead({ lead }: InfoLeadProps) {
   const [gender, setGender] = useState(lead.gender);
   const [oficinas, setOficinas] = useState<OfficeData[]>([]);
   const [oficina, setOficina] = useState<string | undefined>();
+  const [oficinasPermitidas, setOficinasPermitidas] = useState<OfficeData[]>([]);
 
   useEffect(() => {
     if (state) {
@@ -97,13 +98,17 @@ export default function InfoLead({ lead }: InfoLeadProps) {
   }
 
   useEffect(() => {
-    if(lead?.oficina){
-      setOficina(lead?.oficina)
-    }
     fetchAllOfices()
+    if (userInfo?.oficinas_permitidas?.length) {
+      const permittedOffices = oficinas.filter((office) => userInfo.oficinas_permitidas!.includes(office._id));
+      setOficinasPermitidas(permittedOffices)
+    }
+    if (lead?.oficina) {
+      setOficina(lead.oficina)
+    }
     // eslint-disable-next-line
-  }, [])
-
+  }, [lead])
+  
   const typeLeadOptions = [
     { label: "Selecciona una opcion", value: "" },
     { label: "Frío", value: "FRIO" },
@@ -275,14 +280,14 @@ export default function InfoLead({ lead }: InfoLeadProps) {
           label="Oficina"
           options={[
             { label: "Selecciona una opción", value: "" },
-            ...oficinas.map((oficina) => ({
+            ...oficinasPermitidas.map((oficina) => ({
               label: oficina?.nombre,
               value: oficina?._id,
             })),
           ]}
           value={oficina || ""}
           onChange={(value) => setOficina(value)}
-          error={oficina ?  "" : "La oficina es requerida"} 
+          error={oficina ? "" : "La oficina es requerida"}
         />
 
         <TextField
