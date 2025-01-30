@@ -13,6 +13,8 @@ import { useAuthToken } from "../../hooks/useAuthToken";
 import { Ciudades } from "../../utils/estados";
 import { getAllOffices } from "../../services/oficinas";
 import { OfficeData } from "../../services/oficinas";
+import { validarCorreo } from "../../utils/validateEmail";
+import { validarTelefono } from "../../utils/validateEmail";
 
 interface ModalRegistroLeadsProps {
   leadInfo: Lead | null;
@@ -290,7 +292,7 @@ export default function ModalRegistroLeads({
                 value={formValues.correo}
                 onChange={(value) => handleFieldChange("correo", value)}
                 autoComplete="off"
-                error={!formValues.correo && "Ingresa el correo"}
+                error={!validarCorreo(formValues?.correo) && "Coreo invalido"}
               />
               <TextField
                 label="Teléfono*"
@@ -299,7 +301,7 @@ export default function ModalRegistroLeads({
                   /^[0-9]*$/.test(value) && handleFieldChange("telefono", value)
                 }
                 autoComplete="off"
-                error={!formValues.telefono && "Ingresa el Teléfono"}
+                error={!validarTelefono(formValues.telefono) && "Telefono invalido"}
               />
               <Select
                 label="Estado*"

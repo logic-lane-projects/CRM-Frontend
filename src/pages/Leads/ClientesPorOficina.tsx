@@ -149,7 +149,8 @@ export default function ClientesPorOficina() {
         assigned_to,
         type_client,
         folio,
-        created_at
+        created_at,
+        nombre_campania_externa
       }: Lead) => ({
         id: _id,
         names,
@@ -161,7 +162,8 @@ export default function ClientesPorOficina() {
         assigned_to,
         type_client,
         folio,
-        created_at
+        created_at,
+        nombre_campania_externa
       })
     )
     : [];
@@ -291,7 +293,8 @@ export default function ClientesPorOficina() {
         assigned_to,
         type_client,
         folio,
-        created_at
+        created_at,
+        nombre_campania_externa
       },
       index
     ) => (
@@ -305,6 +308,9 @@ export default function ClientesPorOficina() {
         <IndexTable.Cell>{names ?? "Desconocido"}</IndexTable.Cell>
         <IndexTable.Cell>{email ?? "No disponible"}</IndexTable.Cell>
         <IndexTable.Cell>{folio ?? "No disponible"}</IndexTable.Cell>
+        {nombre_campania_externa ?
+          <IndexTable.Cell>{nombre_campania_externa}</IndexTable.Cell>
+          : <div className="flex items-center mt-3"><Badge tone="success">CRM</Badge></div>}
         <IndexTable.Cell>{phone_number ?? "No disponible"}</IndexTable.Cell>
         <IndexTable.Cell>{city ?? "No disponible"}</IndexTable.Cell>
         <IndexTable.Cell>
@@ -467,6 +473,7 @@ export default function ClientesPorOficina() {
                     { title: "Nombre" },
                     { title: "Correo Electrónico" },
                     { title: "Folio" },
+                    { title: "Campaña" },
                     { title: "Teléfono" },
                     { title: "Ciudad" },
                     { title: "Estado" },
