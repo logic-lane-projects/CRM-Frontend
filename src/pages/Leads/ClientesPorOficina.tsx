@@ -18,6 +18,7 @@ import { All as Lead } from "../../services/buyer";
 import ModalAsignacionVendedor from "../../components/Modales/ModalAsignacionVenderor";
 import { useAuthToken } from "../../hooks/useAuthToken";
 import { getAllClientesByOfficeId } from "../../services/leads";
+import formatFecha from "../../utils/formatDate";
 
 export default function ClientesPorOficina() {
   const navigate = useNavigate();
@@ -137,30 +138,32 @@ export default function ClientesPorOficina() {
 
   const leadsForIndexTable = Array.isArray(selectedData)
     ? selectedData.map(
-        ({
-          _id,
-          names,
-          email,
-          phone_number,
-          city,
-          type_lead,
-          status,
-          assigned_to,
-          type_client,
-          folio,
-        }: Lead) => ({
-          id: _id,
-          names,
-          email,
-          phone_number,
-          city,
-          type_lead,
-          status,
-          assigned_to,
-          type_client,
-          folio,
-        })
-      )
+      ({
+        _id,
+        names,
+        email,
+        phone_number,
+        city,
+        type_lead,
+        status,
+        assigned_to,
+        type_client,
+        folio,
+        created_at
+      }: Lead) => ({
+        id: _id,
+        names,
+        email,
+        phone_number,
+        city,
+        type_lead,
+        status,
+        assigned_to,
+        type_client,
+        folio,
+        created_at
+      })
+    )
     : [];
 
   // Filtro de búsqueda
@@ -224,24 +227,24 @@ export default function ClientesPorOficina() {
         selected === "lead"
           ? "Ver Lead"
           : selected === "client"
-          ? "Ver Cliente"
-          : selected === "prospecto"
-          ? "Ver Prospecto"
-          : selected === "comprador"
-          ? "Ver Comprador"
-          : "",
+            ? "Ver Cliente"
+            : selected === "prospecto"
+              ? "Ver Prospecto"
+              : selected === "comprador"
+                ? "Ver Comprador"
+                : "",
       onAction: () => {
         if (selectedResources.length === 1) {
           const path =
             selected === "lead"
               ? "leads"
               : selected === "client"
-              ? "cliente"
-              : selected === "prospecto"
-              ? "prospecto"
-              : selected === "comprador"
-              ? "comprador"
-              : "";
+                ? "cliente"
+                : selected === "prospecto"
+                  ? "prospecto"
+                  : selected === "comprador"
+                    ? "comprador"
+                    : "";
 
           if (path) {
             navigate(`/${path}/${selectedResources[0]}`);
@@ -288,6 +291,7 @@ export default function ClientesPorOficina() {
         assigned_to,
         type_client,
         folio,
+        created_at
       },
       index
     ) => (
@@ -315,12 +319,12 @@ export default function ClientesPorOficina() {
           {type_client === "CLIENTE"
             ? "Cliente"
             : type_client === "PROSPECTO_CLIENTE"
-            ? "Prospecto"
-            : type_client === "COMPRADOR"
-            ? "Comprador"
-            : type_client === "LEAD"
-            ? "Lead"
-            : "No especificado"}
+              ? "Prospecto"
+              : type_client === "COMPRADOR"
+                ? "Comprador"
+                : type_client === "LEAD"
+                  ? "Lead"
+                  : "No especificado"}
         </IndexTable.Cell>
 
         {userInfo && userInfo.role !== "vendedor" && (
@@ -348,6 +352,16 @@ export default function ClientesPorOficina() {
             )}
           </IndexTable.Cell>
         )}
+        <IndexTable.Cell>{userInfo && userInfo.role !== "vendedor" && (
+          <IndexTable.Cell>
+            {assigned_to ? (
+              <Badge tone="success">Asignado</Badge>
+            ) : (
+              <Badge tone="critical">No Asignado</Badge>
+            )}
+          </IndexTable.Cell>
+        )}</IndexTable.Cell>
+        <IndexTable.Cell>{formatFecha(created_at)}</IndexTable.Cell>
       </IndexTable.Row>
     )
   );
@@ -360,12 +374,12 @@ export default function ClientesPorOficina() {
             {selected === "lead"
               ? "Clientes por Oficina"
               : selected === "client"
-              ? "Clientes por Oficina"
-              : selected === "prospecto"
-              ? "Prospecto por Oficina"
-              : selected === "comprador"
-              ? "Comprador por Oficina"
-              : ""}
+                ? "Clientes por Oficina"
+                : selected === "prospecto"
+                  ? "Prospecto por Oficina"
+                  : selected === "comprador"
+                    ? "Comprador por Oficina"
+                    : ""}
           </span>
           {selected === "lead" && crearLeads && (
             <Button
@@ -429,22 +443,22 @@ export default function ClientesPorOficina() {
                       selected === "lead"
                         ? "lead"
                         : selected === "prospecto"
-                        ? "Prospecto"
-                        : selected === "comprador"
-                        ? "Comprador"
-                        : selected === "cliente"
-                        ? "Cliente"
-                        : "",
+                          ? "Prospecto"
+                          : selected === "comprador"
+                            ? "Comprador"
+                            : selected === "cliente"
+                              ? "Cliente"
+                              : "",
                     plural:
                       selected === "lead"
                         ? "lead"
                         : selected === "prospecto"
-                        ? "Prospecto"
-                        : selected === "comprador"
-                        ? "Comprador"
-                        : selected === "cliente"
-                        ? "Cliente"
-                        : "",
+                          ? "Prospecto"
+                          : selected === "comprador"
+                            ? "Comprador"
+                            : selected === "cliente"
+                              ? "Cliente"
+                              : "",
                   }}
                   itemCount={filteredLeads.length}
                   selectedItemsCount={selectedResources.length}
@@ -457,8 +471,10 @@ export default function ClientesPorOficina() {
                     { title: "Ciudad" },
                     { title: "Estado" },
                     { title: "Status" },
+                    { title: "Tipo" },
+                    { title: "Asignado" },
                     { title: "Asignacion" },
-                    { title: "" },
+                    { title: "Creacion" },
                   ]}
                   promotedBulkActions={promotedBulkActions}
                   emptyState="No se encontraron resultados"

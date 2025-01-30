@@ -20,6 +20,7 @@ import { All as Lead } from "../../services/buyer";
 import ModalAsignacionVendedor from "../../components/Modales/ModalAsignacionVenderor";
 import { useAuthToken } from "../../hooks/useAuthToken";
 import { getClientsByType } from "./../../services/leads";
+import formatFecha from "../../utils/formatDate";
 
 export default function Leads() {
   const navigate = useNavigate();
@@ -135,18 +136,23 @@ export default function Leads() {
     }
   }, [location.search, selected]);
 
-  const leadsForIndexTable = selectedData.map((lead) => ({
-    id: lead._id,
-    names: lead.names,
-    email: lead.email,
-    phone_number: lead.phone_number,
-    city: lead.city,
-    type_lead: lead.type_lead,
-    status: lead.status,
-    assigned_to: lead.assigned_to,
-    folio: lead.folio || "Sin folio",
-    nombre_campania_externa: lead.nombre_campania_externa || "Sin campaña",
-  }));
+
+  const leadsForIndexTable = selectedData
+    .map((lead) => ({
+      id: lead._id,
+      names: lead.names,
+      email: lead.email,
+      phone_number: lead.phone_number,
+      city: lead.city,
+      type_lead: lead.type_lead,
+      status: lead.status,
+      assigned_to: lead.assigned_to,
+      folio: lead.folio || "Sin folio",
+      nombre_campania_externa: lead.nombre_campania_externa || "Sin campaña",
+      created_at: lead.created_at ? new Date(lead.created_at) : null,
+    }))
+    .filter(lead => lead.created_at !== null)
+    .sort((a, b) => (b.created_at?.getTime() ?? 0) - (a.created_at?.getTime() ?? 0));
 
   // Filtro de búsqueda
   const filteredLeads = leadsForIndexTable.filter(
@@ -210,24 +216,24 @@ export default function Leads() {
         selected === "lead"
           ? "Ver Lead"
           : selected === "client"
-          ? "Ver Cliente"
-          : selected === "prospecto"
-          ? "Ver Prospecto"
-          : selected === "comprador"
-          ? "Ver Comprador"
-          : "",
+            ? "Ver Cliente"
+            : selected === "prospecto"
+              ? "Ver Prospecto"
+              : selected === "comprador"
+                ? "Ver Comprador"
+                : "",
       onAction: () => {
         if (selectedResources.length === 1) {
           const path =
             selected === "lead"
               ? "leads"
               : selected === "client"
-              ? "cliente"
-              : selected === "prospecto"
-              ? "prospecto"
-              : selected === "comprador"
-              ? "comprador"
-              : "";
+                ? "cliente"
+                : selected === "prospecto"
+                  ? "prospecto"
+                  : selected === "comprador"
+                    ? "comprador"
+                    : "";
 
           if (path) {
             navigate(`/${path}/${selectedResources[0]}`);
@@ -273,7 +279,8 @@ export default function Leads() {
         status,
         assigned_to,
         folio,
-        nombre_campania_externa
+        nombre_campania_externa,
+        created_at
       },
       index
     ) => (
@@ -323,6 +330,16 @@ export default function Leads() {
             )}
           </IndexTable.Cell>
         )}
+        <IndexTable.Cell>{userInfo && userInfo.role !== "vendedor" && (
+          <IndexTable.Cell>
+            {assigned_to ? (
+              <Badge tone="success">Asignado</Badge>
+            ) : (
+              <Badge tone="critical">No Asignado</Badge>
+            )}
+          </IndexTable.Cell>
+        )}</IndexTable.Cell>
+        <IndexTable.Cell>{formatFecha(created_at)}</IndexTable.Cell>
       </IndexTable.Row>
     )
   );
@@ -369,12 +386,12 @@ export default function Leads() {
             {selected === "lead"
               ? "Leads"
               : selected === "client"
-              ? "Clientes"
-              : selected === "prospecto"
-              ? "Prospecto"
-              : selected === "comprador"
-              ? "Comprador"
-              : ""}
+                ? "Clientes"
+                : selected === "prospecto"
+                  ? "Prospecto"
+                  : selected === "comprador"
+                    ? "Comprador"
+                    : ""}
           </span>
           {selected === "lead" && crearLeads && (
             <Button
@@ -413,22 +430,22 @@ export default function Leads() {
                       selected === "lead"
                         ? "lead"
                         : selected === "prospecto"
-                        ? "Prospecto"
-                        : selected === "comprador"
-                        ? "Comprador"
-                        : selected === "cliente"
-                        ? "Cliente"
-                        : "",
+                          ? "Prospecto"
+                          : selected === "comprador"
+                            ? "Comprador"
+                            : selected === "cliente"
+                              ? "Cliente"
+                              : "",
                     plural:
                       selected === "lead"
                         ? "lead"
                         : selected === "prospecto"
-                        ? "Prospecto"
-                        : selected === "comprador"
-                        ? "Comprador"
-                        : selected === "cliente"
-                        ? "Cliente"
-                        : "",
+                          ? "Prospecto"
+                          : selected === "comprador"
+                            ? "Comprador"
+                            : selected === "cliente"
+                              ? "Cliente"
+                              : "",
                   }}
                   itemCount={filteredLeads.length}
                   selectedItemsCount={selectedResources.length}
@@ -442,7 +459,9 @@ export default function Leads() {
                     { title: "Ciudad" },
                     { title: "Estado" },
                     { title: "Status" },
+                    { title: "Asignado" },
                     { title: "Asignacion" },
+                    { title: "Creacion" },
                   ]}
                   promotedBulkActions={promotedBulkActions}
                   emptyState="No se encontraron resultados"

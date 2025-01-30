@@ -56,6 +56,7 @@ export default function LeadInfo() {
     if (leadData && leadData.phone_number) {
       fetchHistorial(leadData.phone_number);
     }
+    // eslint-disable-next-line
   }, [leadData]);
 
   useEffect(() => {
