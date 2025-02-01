@@ -33,6 +33,7 @@ export default function SellerLeads() {
   const [isLoading, setIsLoading] = useState(false);
   const [selected, setSelected] = useState<string>("");
   const [selectedResources, setSelectedResources] = useState<string[]>([]);
+  const idOficina = localStorage.getItem("oficinaActual")
 
   const fetchData = async (clientType: string) => {
     if (userInfo && userInfo.id) {
@@ -45,8 +46,9 @@ export default function SellerLeads() {
           clientType
         );
         if (Array.isArray(response)) {
-          setLeads(response);
-          setSelectedData(response);
+          const filteredLeads = response.filter(lead => lead.oficina === idOficina);
+          setLeads(filteredLeads);
+          setSelectedData(filteredLeads);
         } else {
           setSelectedData([]);
         }
