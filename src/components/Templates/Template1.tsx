@@ -100,7 +100,7 @@ export default function Template1({ setIsOpen, clientInfo }: Template1Props) {
             <TextField label="Nombre del proyecto" value={projectName} onChange={setProjectName} autoComplete="off" error={projectName === '' && 'Ingrese el nombre del proyecto'} />
             <TextField label="Ciudad" value={city} onChange={setCity} autoComplete="off" error={city === '' && 'Ingrese la ciudad'} />
             <div className="mt-4">
-                <p>¡Hola! ¡Te doy la bienvenida! Soy <strong>{userName}</strong>, <strong>{userPosition}</strong> de 50 Doctors en <strong>{state}</strong>. Un gusto saludarte.<br />He visto que tiene interés sobre nuestro proyecto <strong>{projectName}</strong> en <strong>{city}</strong>. Me dará mucho gusto darle seguimiento y resolver todas sus dudas.</p>
+                <p>¡Hola! ¡Te doy la bienvenida! Soy <strong>{userName}</strong>, <strong>{userPosition}</strong> de 50 Doctors en <strong>{state}</strong>. Un gusto saludarte.<br />He visto que tiene interés sobre nuestro proyecto <strong>{projectName}</strong> en <strong>{city}</strong>. Me dará mucho gusto darle seguimiento, por favor, dígame qué información necesita: ¿Precio actual de consultorios o locales? ¿Tamaño de los consultorios disponibles? ¿Ubicación exacta del proyecto? ¿Facilidades de pago?</p>
             </div>
 
             <div className='mt-3 flex gap-2 border-2 border-black'>
