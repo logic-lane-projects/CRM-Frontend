@@ -13,6 +13,7 @@ import {
   Badge,
   Tabs,
   Filters,
+  Tooltip,
 } from "@shopify/polaris";
 import { Toast } from "../../components/Toast/toast";
 import { getAllLeads, deleteLead } from "../../services/leads";
@@ -294,7 +295,13 @@ export default function Leads() {
         <IndexTable.Cell>{names ?? "Desconocido"}</IndexTable.Cell>
         <IndexTable.Cell>{email ?? "No disponible"}</IndexTable.Cell>
         <IndexTable.Cell>{folio ?? "No disponible"}</IndexTable.Cell>
-        <IndexTable.Cell>{nombre_campania_externa === "" ? <Badge tone="success">CRM</Badge> : nombre_campania_externa}</IndexTable.Cell>
+        <IndexTable.Cell>{nombre_campania_externa === "" ? <Badge tone="success">CRM</Badge> :
+          <div className="w-16 truncate">
+            <Tooltip content={nombre_campania_externa}>
+              <span className="block w-full truncate">{nombre_campania_externa}</span>
+            </Tooltip>
+          </div>
+        }</IndexTable.Cell>
         <IndexTable.Cell>{phone_number ?? "No disponible"}</IndexTable.Cell>
         <IndexTable.Cell>{city ?? "No disponible"}</IndexTable.Cell>
         <IndexTable.Cell>

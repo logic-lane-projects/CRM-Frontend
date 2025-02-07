@@ -77,12 +77,14 @@ export default function SellerLeads() {
     type_lead: lead.type_lead,
     status: lead.status,
     assigned_to: lead.assigned_to,
+    folio: lead.folio
   }));
 
   const filteredLeads = leadsForIndexTable.filter(
     (lead) =>
       lead.names?.toLowerCase().includes(searchValue.toLowerCase()) ||
-      lead.email?.toLowerCase().includes(searchValue.toLowerCase())
+      lead.email?.toLowerCase().includes(searchValue.toLowerCase()) ||
+      lead?.folio?.toLocaleLowerCase().includes(searchValue.toLocaleLowerCase())
   );
 
   const numItemsPerPage =
@@ -194,7 +196,7 @@ export default function SellerLeads() {
   };
 
   const rowMarkup = paginatedLeads.map(
-    ({ id, names, email, phone_number, city, type_lead, status }, index) => (
+    ({ id, names, email, phone_number, city, type_lead, status, folio }, index) => (
       <IndexTable.Row
         id={id ?? ""}
         key={id ?? index}
@@ -206,6 +208,7 @@ export default function SellerLeads() {
         <IndexTable.Cell>{email ?? "No disponible"}</IndexTable.Cell>
         <IndexTable.Cell>{phone_number ?? "No disponible"}</IndexTable.Cell>
         <IndexTable.Cell>{city ?? "No disponible"}</IndexTable.Cell>
+        <IndexTable.Cell>{folio ?? "No disponible"}</IndexTable.Cell>
         <IndexTable.Cell>
           {type_lead ? type_lead : "No definido"}
         </IndexTable.Cell>
@@ -288,7 +291,7 @@ export default function SellerLeads() {
                 setSearchValue(value);
                 setCurrentPage(1);
               }}
-              placeholder="Buscar por nombre o correo"
+              placeholder="Buscar por nombre, correo o folio"
               clearButton
               onClearButtonClick={() => setSearchValue("")}
               autoComplete="off"
@@ -329,6 +332,7 @@ export default function SellerLeads() {
                     { title: "Correo Electrónico" },
                     { title: "Teléfono" },
                     { title: "Ciudad" },
+                    { title: "Folio" },
                     { title: "Estado" },
                     { title: "Status" },
                     ...(userInfo && userInfo.role !== "vendedor"
