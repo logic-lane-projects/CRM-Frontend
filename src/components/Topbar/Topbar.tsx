@@ -86,8 +86,9 @@ export function TopBar1({ toggleSidebar }: TopBarProps) {
     }
   }
 
+
   useEffect(() => {
-    if (userInfo?.role !== "administrador") {
+    if (userInfo?.role === "administrador") {
       getMessagesByOffice()
     } else {
       getMessagesBySeller();
