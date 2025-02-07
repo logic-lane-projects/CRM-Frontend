@@ -172,7 +172,8 @@ export default function ClientesPorOficina() {
   const filteredLeads = leadsForIndexTable.filter(
     (lead) =>
       lead.names?.toLowerCase().includes(searchValue.toLowerCase()) ||
-      lead.email?.toLowerCase().includes(searchValue.toLowerCase())
+      lead.email?.toLowerCase().includes(searchValue.toLowerCase()) ||
+      lead?.folio?.toLowerCase().includes(searchValue.toLowerCase())
   );
 
   const numItemsPerPage =
@@ -433,7 +434,7 @@ export default function ClientesPorOficina() {
                 setSearchValue(value);
                 setCurrentPage(1);
               }}
-              queryPlaceholder="Buscar por nombre o correo"
+              queryPlaceholder="Buscar por nombre, correo o folio"
               onClearAll={() => setSearchValue("")}
               onQueryClear={() => setSearchValue("")}
               filters={[]}
