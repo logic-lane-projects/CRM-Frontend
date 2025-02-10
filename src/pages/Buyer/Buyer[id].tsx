@@ -33,7 +33,7 @@ export default function BuyerInfo() {
   const location = useLocation();
   const { id } = useParams<{ id: string }>();
   const [leadData, setLeadData] = useState<Buyer | null>(null);
-  const [selectedTab, setSelectedTab] = useState<string>("Llamadas");
+  const [selectedTab, setSelectedTab] = useState<string>("Whatsapp");
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isLoadingChange, setIsLoadingChange] = useState(false);
@@ -61,6 +61,7 @@ export default function BuyerInfo() {
     if (leadData && leadData.phone_number) {
       fetchHistorial(leadData.phone_number);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [leadData]);
 
   useEffect(() => {

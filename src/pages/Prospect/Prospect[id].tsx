@@ -41,7 +41,7 @@ export default function ProspectInfo() {
   const officeNumber = localStorage.getItem("telefonoOficinaActual") ?? "";
   const { id } = useParams<{ id: string }>();
   const [leadData, setLeadData] = useState<PreClient | null>(null);
-  const [selectedTab, setSelectedTab] = useState<string>("Llamadas");
+  const [selectedTab, setSelectedTab] = useState<string>("Whatsapp");
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isLoadingChange, setIsLoadingChange] = useState(false);
@@ -69,6 +69,7 @@ export default function ProspectInfo() {
     if(leadData && leadData.phone_number){
       fetchHistorial(leadData.phone_number);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [leadData]);
 
   useEffect(() => {

@@ -31,7 +31,7 @@ export default function LeadInfo() {
   const { id } = useParams<{ id: string }>();
   const [leadData, setLeadData] = useState<Lead | null>(null);
   const [historialCalls, setHistorialCalls] = useState<CallsHistorial | null>(null);
-  const [selectedTab, setSelectedTab] = useState<string>("Llamadas");
+  const [selectedTab, setSelectedTab] = useState<string>("Whatsapp");
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isLoadingChange, setIsLoadingChange] = useState(false);

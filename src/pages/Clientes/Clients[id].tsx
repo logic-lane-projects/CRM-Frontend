@@ -55,9 +55,10 @@ export default function LeadInfo() {
     if (clientData && clientData.phone_number) {
       fetchHistorial(clientData.phone_number);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clientData]);
 
-  const selectedTabFromUrl = searchParams.get("selected") || "Llamadas";
+  const selectedTabFromUrl = searchParams.get("selected") || "Whatsapp";
 
   const handleTabClick = (selected: string) => {
     setSearchParams({ selected });

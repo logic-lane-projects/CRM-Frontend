@@ -1,10 +1,11 @@
-import { Frame, Modal, Card, DataTable } from "@shopify/polaris";
-
+import { Frame, Modal, Card, DataTable, Button } from "@shopify/polaris";
+import { useNavigate } from "react-router-dom";
 interface Message {
     names: string;
     type_client: string;
     createdAt: string;
     folio: string;
+    client_id: string;
 }
 
 export default function MessagesModal({
@@ -16,11 +17,16 @@ export default function MessagesModal({
     setIsOpen: (isOpen: boolean) => void;
     messages: Message[];
 }) {
+    const navigate = useNavigate();
     const rows = messages.map((message) => [
         <span className="flex items-center justify-start">{message.names}</span>,
         <span className="flex items-center justify-start">{message.type_client}</span>,
         <span className="flex items-center justify-start">{message.folio}</span>,
         new Date(message.createdAt).toLocaleString(),
+        <Button onClick={() => {
+            navigate(`/${message.type_client.toLocaleLowerCase() === "lead" ? "leads" : message?.type_client.toLocaleLowerCase() === "cliente" ? "cliente" : message?.type_client.toLocaleLowerCase() === "comprador" ? "comprador" : "prospecto"}/${message.client_id}`);
+            setIsOpen(false);
+        }} variant="primary">Ver</Button>
     ]);
 
     return (
@@ -39,7 +45,7 @@ export default function MessagesModal({
                         <Card>
                             <DataTable
                                 columnContentTypes={["text", "text", "numeric"]}
-                                headings={["Cliente", "Tipo", <span className="flex items-center justify-start">Folio</span>, "Fecha"]}
+                                headings={["Cliente", "Tipo", <span className="flex items-center justify-start">Folio</span>, "Fecha", "Acciones"]}
                                 rows={rows}
                             />
                         </Card>
