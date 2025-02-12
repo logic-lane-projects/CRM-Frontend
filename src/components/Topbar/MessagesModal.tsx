@@ -1,11 +1,16 @@
 import { Frame, Modal, Card, DataTable, Button } from "@shopify/polaris";
 import { useNavigate } from "react-router-dom";
+import { readNotification } from './../../services/twilio';
+import { useAuthToken } from "../../hooks/useAuthToken";
+
 interface Message {
     names: string;
     type_client: string;
     createdAt: string;
     folio: string;
     client_id: string;
+    _id: string;
+    assigned_to: string;
 }
 
 export default function MessagesModal({
@@ -17,6 +22,22 @@ export default function MessagesModal({
     setIsOpen: (isOpen: boolean) => void;
     messages: Message[];
 }) {
+    const { userInfo } = useAuthToken();
+    const handleReadMessage = async (id: string, userId: string) => {
+        if (userInfo?.id === userId) {
+
+            try {
+                const response = await readNotification(id);
+                console.log(response)
+                setIsOpen(false);
+            } catch (error) {
+                console.log(error)
+            }
+        } else {
+            return
+        }
+    }
+
     const navigate = useNavigate();
     const rows = messages.map((message) => [
         <span className="flex items-center justify-start">{message.names}</span>,
@@ -25,6 +46,7 @@ export default function MessagesModal({
         new Date(message.createdAt).toLocaleString(),
         <Button onClick={() => {
             navigate(`/${message.type_client.toLocaleLowerCase() === "lead" ? "leads" : message?.type_client.toLocaleLowerCase() === "cliente" ? "cliente" : message?.type_client.toLocaleLowerCase() === "comprador" ? "comprador" : "prospecto"}/${message.client_id}`);
+            handleReadMessage(message?._id, message?.assigned_to);
             setIsOpen(false);
         }} variant="primary">Ver</Button>
     ]);

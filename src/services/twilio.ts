@@ -37,3 +37,19 @@ export const gellAllMessagesByOffice = async (office_id: string) => {
     return null;
   }
 };
+
+export const readNotification = async (id: string) => {
+  try {
+    const response = await fetch(`${APP_URL}read_notification?notification_id=${id}`, {
+      method: "POST",
+    });
+    if (!response.ok) {
+      throw new Error(`Error en la solicitud: ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error al obtener los números no leídos:", error);
+    return null;
+  }
+};
