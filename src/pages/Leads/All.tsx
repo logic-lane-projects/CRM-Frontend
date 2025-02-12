@@ -196,6 +196,9 @@ export default function Leads() {
     try {
       await deleteLead(selectedLead, userInfo?.id || "");
       Toast.fire({ icon: "success", title: "Lead eliminado correctamente" });
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000)
 
       // Refetch de los leads después de eliminar
       const response = await getAllLeads();
