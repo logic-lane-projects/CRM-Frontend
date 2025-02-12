@@ -41,6 +41,7 @@ export default function ClientesPorOficina() {
   const [assignedTo, setAssignedTo] = useState("");
   const [selectedResources, setSelectedResources] = useState<string[]>([]);
   const [folioLead, setFolioLead] = useState<string | null>(null);
+  const [isMultipleSelecion, setIsMultipleSelection] = useState(false);
 
   //   const handleTableSelection = (table: SetStateAction<string>) => {
   //     setSelected(table);
@@ -189,6 +190,16 @@ export default function ClientesPorOficina() {
   const totalPages = Math.ceil(filteredLeads.length / numItemsPerPage);
 
   //Funcion para la seleccion de un solo item
+  const handleSelectionChangeMultiple = (selection: string | undefined) => {
+    if (selection !== undefined) {
+      setSelectedResources((prevSelected) =>
+        prevSelected.includes(selection)
+          ? prevSelected.filter((id) => id !== selection) // Si ya está seleccionado, lo quitamos
+          : [...prevSelected, selection] // Si no está seleccionado, lo agregamos
+      );
+    }
+  };
+
   const handleSelectionChangeSingle = (selection: string | undefined) => {
     if (selection !== undefined) {
       if (selectedResources.includes(selection)) {
@@ -228,6 +239,29 @@ export default function ClientesPorOficina() {
 
   const promotedBulkActions = [
     {
+      content: isMultipleSelecion ? "Eliminar Seleccion" : "Seleccionar Varios",
+      onAction: () => {
+        if (isMultipleSelecion) {
+          setIsMultipleSelection(false)
+          setSelectedResources([])
+        } else {
+          setIsMultipleSelection(true)
+        }
+      },
+    },
+    {
+      content: "Asignacion Masiva",
+      onAction: () => {
+        if (isMultipleSelecion) {
+          setIsMultipleSelection(false)
+          setSelectedResources([])
+        } else {
+          setIsMultipleSelection(true)
+        }
+      },
+      disabled: !isMultipleSelecion
+    },
+    {
       content:
         selected === "lead"
           ? "Ver Lead"
@@ -255,20 +289,27 @@ export default function ClientesPorOficina() {
             navigate(`/${path}/${selectedResources[0]}`);
           }
         } else {
-          console.warn("Por favor selecciona solo un lead");
+          Toast.fire({ icon: "error", title: "Solo debe haber un cliente seleccionado", timer: 6000 });
         }
       },
+      disabled: isMultipleSelecion,
     },
     {
       content: "Eliminar",
       onAction: () => {
-        if (selectedResources.length === 1) {
-          setSelectedLead(selectedResources[0]);
-          setIsDeleteModalOpen(true);
+        if (isMultipleSelecion && selectedResources.length > 1) {
+          Toast.fire({ icon: "error", title: "Solo debe haber un cliente seleccionado", timer: 6000 })
         } else {
-          console.warn("Por favor selecciona solo un lead para eliminar");
+
+          if (selectedResources.length === 1) {
+            setSelectedLead(selectedResources[0]);
+            setIsDeleteModalOpen(true);
+          } else {
+            console.warn("Por favor selecciona solo un lead para eliminar");
+          }
         }
       },
+      disabled: isMultipleSelecion,
     },
   ];
 
@@ -306,7 +347,7 @@ export default function ClientesPorOficina() {
         key={id ?? index}
         position={index}
         selected={selectedResources.includes(id ?? "")}
-        onClick={() => handleSelectionChangeSingle(id)}
+        onClick={() => isMultipleSelecion ? handleSelectionChangeMultiple(id) : handleSelectionChangeSingle(id)}
       >
         <IndexTable.Cell>{names ?? "Desconocido"}</IndexTable.Cell>
         <IndexTable.Cell>{email ?? "No disponible"}</IndexTable.Cell>
@@ -340,6 +381,7 @@ export default function ClientesPorOficina() {
           <IndexTable.Cell>
             {assigned_to ? (
               <Button
+                disabled={isMultipleSelecion}
                 onClick={() => {
                   setIsOpenAsignacion(true);
                   setAssignedTo(assigned_to);
@@ -349,6 +391,7 @@ export default function ClientesPorOficina() {
               </Button>
             ) : (
               <Button
+                disabled={isMultipleSelecion}
                 variant="primary"
                 onClick={() => {
                   setAssignedTo("");
@@ -471,7 +514,7 @@ export default function ClientesPorOficina() {
                   }}
                   itemCount={filteredLeads.length}
                   selectedItemsCount={selectedResources.length}
-                  onSelectionChange={handleSelectionChangeSingle}
+                  onSelectionChange={isMultipleSelecion ? handleSelectionChangeMultiple : handleSelectionChangeSingle}
                   headings={[
                     { title: "Nombre" },
                     { title: "Correo Electrónico" },
