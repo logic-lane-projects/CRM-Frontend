@@ -108,12 +108,13 @@ export default function InfoLead({ lead }: InfoLeadProps) {
     }
     // eslint-disable-next-line
   }, [lead])
-  
+
   const typeLeadOptions = [
     { label: "Selecciona una opcion", value: "" },
     { label: "Frío", value: "FRIO" },
     { label: "Tibio", value: "TIBIO" },
     { label: "Caliente", value: "CALIENTE" },
+    { label: "Nulo", value: "NULO" },
   ];
 
   const genderOptions = [
