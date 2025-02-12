@@ -11,12 +11,14 @@ import {
   Modal,
   Frame,
   Badge,
-  InlineError
+  InlineError,
+  Tooltip
 } from "@shopify/polaris";
 import { Toast } from "../../components/Toast/toast";
 import { getAllLeadsBySellerIdAndType, deleteLead } from "../../services/leads";
 import { All as Lead } from "../../services/buyer";
 import { useAuthToken } from "../../hooks/useAuthToken";
+import formatFecha from "../../utils/formatDate";
 
 export default function SellerLeads() {
   const navigate = useNavigate();
@@ -68,7 +70,8 @@ export default function SellerLeads() {
     fetchData(table);
   };
 
-  const leadsForIndexTable = selectedData.map((lead) => ({
+  const leadsForIndexTable = selectedData
+  .map((lead) => ({
     id: lead._id,
     names: lead.names,
     email: lead.email,
@@ -77,8 +80,12 @@ export default function SellerLeads() {
     type_lead: lead.type_lead,
     status: lead.status,
     assigned_to: lead.assigned_to,
-    folio: lead.folio
-  }));
+    folio: lead.folio || "Sin folio",
+    nombre_campania_externa: lead.nombre_campania_externa || "",
+    created_at: lead.created_at ? new Date(lead.created_at) : null,
+  }))
+  .filter(lead => lead.created_at !== null)
+  .sort((a, b) => (b.created_at?.getTime() ?? 0) - (a.created_at?.getTime() ?? 0));
 
   const filteredLeads = leadsForIndexTable.filter(
     (lead) =>
@@ -196,7 +203,21 @@ export default function SellerLeads() {
   };
 
   const rowMarkup = paginatedLeads.map(
-    ({ id, names, email, phone_number, city, type_lead, status, folio }, index) => (
+    (
+      {
+        id,
+        names,
+        email,
+        phone_number,
+        city,
+        type_lead,
+        status,
+        folio,
+        nombre_campania_externa,
+        created_at
+      },
+      index
+    ) => (
       <IndexTable.Row
         id={id ?? ""}
         key={id ?? index}
@@ -206,9 +227,16 @@ export default function SellerLeads() {
       >
         <IndexTable.Cell>{names ?? "Desconocido"}</IndexTable.Cell>
         <IndexTable.Cell>{email ?? "No disponible"}</IndexTable.Cell>
+        <IndexTable.Cell>{folio ?? "No disponible"}</IndexTable.Cell>
+        <IndexTable.Cell>{nombre_campania_externa === "" ? <Badge tone="success">CRM</Badge> :
+          <div className="w-16 truncate">
+            <Tooltip content={nombre_campania_externa}>
+              <span className="block w-full truncate">{nombre_campania_externa}</span>
+            </Tooltip>
+          </div>
+        }</IndexTable.Cell>
         <IndexTable.Cell>{phone_number ?? "No disponible"}</IndexTable.Cell>
         <IndexTable.Cell>{city ?? "No disponible"}</IndexTable.Cell>
-        <IndexTable.Cell>{folio ?? "No disponible"}</IndexTable.Cell>
         <IndexTable.Cell>
           {type_lead ? type_lead : "No definido"}
         </IndexTable.Cell>
@@ -217,6 +245,7 @@ export default function SellerLeads() {
             {status ? "Activo" : "Inactivo"}
           </Badge>
         </IndexTable.Cell>
+        <IndexTable.Cell>{formatFecha(created_at)}</IndexTable.Cell>
       </IndexTable.Row>
     )
   );
@@ -330,11 +359,13 @@ export default function SellerLeads() {
                   headings={[
                     { title: "Nombre" },
                     { title: "Correo Electrónico" },
+                    { title: "Folio" },
+                    { title: "Campaña" },
                     { title: "Teléfono" },
                     { title: "Ciudad" },
-                    { title: "Folio" },
                     { title: "Estado" },
                     { title: "Status" },
+                    { title: "Creacion" },
                     ...(userInfo && userInfo.role !== "vendedor"
                       ? [{ title: "Asignación" }]
                       : []),
